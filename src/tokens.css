@@ -1,0 +1,64 @@
+/**
+ * Terras design tokens — CSS custom properties.
+ * Apply `.ui-style-classic` on the root element to switch to the classic (XP) theme.
+ * Source values mirrored from teras-erp/frontend/app/globals.css + xpTheme.tsx.
+ */
+
+:root {
+  --terras-primary: #4f46e5;
+  --terras-primary-dark: #4338ca;
+  --terras-bg: #f3f4f6;
+  --terras-text: #1f2937;
+
+  --terras-radius-chip: 3px;
+
+  --terras-font-mono: "Consolas", "Cascadia Mono", "SFMono-Regular", "Menlo", "Courier New", monospace;
+
+  --terras-shadow-sm: 0 1px 0 rgba(31, 91, 138, 0.10);
+  --terras-shadow-md: 0 2px 6px rgba(31, 91, 138, 0.12);
+
+  /* status families — shared across both themes */
+  --terras-status-gray: #666666;
+  --terras-status-amber: #b8860b;
+  --terras-status-blue: #0058e6;
+  --terras-status-green: #2d7a2d;
+  --terras-status-red: #c00000;
+
+  --terras-chip-gray-bg: #e8e8e8;    --terras-chip-gray-border: #7a7a7a;    --terras-chip-gray-text: #222222;
+  --terras-chip-amber-bg: #fff3cd;   --terras-chip-amber-border: #b8860b;   --terras-chip-amber-text: #5d3800;
+  --terras-chip-blue-bg: #dce4f5;    --terras-chip-blue-border: #3a5faa;    --terras-chip-blue-text: #0d2a6e;
+  --terras-chip-green-bg: #d4edda;   --terras-chip-green-border: #27713a;   --terras-chip-green-text: #0c3a1a;
+  --terras-chip-red-bg: #f8d7da;     --terras-chip-red-border: #a01a1a;     --terras-chip-red-text: #4a0000;
+}
+
+.ui-style-classic {
+  --terras-primary: #1f5b8a;
+  --terras-primary-light: #2f6ea3;
+  --terras-primary-dark: #174a73;
+  --terras-primary-soft: #e1ecf5;
+  --terras-bg: #eef2f7;
+  --terras-surface: #fafcff;
+  --terras-border: #c5d1de;
+  --terras-border-strong: #a9bacb;
+  --terras-row-line: #d2dde8;
+  --terras-stripe: #eef3f8;
+  --terras-text: #1d2733;
+  --terras-text-muted: #5d6e80;
+
+  --terras-radius: 3px;
+  --terras-radius-sm: 2px;
+
+  --terras-font-classic: "Tahoma", "Segoe UI", "Arial", sans-serif;
+
+  /* XP window chrome */
+  --terras-win-bg: #ece9d8;
+  --terras-win-face: #f0f0e8;
+  --terras-win-border-light: #ffffff;
+  --terras-win-border-dark: #808080;
+  --terras-win-blue: #0054e3;
+  --terras-win-text: #000000;
+  --terras-win-highlight: #316ac5;
+  --terras-title-blue: linear-gradient(to right, #0058e6 0%, #08a5ff 100%);
+  --terras-title-blue-border: #003080;
+  --terras-title-flat: #0058e6;
+}

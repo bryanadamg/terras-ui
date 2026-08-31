@@ -1,0 +1,20 @@
+{
+  "name": "terras-design-tokens",
+  "version": "0.1.0",
+  "description": "Shared design tokens (colors, radii, fonts, status chips) for Terras apps — ERP, CRM, SKU",
+  "license": "UNLICENSED",
+  "private": true,
+  "main": "src/index.js",
+  "files": [
+    "src"
+  ],
+  "exports": {
+    ".": "./src/index.js",
+    "./css": "./src/tokens.css",
+    "./tokens.json": "./src/tokens.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bryanadamg/terras-design-tokens.git"
+  }
+}
