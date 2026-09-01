@@ -1,6 +1,8 @@
 /**
  * Terras design tokens — CSS custom properties.
- * Apply `.ui-style-classic` on the root element to switch to the classic (XP) theme.
+ * Apply `.ui-style-classic` on the root element for the classic (XP) theme — this is
+ * the primary brand identity shared across Terras apps.
+ * Apply `.ui-style-blueprint` instead for the alternate drafting-blue theme.
  * Source values mirrored from teras-erp/frontend/app/globals.css + xpTheme.tsx.
  */
 
@@ -13,11 +15,18 @@
   --terras-radius-chip: 3px;
 
   --terras-font-mono: "Consolas", "Cascadia Mono", "SFMono-Regular", "Menlo", "Courier New", monospace;
+  --terras-font-code: 'Courier New', Consolas, monospace;
+  --terras-font-modern: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --terras-font-print: Arial, Helvetica, sans-serif;
+  --terras-font-print-serif: Georgia, serif;
 
-  --terras-shadow-sm: 0 1px 0 rgba(31, 91, 138, 0.10);
-  --terras-shadow-md: 0 2px 6px rgba(31, 91, 138, 0.12);
+  --terras-z-modal-1: 20000;
+  --terras-z-modal-2: 20100;
+  --terras-z-modal-3: 20200;
+  --terras-z-overlay: 99999;
+  --terras-z-tooltip: 100000;
 
-  /* status families — shared across both themes */
+  /* status families — shared across all themes */
   --terras-status-gray: #666666;
   --terras-status-amber: #b8860b;
   --terras-status-blue: #0058e6;
@@ -31,7 +40,37 @@
   --terras-chip-red-bg: #f8d7da;     --terras-chip-red-border: #a01a1a;     --terras-chip-red-text: #4a0000;
 }
 
+/* Classic (XP) — the primary Terras brand identity. */
 .ui-style-classic {
+  --terras-win-bg: #ece9d8;
+  --terras-win-face: #f0f0e8;
+  --terras-win-border-light: #ffffff;
+  --terras-win-border-dark: #808080;
+  --terras-win-blue: #0054e3;
+  --terras-win-text: #000000;
+  --terras-win-highlight: #316ac5;
+  --terras-title-blue: linear-gradient(to right, #0058e6 0%, #08a5ff 100%);
+  --terras-title-blue-border: #003080;
+  --terras-title-flat: #0058e6;
+  --terras-title-blue-inactive: linear-gradient(to right, #7a96b8 0%, #a8bcd4 100%);
+  --terras-title-blue-border-inactive: #6a819b;
+  --terras-title-flat-inactive: #7a96b8;
+
+  --terras-font-classic: "Tahoma", "Segoe UI", "Arial", sans-serif;
+
+  --terras-radius: 8px;
+  --terras-radius-inner: 6px;
+  --terras-radius-section: 6px;
+
+  --terras-sidebar-width: 200px;
+  --terras-sidebar-width-mobile: 260px;
+  --terras-app-header-h: 30px;
+  --terras-content-pad: 10px;
+  --terras-content-pad-mobile: 16px;
+}
+
+/* Blueprint — alternate drafting-blue theme (not the main brand). */
+.ui-style-blueprint {
   --terras-primary: #1f5b8a;
   --terras-primary-light: #2f6ea3;
   --terras-primary-dark: #174a73;
@@ -44,21 +83,14 @@
   --terras-stripe: #eef3f8;
   --terras-text: #1d2733;
   --terras-text-muted: #5d6e80;
+  --terras-grid-line: rgba(31, 91, 138, 0.05);
 
   --terras-radius: 3px;
   --terras-radius-sm: 2px;
 
-  --terras-font-classic: "Tahoma", "Segoe UI", "Arial", sans-serif;
+  --terras-shadow-sm: 0 1px 0 rgba(31, 91, 138, 0.10);
+  --terras-shadow-md: 0 2px 6px rgba(31, 91, 138, 0.12);
 
-  /* XP window chrome */
-  --terras-win-bg: #ece9d8;
-  --terras-win-face: #f0f0e8;
-  --terras-win-border-light: #ffffff;
-  --terras-win-border-dark: #808080;
-  --terras-win-blue: #0054e3;
-  --terras-win-text: #000000;
-  --terras-win-highlight: #316ac5;
-  --terras-title-blue: linear-gradient(to right, #0058e6 0%, #08a5ff 100%);
-  --terras-title-blue-border: #003080;
-  --terras-title-flat: #0058e6;
+  --terras-sidebar-width: 200px;
+  --terras-app-header-h: 56px;
 }

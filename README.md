@@ -2,7 +2,7 @@
 
 Shared design tokens (colors, radii, fonts, status chip colors) and UI components for Terras apps: `teras-erp`, `terras-crm`, `terras-sku`.
 
-Values mirror the classic (XP) theme from `teras-erp/frontend/app/globals.css` and `xpTheme.tsx` — that repo is the source of truth for design decisions; this package is a mirror kept in sync by hand.
+Values mirror `teras-erp/frontend/app/globals.css` and `xpTheme.tsx` — that repo is the source of truth for design decisions; this package is a mirror kept in sync by hand. **Classic (XP) is the primary Terras brand** — the one to build new shared components against. `modern` (plain indigo default) and `blueprint` (drafting-blue alt theme, `.ui-style-modern` in teras-erp) exist for parity with that source repo but are secondary.
 
 Published as a private package on **GitHub Packages** (`npm.pkg.github.com`), scoped `@bryanadamg`.
 
@@ -24,7 +24,7 @@ Tokens live in `src/tokens/`; shared components (table shell, modal wrapper, but
 ```json
 {
   "dependencies": {
-    "@bryanadamg/terras-ui": "^0.1.0"
+    "@bryanadamg/terras-ui": "^0.2.0"
   }
 }
 ```
@@ -42,7 +42,7 @@ import tokens from '@bryanadamg/terras-ui'
 tokens.color.statusFamily.blue.chipBg // '#dce4f5'
 ```
 
-Apply `.ui-style-classic` on the root element to switch from the modern palette to classic.
+Apply `.ui-style-classic` on the root element for the classic (XP) brand palette, or `.ui-style-blueprint` for the alternate drafting-blue theme. Neither applied = plain `modern` indigo default.
 
 ## Publishing (this repo)
 
