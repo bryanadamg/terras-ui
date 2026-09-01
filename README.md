@@ -1,10 +1,12 @@
-# terras-design-tokens
+# terras-ui
 
-Shared design tokens (colors, radii, fonts, status chip colors) for Terras apps: `teras-erp`, `terras-crm`, `terras-sku`.
+Shared design tokens (colors, radii, fonts, status chip colors) and UI components for Terras apps: `teras-erp`, `terras-crm`, `terras-sku`.
 
 Values mirror the classic (XP) theme from `teras-erp/frontend/app/globals.css` and `xpTheme.tsx` — that repo is the source of truth for design decisions; this package is a mirror kept in sync by hand.
 
 Published as a private package on **GitHub Packages** (`npm.pkg.github.com`), scoped `@bryanadamg`.
+
+Tokens live in `src/tokens/`; shared components (table shell, modal wrapper, buttons, badges/chips, etc.) go in `src/components/` as they're extracted from the consuming apps.
 
 ## Usage (consuming app)
 
@@ -22,7 +24,7 @@ Published as a private package on **GitHub Packages** (`npm.pkg.github.com`), sc
 ```json
 {
   "dependencies": {
-    "@bryanadamg/terras-design-tokens": "^0.1.0"
+    "@bryanadamg/terras-ui": "^0.1.0"
   }
 }
 ```
@@ -30,13 +32,13 @@ Published as a private package on **GitHub Packages** (`npm.pkg.github.com`), sc
 4. Import the CSS:
 
 ```ts
-import '@bryanadamg/terras-design-tokens/css'
+import '@bryanadamg/terras-ui/css'
 ```
 
 Or read raw values in JS/TS:
 
 ```ts
-import tokens from '@bryanadamg/terras-design-tokens'
+import tokens from '@bryanadamg/terras-ui'
 tokens.color.statusFamily.blue.chipBg // '#dce4f5'
 ```
 
@@ -44,7 +46,7 @@ Apply `.ui-style-classic` on the root element to switch from the modern palette 
 
 ## Publishing (this repo)
 
-No build step — hand-edit `src/tokens.css` + `src/tokens.json` together, bump `version` in `package.json` (semver), commit, tag, then:
+No build step — hand-edit `src/tokens/tokens.css` + `src/tokens/tokens.json` together, bump `version` in `package.json` (semver), commit, tag, then:
 
 ```bash
 NODE_AUTH_TOKEN=<PAT with write:packages,repo> npm publish
