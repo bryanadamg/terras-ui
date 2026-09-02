@@ -1,0 +1,163 @@
+/**
+ * Terras shared component chrome.
+ *
+ * Companion to tokens.css — import BOTH (`@bryanadamg/terras-ui/css` then
+ * `@bryanadamg/terras-ui/chrome`). tokens.css declares custom properties and
+ * nothing else; this file holds the handful of rules that inline style objects
+ * physically cannot express: :hover / :active / :focus-visible, ::placeholder,
+ * scrollbars, sticky table headers, and the descendant selectors a <table>'s
+ * th/td need. Everything here reads --terras-* vars, so it stays in step with
+ * the tokens rather than re-typing hexes.
+ *
+ * Mirrored from teras-erp/frontend/app/globals.css (BUTTONS / TABS / table
+ * blocks). When a value here conflicts with that repo, that repo wins.
+ */
+
+/* ── Buttons ─────────────────────────────────────────────────────────────────
+   Motion is filter/transform/box-shadow ONLY — never background or border — so
+   it composes with the inline XP gradient face each button paints itself with.
+   An inline background wins over a CSS one, so a color-based hover would
+   silently do nothing. */
+.terras-btn {
+  border-radius: var(--terras-radius-btn, 3px);
+  transition: filter 90ms ease-out, transform 90ms ease-out, box-shadow 90ms ease-out;
+}
+.terras-btn:not(:disabled):hover {
+  /* Lift + shadow, not brightness alone: half the XP faces are already
+     near-white, where a brightness bump is invisible. */
+  filter: brightness(1.06) saturate(1.04);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.16);
+}
+.terras-btn:not(:disabled):active {
+  filter: brightness(0.94);
+  transform: translateY(1px);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.22);
+}
+.terras-btn:focus-visible {
+  outline: 1px dotted currentColor;
+  outline-offset: -3px;
+}
+.terras-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── Tabs ────────────────────────────────────────────────────────────────────
+   Deliberately NOT `.terras-btn`: that hover lifts the control off the surface,
+   which is wrong for a tab seated in its strip with an open bottom seam. A tab
+   wipes an underline in instead; the active tab opts out, since there is
+   nothing to invite a click to. */
+.terras-tab {
+  position: relative;
+  transition: filter 110ms ease-out;
+}
+.terras-tab::after {
+  content: '';
+  position: absolute;
+  left: 5px;
+  right: 5px;
+  bottom: 0;
+  height: 2px;
+  background: currentColor;
+  opacity: 0;
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 130ms ease-out, opacity 130ms ease-out;
+  pointer-events: none;
+}
+.terras-tab:not(.terras-tab-active):hover::after,
+.terras-tab:not(.terras-tab-active):focus-visible::after {
+  opacity: 0.6;
+  transform: scaleX(1);
+}
+.terras-tab:not(.terras-tab-active):hover { filter: brightness(1.06) saturate(1.04); }
+.terras-tab:not(.terras-tab-active):active { filter: brightness(0.95); }
+.terras-tab:focus-visible { outline: 1px dotted currentColor; outline-offset: -3px; }
+
+/* ── Fields ──────────────────────────────────────────────────────────────────
+   Classic focus is a 1px accent ring drawn INSIDE the border (inset shadow), not
+   an outer glow: the field is recessed chrome, and an outer ring pushes the
+   toolbar row apart by 2px on focus. */
+.terras-field::placeholder { color: var(--terras-win-text-3, #666666); }
+.terras-field:focus {
+  outline: none;
+  border-color: var(--terras-win-highlight, #316ac5);
+  box-shadow: inset 0 0 0 1px var(--terras-win-highlight, #316ac5);
+}
+.terras-field:disabled {
+  background: var(--terras-win-bg, #ece9d8);
+  color: var(--terras-win-text-3, #666666);
+  cursor: not-allowed;
+}
+
+/* ── Tables ──────────────────────────────────────────────────────────────────
+   Classic tables are RULED, not striped: every body cell carries a light 1px
+   grid on all four sides, and the header cells are their own raised bevel
+   (white top/left, dark bottom/right over a top-light gradient). Tabular
+   numerals so a column of digits doesn't jitter with each digit's width. */
+.terras-table {
+  border-collapse: collapse;
+  width: 100%;
+  background: var(--terras-table-bg, #ffffff);
+  font-family: var(--terras-font-classic);
+  font-variant-numeric: tabular-nums;
+}
+.terras-table th {
+  background: var(--terras-table-head, linear-gradient(to bottom, #ffffff 0%, #d6d3ce 100%));
+  border: 1px solid var(--terras-table-head-line, #808080);
+  border-top-color: var(--terras-win-border-light, #ffffff);
+  border-left-color: var(--terras-win-border-light, #ffffff);
+  color: var(--terras-win-text, #000000);
+  font-size: 11px;
+  font-weight: bold;
+  text-align: left;
+  text-transform: none;
+  padding: 4px 8px;
+  white-space: nowrap;
+  /* Header stays put while the body scrolls inside the window's overflow box.
+     `top: 0` and not a larger offset — the sticky ancestor is that wrapper, not
+     the page. */
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+.terras-table td {
+  border: 1px solid var(--terras-table-line, #d6d3ce);
+  padding: 4px 8px;
+  font-size: 12px;
+  color: var(--terras-win-text, #000000);
+  white-space: nowrap;
+}
+.terras-table tbody tr:hover > td { background: var(--terras-row-hover, #e8f0fc); }
+.terras-table tbody tr[aria-selected='true'] > td {
+  background: var(--terras-row-selected, #316ac5);
+  color: #ffffff;
+}
+/* Opt-out for a cell that must wrap or own its own padding (a description
+   column, an embedded chip row). */
+.terras-table td.terras-cell-wrap { white-space: normal; }
+.terras-table td.terras-cell-flush { padding: 0; }
+
+/* ── Scrollbars ──────────────────────────────────────────────────────────────
+   Thin, chrome-colored, so a scrolling window body doesn't punch a bright
+   modern scrollbar through the beige. */
+.terras-scroll { scrollbar-width: thin; scrollbar-color: #b0a898 transparent; }
+.terras-scroll::-webkit-scrollbar { width: 12px; height: 12px; }
+.terras-scroll::-webkit-scrollbar-track { background: var(--terras-win-bg, #ece9d8); }
+.terras-scroll::-webkit-scrollbar-thumb {
+  background: var(--terras-win-face-alt, #ece9df);
+  border: 1px solid var(--terras-win-border-dark, #808080);
+  border-radius: 2px;
+}
+.terras-scroll::-webkit-scrollbar-thumb:hover { background: #dcd9cf; }
+
+@media (prefers-reduced-motion: reduce) {
+  .terras-btn,
+  .terras-tab,
+  .terras-tab::after { transition: none; }
+  .terras-btn:not(:disabled):hover,
+  .terras-btn:not(:disabled):active { transform: none; }
+  .terras-tab:not(.terras-tab-active):hover::after,
+  .terras-tab:not(.terras-tab-active):focus-visible::after { transform: none; }
+}

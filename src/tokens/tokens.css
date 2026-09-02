@@ -12,7 +12,13 @@
   --terras-bg: #f3f4f6;
   --terras-text: #1f2937;
 
+  /* Chip + interactive-chrome radii are deliberately theme-independent — one
+     number in every theme (erp's CHIP_RADIUS / BUTTON_RADIUS, xpTheme.tsx). A
+     `classic ? a : b` radius is what produced the drift there in the first
+     place. The radius scale only steps DOWN as you nest:
+     window 8 > section 6 > button/input/chip 3. */
   --terras-radius-chip: 3px;
+  --terras-radius-btn: 3px;
 
   --terras-font-mono: "Consolas", "Cascadia Mono", "SFMono-Regular", "Menlo", "Courier New", monospace;
   --terras-font-code: 'Courier New', Consolas, monospace;
@@ -102,6 +108,65 @@
   --terras-sidebar-hover-color: #ffffff;
   --terras-sidebar-active-bg: #ffffff;
   --terras-sidebar-active-color: #003080;
+  /* Nested nav levels + the section header band (erp Sidebar.tsx SUB_BG /
+     SUB_BG_DEEP / sectionHdrStyle) and the footer strip the ID card sits on. */
+  --terras-sidebar-sub-bg: #bcc9e8;
+  --terras-sidebar-sub-bg-deep: #a8b4cc;
+  --terras-sidebar-section-bg: linear-gradient(to right, #0058e6, #003080);
+  --terras-sidebar-section-bg-hover: linear-gradient(to right, #2a7cff, #0058e6);
+  --terras-sidebar-section-border-top: #7090cc;
+  --terras-sidebar-section-border-bottom: #003080;
+  --terras-sidebar-footer-bg: #c0cade;
+  --terras-sidebar-footer-border: #9098b8;
+
+  /* ── Interactive chrome (erp xpTheme.tsx xpBtn / xpInput / BTN_TONES) ────────
+     The XP button face is a top-light gradient with a two-tone 1px border
+     (light top/left, dark bottom/right) — that bevel is the whole classic
+     button, so it can't be reduced to a single border color. */
+  --terras-btn-face: linear-gradient(to bottom, #ffffff 0%, #d4d0c8 100%);
+  --terras-btn-border-light: #dfdfdf;
+  --terras-btn-border-dark: #808080;
+  --terras-btn-primary-face: linear-gradient(to bottom, #316ac5, #1a4a8a);
+  --terras-btn-primary-border-light: #1a3a7a;
+  --terras-btn-primary-border-dark: #0a1a4a;
+  --terras-btn-success-face: linear-gradient(to bottom, #5ec85e, #2d7a2d);
+  --terras-btn-success-border-light: #1a5e1a;
+  --terras-btn-success-border-dark: #0a3e0a;
+  --terras-btn-danger-face: linear-gradient(to bottom, #c84040, #8e0000);
+  --terras-btn-danger-border-light: #8e0000;
+  --terras-btn-danger-border-dark: #5e0000;
+  /* Sunken field border — a blue-gray, NOT win-border-dark: an input reads as
+     recessed against the beige, a button as raised. */
+  --terras-input-border: #7f9db9;
+  --terras-input-bg: #ffffff;
+  --terras-sep: #a0988c;
+
+  /* ── Window chrome (erp shellTheme.tsx xpBevel / xpTitleBar / xpToolbar) ──── */
+  --terras-bevel-border-light: #dfdfdf;
+  --terras-bevel-border-dark: #808080;
+  --terras-toolbar-bg: linear-gradient(to bottom, #f5f4ef, #e0dfd8);
+  --terras-toolbar-border: #b0a898;
+  --terras-title-red: linear-gradient(to right, #990000 0%, #cc2222 100%);
+  --terras-title-red-border: #550000;
+  --terras-title-amber: linear-gradient(to right, #c07000 0%, #e09830 100%);
+  --terras-title-amber-border: #804000;
+  --terras-title-green: linear-gradient(to right, #1a7a1a 0%, #2ea42e 100%);
+  --terras-title-green-border: #0a4a0a;
+  --terras-title-grey: linear-gradient(to bottom, #6a6a6a, #4a4a4a);
+  --terras-title-grey-border: #222222;
+  /* Solid blue bar heading a form section — flat, not a gradient: erp switched
+     away from the fade because a long title lost contrast by its right edge. */
+  --terras-form-section-blue: #3a6fc4;
+
+  /* ── Table chrome (erp globals.css `.ui-style-classic .table`) ──────────────
+     Header cells are their own raised bevel; body cells get a light 1px grid on
+     all four sides (classic tables are ruled, not row-striped). */
+  --terras-table-head: linear-gradient(to bottom, #ffffff 0%, #d6d3ce 100%);
+  --terras-table-head-line: #808080;
+  --terras-table-line: #d6d3ce;
+  --terras-table-bg: #ffffff;
+  --terras-row-hover: #e8f0fc;
+  --terras-row-selected: #316ac5;
 }
 
 /* Blueprint — alternate drafting-blue theme (not the main brand). */
