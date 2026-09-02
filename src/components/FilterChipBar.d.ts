@@ -1,5 +1,10 @@
 import type { CSSProperties, ReactNode } from 'react';
-import type { FilterChipOption } from './types';
+import type { FilterChipOption, ToggleTone } from './types';
+
+// Re-exported so a consuming app can type its own option/tone maps without
+// reaching past the component path it already imports (`types.d.ts` has no
+// runtime file, so it is not its own export subpath).
+export type { FilterChipOption, ToggleTone };
 
 export interface FilterChipBarProps {
   /** Plain strings, or option objects for a tally / coloured fill / per-value lock. */

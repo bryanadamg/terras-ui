@@ -1,6 +1,8 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
 import type { ChipSeg, ToggleTone } from './types';
 
+export type { ChipSeg, ToggleTone };
+
 export interface ToggleChipProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'onClick'> {
   on: boolean;
   onClick: () => void;
