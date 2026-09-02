@@ -178,26 +178,43 @@
    each column and writes the `left` offset onto the cells; everything that is
    the same for all of them lives here.
 
-   The background is not decoration: a sticky cell that stays transparent lets
-   the scrolling columns slide visibly underneath it. Row hover and selection
-   still win on specificity, so a frozen cell keeps taking its row's colour.
-
    z-index 3 on the header, above the sticky header row's own 2, so the corner
    cell where the two freezes meet stays on top of both. */
 .terras-table td.terras-sticky-col,
 .terras-table th.terras-sticky-col {
   position: sticky;
   z-index: 1;
-  background: var(--terras-table-bg, #ffffff);
 }
 .terras-table th.terras-sticky-col { z-index: 3; }
-/* The freeze boundary, drawn as a shadow rather than a border: with
-   `border-collapse: collapse` a cell's borders belong to the table, and the
-   ones along a sticky edge are unreliable once it starts overlapping. This is
-   painted by the cell itself, so the seam is always visible. */
-.terras-table td.terras-sticky-col-last,
-.terras-table th.terras-sticky-col-last {
-  box-shadow: 1px 0 0 var(--terras-table-head-line, #808080);
+/* An opaque face is not decoration: a sticky cell that stays transparent lets
+   the scrolling columns slide visibly underneath it. Row hover and selection
+   still win on specificity, so a frozen cell keeps taking its row's colour.
+
+   BODY cells only. A `th` already has an opaque face — the header gradient
+   from the rule above — and repainting the frozen ones in the body's flat
+   white is what made the header read as two tables joined at the freeze. */
+.terras-table td.terras-sticky-col { background: var(--terras-table-bg, #ffffff); }
+/* The freeze boundary, drawn as a strip the cell paints inside itself.
+   Neither of the obvious spellings survives here: with `border-collapse:
+   collapse` the border along the freeze edge is shared with a neighbour that
+   has scrolled out from under the frozen cell, so it is painted where that
+   neighbour now is rather than at the seam — and WebKit/Blink drop
+   `box-shadow` on a collapsed-border cell outright, which left the edge with
+   no line at all. An `::after` travels with the pinned cell and sits above the
+   columns sliding under it, so the seam is always visible.
+
+   `right: -1px` lands the strip on the collapsed border pixel itself, so the
+   boundary reads as one dark rule and not as a dark line beside a light one. */
+.terras-table td.terras-sticky-col-last::after,
+.terras-table th.terras-sticky-col-last::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: -1px;
+  bottom: 0;
+  width: 1px;
+  background: var(--terras-table-head-line, #808080);
+  pointer-events: none;
 }
 
 /* ── Scrollbars ──────────────────────────────────────────────────────────────
