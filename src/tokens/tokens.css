@@ -44,11 +44,29 @@
 .ui-style-classic {
   --terras-win-bg: #ece9d8;
   --terras-win-face: #f0f0e8;
+  /* Flat toolbar/header strip tone (erp's xpToolbar gradient #f5f4ef→#e0dfd8,
+     averaged) — distinct from both win-bg (outer bevel) and win-face (content),
+     used for header rows / secondary panel surfaces. */
+  --terras-win-face-alt: #ece9df;
   --terras-win-border-light: #ffffff;
   --terras-win-border-dark: #808080;
+  /* Raised-bevel light edge (erp's xpBevel/xpBtn/ModalFooterActions cancel button
+     all use this off-white, not pure white, for the top/left bevel edge). */
+  --terras-win-border-raised-light: #dfdfdf;
+  /* Softer alt border (erp's FormSection box) — for nested/secondary panel
+     dividers where the hard win-border-dark reads too heavy. */
+  --terras-win-border-soft: #c0bdb5;
   --terras-win-blue: #0054e3;
   --terras-win-text: #000000;
+  /* Text hierarchy tiers actually used across erp's classic views — ToolbarCount's
+     dimmer label (#333) and the tier-2/neutral gray shared with STATUS_FAMILY's
+     gray family (#666) — not just one flat border-dark for every muted label. */
+  --terras-win-text-2: #333333;
+  --terras-win-text-3: #666666;
   --terras-win-highlight: #316ac5;
+  /* Pale wash of the highlight blue, for hover/selected surfaces — same hue as
+     STATUS_FAMILY's blue tint (#dce4f5), reused rather than inventing a new blue. */
+  --terras-win-highlight-tint: #dce4f5;
   --terras-title-blue: linear-gradient(to right, #0058e6 0%, #08a5ff 100%);
   --terras-title-blue-border: #003080;
   --terras-title-flat: #0058e6;
@@ -61,6 +79,12 @@
   --terras-radius: 8px;
   --terras-radius-inner: 6px;
   --terras-radius-section: 6px;
+
+  /* Outer window bevel shadow (erp's xpBevel) and the floating-popout shadow
+     (CodeChip/Chip hover popouts, tooltips) — real classic reads via a hard
+     drop shadow, not the soft blurred one a Tailwind default would give. */
+  --terras-shadow-panel: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  --terras-shadow-pop: 0 2px 8px rgba(0, 0, 0, 0.22);
 
   --terras-sidebar-width: 200px;
   --terras-sidebar-width-mobile: 260px;
