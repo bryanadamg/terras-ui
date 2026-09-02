@@ -26,12 +26,28 @@ const STICKY_LAST = 'terras-sticky-col-last';
 /**
  * Pin the first `count` columns of every row at their measured x-offsets.
  *
- * `position: sticky` needs a `left` per column, and a column's left is the sum
- * of the widths before it — arithmetic CSS cannot do and a caller should not
- * have to. Declaring fixed widths for the frozen columns would let this be
- * pure CSS, but a catalogue's code and name columns are content-sized, so the
- * widths are only knowable after layout. Hence: measure, then write `left`
- * onto the cells.
+ * `position: sticky` needs a `left` per column, and a column's left is where
+ * that column already sits in the laid-out table — something CSS cannot state
+ * and a caller should not have to. Declaring fixed widths for the frozen
+ * columns would let this be pure CSS, but a catalogue's code and name columns
+ * are content-sized, so the widths are only knowable after layout. Hence:
+ * measure, then write `left` onto the cells.
+ *
+ * Each cell is measured against the table's own left edge rather than by
+ * accumulating the widths before it. Summing is the intuitive spelling and it
+ * is wrong here: under `border-collapse: collapse` a cell's border box takes in
+ * the border it SHARES with its neighbour, so adjacent cells overlap by a
+ * border and a running total gains one per boundary — which pushed each
+ * further column right of where it belongs and opened a hollow strip between
+ * the frozen columns, with the scrolling ones visible through it. Reading the
+ * offset the browser already computed cannot drift, however the shared borders
+ * are apportioned.
+ *
+ * Measurement needs the cells UNPINNED (`unpinCells` first, which every caller
+ * here does): a cell already carrying a `left` is displaced by it, so its own
+ * offset would be read back through the last pin instead of from the layout.
+ * Hence also the two passes — every read finishes before the first write, so
+ * no cell is measured after a sibling has moved.
  *
  * The cells belong to the caller's markup, so this touches the DOM directly
  * rather than cloning elements. Safe in practice because `left` and these two
@@ -45,25 +61,31 @@ const STICKY_LAST = 'terras-sticky-col-last';
  * beneath it do not.
  */
 function pinLeadingCells(table, count) {
+    const origin = table.getBoundingClientRect().left;
     const rows = table.querySelectorAll('tr');
+    const pins = [];
     for (let r = 0; r < rows.length; r++) {
         const cells = rows[r].children;
-        let left = 0;
         let column = 0;
         for (let c = 0; c < cells.length && column < count; c++) {
             const cell = cells[c];
             const span = cell.colSpan || 1;
             if (column + span > count) break;
-            cell.classList.add(STICKY);
-            if (column + span === count) cell.classList.add(STICKY_LAST);
-            cell.style.left = left + 'px';
-            // offsetWidth rounds to whole pixels; accumulating the rounded
-            // values is what keeps a column's left flush with the previous
-            // column's painted right edge instead of drifting a subpixel per
-            // column into a hairline gap.
-            left += cell.offsetWidth;
+            // Fractional, not rounded: the frozen block then reproduces the
+            // table's own geometry exactly, seams included.
+            pins.push({
+                cell: cell,
+                left: cell.getBoundingClientRect().left - origin,
+                last: column + span === count,
+            });
             column += span;
         }
+    }
+    for (let i = 0; i < pins.length; i++) {
+        const pin = pins[i];
+        pin.cell.classList.add(STICKY);
+        if (pin.last) pin.cell.classList.add(STICKY_LAST);
+        pin.cell.style.left = pin.left + 'px';
     }
 }
 
