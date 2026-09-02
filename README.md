@@ -8,6 +8,22 @@ Published as a private package on **GitHub Packages** (`npm.pkg.github.com`), sc
 
 Tokens live in `src/tokens/`; shared components (table shell, modal wrapper, buttons, badges/chips, etc.) go in `src/components/` as they're extracted from the consuming apps.
 
+### Components
+
+Plain `React.createElement` (no JSX) so no build step is required to consume them — `react` is a peerDependency, not bundled.
+
+```jsx
+import Sidebar from '@bryanadamg/terras-ui/components/Sidebar'
+
+<Sidebar
+  appName="Terras SKU"
+  items={NAV_ITEMS.map(i => ({ key: i.to, label: i.label, icon: <i.icon size={16} />, active: pathname === i.to, onClick: () => navigate(i.to) }))}
+  footer={<UserFooter />}
+/>
+```
+
+`Sidebar` only owns layout + the classic-theme palette (`--terras-sidebar-*` tokens) — routing/active-match stays with the consuming app (works the same under Next.js or react-router).
+
 ## Usage (consuming app)
 
 1. Add a scoped registry mapping + auth token in the consuming app's `.npmrc` (repo root, next to its `package.json` — commit this file, it has no secret in it):

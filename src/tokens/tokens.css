@@ -91,6 +91,17 @@
   --terras-app-header-h: 30px;
   --terras-content-pad: 10px;
   --terras-content-pad-mobile: 16px;
+
+  /* Sidebar nav palette (erp's Sidebar.tsx SIDEBAR_BG/HOVER_BG/ACTIVE_*) — a
+     separate light-indigo family, not derived from win-bg/win-highlight. Kept
+     as its own token group rather than folded into the bevel tokens above. */
+  --terras-sidebar-bg: #d6dff7;
+  --terras-sidebar-border: #718bb7;
+  --terras-sidebar-item-border: #c0ccee;
+  --terras-sidebar-hover-bg: #0058e6;
+  --terras-sidebar-hover-color: #ffffff;
+  --terras-sidebar-active-bg: #ffffff;
+  --terras-sidebar-active-color: #003080;
 }
 
 /* Blueprint — alternate drafting-blue theme (not the main brand). */
