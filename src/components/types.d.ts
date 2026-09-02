@@ -36,6 +36,34 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
 
 export type ChipFamily = 'gray' | 'amber' | 'blue' | 'green' | 'red';
 
+/** Selected-fill colour for a ToggleChip. Four tones, no grey — this says
+ *  "pressed", not "what state is this row in" (that is `ChipFamily`). */
+export type ToggleTone = 'blue' | 'green' | 'red' | 'amber';
+
+/** Position inside a segmented (flush) group. */
+export type ChipSeg = 'first' | 'mid' | 'last' | 'only';
+
+export interface FilterChipOption {
+  value: string;
+  /** Defaults to `value`. */
+  label?: ReactNode;
+  /** Renders a tally after the label — "PENDING (4)". */
+  count?: number;
+  /** Selected fill when the value carries its own semantics (In=green, Out=red). */
+  tone?: ToggleTone;
+  title?: string;
+  /** Locks just this segment — distinct from the bar-level `disabled`. */
+  disabled?: boolean;
+}
+
+export interface SegmentedAction {
+  key: string;
+  label: ReactNode;
+  onClick: () => void;
+  title?: string;
+  disabled?: boolean;
+}
+
 export type WindowFill = 'page' | 'flex' | false;
 
 export type Style = CSSProperties;

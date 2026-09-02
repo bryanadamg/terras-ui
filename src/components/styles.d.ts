@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react';
-import type { ShellTone } from './types';
+import type { ChipSeg, ShellTone, ToggleTone } from './types';
 
 /** `cssVar('win-bg', '#ece9d8')` → `"var(--terras-win-bg, #ece9d8)"`. */
 export declare function cssVar(name: string, fallback?: string): string;
@@ -27,3 +27,24 @@ export declare function field(extra?: CSSProperties): CSSProperties;
 
 export declare function button(extra?: CSSProperties): CSSProperties;
 export declare const BTN_TONES: Record<'default' | 'primary' | 'success' | 'danger', CSSProperties>;
+
+export interface ToggleChipFace {
+  on?: boolean;
+  tone?: ToggleTone;
+  seg?: ChipSeg;
+  flat?: boolean;
+  toneIdle?: boolean;
+  minWidth?: number;
+}
+
+/**
+ * Pressed/unpressed chip face. Pair it with the `terras-toggle` class (plus
+ * `terras-toggle-on` / `terras-toggle-flat`) so chrome.css can carry the
+ * hover/press motion and the segment z-index.
+ */
+export declare function toggleChip(extra: CSSProperties | undefined, opts?: ToggleChipFace): CSSProperties;
+/** Tone → its hover-glow colour, used as the fallback when tokens.css is absent. */
+export declare const TOGGLE_TONES: Record<ToggleTone, string>;
+
+/** Segment position for the i-th of `len` members of a flush group. */
+export declare function segAt(i: number, len: number): ChipSeg;

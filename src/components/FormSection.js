@@ -14,8 +14,15 @@ const React = require('react');
 const S = require('./styles');
 
 /**
- * @param {{ title: React.ReactNode, right?: React.ReactNode,
+ * @param {{ title: React.ReactNode, icon?: React.ReactNode, right?: React.ReactNode,
  *           style?: object, bodyStyle?: object, children: React.ReactNode }} props
+ *
+ * `icon` is a node, not an icon-font class name — the package carries no icon
+ * set, so the app passes whatever it already uses (`<i className="bi bi-gear"/>`,
+ * an inline SVG, an emoji). It exists so the header's flex row is declared once
+ * here instead of every call site rebuilding it inside `title` (erp needed a
+ * separate `SectionTitle` component for exactly that, because its FormSection
+ * took only a bare title).
  */
 function FormSection(props) {
     return React.createElement(
@@ -48,8 +55,33 @@ function FormSection(props) {
                     gap: 6,
                 },
             },
-            React.createElement('span', null, props.title),
-            props.right || null,
+            React.createElement(
+                'span',
+                { style: { display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 } },
+                props.icon || null,
+                props.title,
+            ),
+            // Normal weight / no letter-spacing: the header's uppercase tracking is
+            // for the label, and a button or count inheriting it reads as a second
+            // title competing with the first.
+            props.right
+                ? React.createElement(
+                    'span',
+                    {
+                        style: {
+                            marginLeft: 'auto',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 6,
+                            flexShrink: 0,
+                            fontWeight: 'normal',
+                            letterSpacing: 0,
+                            textTransform: 'none',
+                        },
+                    },
+                    props.right,
+                )
+                : null,
         ),
         React.createElement(
             'div',

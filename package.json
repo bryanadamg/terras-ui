@@ -1,6 +1,6 @@
 {
   "name": "@bryanadamg/terras-ui",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "Shared design tokens + UI components for Terras apps — ERP, CRM, SKU",
   "license": "UNLICENSED",
   "private": false,
@@ -23,11 +23,14 @@
     "./components/Button": { "types": "./src/components/Button.d.ts", "default": "./src/components/Button.js" },
     "./components/Chip": { "types": "./src/components/Chip.d.ts", "default": "./src/components/Chip.js" },
     "./components/Field": { "types": "./src/components/Field.d.ts", "default": "./src/components/Field.js" },
+    "./components/FilterChipBar": { "types": "./src/components/FilterChipBar.d.ts", "default": "./src/components/FilterChipBar.js" },
     "./components/FormSection": { "types": "./src/components/FormSection.d.ts", "default": "./src/components/FormSection.js" },
     "./components/Modal": { "types": "./src/components/Modal.d.ts", "default": "./src/components/Modal.js" },
+    "./components/SegmentedBar": { "types": "./src/components/SegmentedBar.d.ts", "default": "./src/components/SegmentedBar.js" },
     "./components/Sidebar": { "types": "./src/components/Sidebar.d.ts", "default": "./src/components/Sidebar.js" },
     "./components/Table": { "types": "./src/components/Table.d.ts", "default": "./src/components/Table.js" },
     "./components/Tabs": { "types": "./src/components/Tabs.d.ts", "default": "./src/components/Tabs.js" },
+    "./components/ToggleChip": { "types": "./src/components/ToggleChip.d.ts", "default": "./src/components/ToggleChip.js" },
     "./components/Window": { "types": "./src/components/Window.d.ts", "default": "./src/components/Window.js" }
   },
   "peerDependencies": {

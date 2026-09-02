@@ -75,6 +75,41 @@
 .terras-tab:not(.terras-tab-active):active { filter: brightness(0.95); }
 .terras-tab:focus-visible { outline: 1px dotted currentColor; outline-offset: -3px; }
 
+/* ── Toggle chips ────────────────────────────────────────────────────────────
+   The pressed/unpressed chip (filter bars, segmented pickers). Like `.terras-btn`
+   the motion is filter/shadow/transform only — the face is an inline gradient
+   that varies with tone and on-state, and an inline background beats a CSS one.
+
+   z-index lives here rather than inline: segment members overlap by 1px (see
+   `toggleChip` in styles.js) and the hovered one has to come up over its
+   neighbour, which an inline value would block this rule from doing. */
+.terras-toggle {
+  position: relative;
+  z-index: 0;
+  transition: filter 120ms ease, box-shadow 120ms ease, transform 120ms ease, color 120ms ease;
+}
+.terras-toggle-on { z-index: 1; }
+.terras-toggle:not(:disabled):hover { z-index: 2; }
+.terras-toggle:not(:disabled):active { filter: brightness(0.94); }
+.terras-toggle:disabled { opacity: 0.5; cursor: default; }
+.terras-toggle:focus-visible { outline: 1px dotted currentColor; outline-offset: -3px; }
+
+/* Idle chip: an outer glow, NOT a lift — flush segment members share a border
+   line and must not shift apart from their neighbours on hover. `--terras-toggle-glow`
+   is set inline by the component from its tone. */
+.terras-toggle:not(:disabled):not(.terras-toggle-on):not(.terras-toggle-flat):hover {
+  filter: brightness(1.06);
+  box-shadow: 0 1px 4px var(--terras-toggle-glow, rgba(0, 64, 180, 0.28));
+}
+/* Selected chips are already filled, so hover brightens the fill instead —
+   same feedback, tone-agnostic. */
+.terras-toggle.terras-toggle-on:not(:disabled):hover { filter: brightness(1.18); }
+
+/* Flat variant reads as a data control, not a strip of buttons: it lifts on
+   hover and settles back on press rather than glowing. */
+.terras-toggle-flat:not(:disabled):hover { filter: brightness(1.08); transform: translateY(-1px); }
+.terras-toggle-flat:not(:disabled):active { filter: brightness(0.96); transform: translateY(0); }
+
 /* ── Fields ──────────────────────────────────────────────────────────────────
    Classic focus is a 1px accent ring drawn INSIDE the border (inset shadow), not
    an outer glow: the field is recessed chrome, and an outer ring pushes the
@@ -155,9 +190,12 @@
 @media (prefers-reduced-motion: reduce) {
   .terras-btn,
   .terras-tab,
+  .terras-toggle,
   .terras-tab::after { transition: none; }
   .terras-btn:not(:disabled):hover,
   .terras-btn:not(:disabled):active { transform: none; }
   .terras-tab:not(.terras-tab-active):hover::after,
   .terras-tab:not(.terras-tab-active):focus-visible::after { transform: none; }
+  .terras-toggle-flat:not(:disabled):hover,
+  .terras-toggle-flat:not(:disabled):active { transform: none; }
 }

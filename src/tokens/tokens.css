@@ -141,6 +141,45 @@
   --terras-input-bg: #ffffff;
   --terras-sep: #a0988c;
 
+  /* ── Toggle chip (erp xpTheme.tsx CHIP_TONES / ToggleChip) ───────────────────
+     The pressed/unpressed chip: filter bars, segmented pickers, weekday rows.
+     Its OFF face is the plain button face above (`--terras-btn-*`) — reused, not
+     re-declared, because an unselected chip IS a button. Only the ON fill and the
+     optional toned-idle face are its own.
+
+     These fills are NOT the status-chip families: a status chip is a tinted pill
+     that reports state, this is a solid fill that says "pressed". Only blue
+     coincides (#0058e6). Four tones, matching the title-bar set minus grey —
+     a fifth means the states aren't distinct. */
+  --terras-toggle-flat-bg: #eceae0;
+  --terras-toggle-blue-bg: #0058e6;    --terras-toggle-blue-border: #003080;
+  --terras-toggle-green-bg: #1a7a1a;   --terras-toggle-green-border: #0a4a0a;
+  --terras-toggle-red-bg: #a52020;     --terras-toggle-red-border: #5e0000;
+  --terras-toggle-amber-bg: #c07000;   --terras-toggle-amber-border: #804000;
+  /* Toned idle face — for a standalone toggle whose label alone doesn't say what
+     it does ("Running only"). Never in a filter row: a row of tinted idle chips
+     reads as several selections at once. */
+  --terras-toggle-blue-idle-bg: linear-gradient(to bottom, #ffffff, #d6e6fb);
+  --terras-toggle-blue-idle-border: #7f9db9;
+  --terras-toggle-blue-idle-text: #00006e;
+  --terras-toggle-green-idle-bg: linear-gradient(to bottom, #ffffff, #d7ecd7);
+  --terras-toggle-green-idle-border: #7aa87a;
+  --terras-toggle-green-idle-text: #0a4a0a;
+  --terras-toggle-red-idle-bg: linear-gradient(to bottom, #ffffff, #f5d8d8);
+  --terras-toggle-red-idle-border: #c08a8a;
+  --terras-toggle-red-idle-text: #5e0000;
+  --terras-toggle-amber-idle-bg: linear-gradient(to bottom, #ffffff, #f7e6c8);
+  --terras-toggle-amber-idle-border: #c0a070;
+  --terras-toggle-amber-idle-text: #804000;
+  /* Hover glow, per tone. Read by `.terras-toggle:hover` in chrome.css off an
+     inline `--terras-toggle-glow` the component sets from its tone — an outer
+     glow, not the inset ring an earlier erp version drew, which read as two
+     nested frames instead of one control lighting up. */
+  --terras-toggle-glow-blue: rgba(0, 64, 180, 0.28);
+  --terras-toggle-glow-green: rgba(26, 122, 26, 0.30);
+  --terras-toggle-glow-red: rgba(165, 32, 32, 0.28);
+  --terras-toggle-glow-amber: rgba(192, 112, 0, 0.28);
+
   /* ── Window chrome (erp shellTheme.tsx xpBevel / xpTitleBar / xpToolbar) ──── */
   --terras-bevel-border-light: #dfdfdf;
   --terras-bevel-border-dark: #808080;

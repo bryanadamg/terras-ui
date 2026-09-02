@@ -151,6 +151,81 @@ const button = (extra) => Object.assign({
     whiteSpace: 'nowrap',
 }, raised(v('btn-border-light', '#dfdfdf'), v('btn-border-dark', '#808080')), extra);
 
+// ── Toggle chip ─────────────────────────────────────────────────────────────
+// The pressed/unpressed chip face (erp `ToggleChip` / `CHIP_TONES`): filter
+// bars, segmented pickers, weekday rows. Its OFF state is deliberately the plain
+// `button()` face — an unselected chip IS a button, so it reuses those tokens
+// rather than declaring a second grey.
+//
+// Four tones, no grey: this is "pressed", not "what state is this row in". Don't
+// confuse it with `Chip`'s five status families — those are tinted pills that
+// report state and never take a click.
+// Value is the tone's hover-glow fallback, used only if tokens.css is missing —
+// a shared fallback would make every tone glow blue in that case, which is worse
+// than no glow because it reads as the wrong tone rather than as a missing one.
+const TOGGLE_TONES = {
+    blue: 'rgba(0, 64, 180, 0.28)',
+    green: 'rgba(26, 122, 26, 0.30)',
+    red: 'rgba(165, 32, 32, 0.28)',
+    amber: 'rgba(192, 112, 0, 0.28)',
+};
+
+/** Segment position for the i-th of `len` members of a flush group. */
+const segAt = (i, len) => (len === 1 ? 'only' : i === 0 ? 'first' : i === len - 1 ? 'last' : 'mid');
+
+// Hover/press live in `.terras-toggle` (chrome.css), not in React state the way
+// erp's version tracks them — the package has a stylesheet to hang :hover on, so
+// it doesn't need to re-render on mouseenter at 28 call sites.
+//
+// One deliberate difference from erp: its neutral idle chip tints BLUE on hover
+// (grey gradient → #d6e6fb). A CSS-only hover can't do that here, because the
+// face is painted inline and an inline background always beats a stylesheet one.
+// The glow + brightness erp already draws alongside that tint carries the state
+// on its own, so the tint is dropped rather than re-introducing JS hover state.
+// The per-tone glow colour rides along as an inline `--terras-toggle-glow`,
+// which chrome.css reads (it never assigns it, so there's no inline-vs-CSS race).
+const toggleChip = (extra, opts) => {
+    const o = opts || {};
+    const tone = TOGGLE_TONES[o.tone] ? o.tone : 'blue';
+    const bevelEdge = v('btn-border-light', '#dfdfdf') + ' ' + v('btn-border-dark', '#808080') + ' ' +
+                      v('btn-border-dark', '#808080') + ' ' + v('btn-border-light', '#dfdfdf');
+    // `toneIdle` is ignored under `flat` — a flat chip's whole point is a neutral
+    // data-control face, so tinting it would undo the variant.
+    const toned = o.toneIdle && !o.flat;
+
+    return Object.assign({
+        fontFamily: font,
+        fontSize: 11,
+        fontWeight: o.on ? 'bold' : 'normal',
+        minWidth: o.minWidth,
+        padding: '2px 9px',
+        borderRadius: v('radius-chip', '3px'),
+        cursor: 'pointer',
+        border: '1px solid',
+        borderColor: o.on ? v('toggle-' + tone + '-border')
+            : toned ? v('toggle-' + tone + '-idle-border')
+            : bevelEdge,
+        background: o.on ? v('toggle-' + tone + '-bg')
+            : o.flat ? v('toggle-flat-bg', '#eceae0')
+            : toned ? v('toggle-' + tone + '-idle-bg')
+            : v('btn-face', 'linear-gradient(to bottom, #ffffff 0%, #d4d0c8 100%)'),
+        color: o.on ? '#ffffff'
+            : toned ? v('toggle-' + tone + '-idle-text')
+            : v('win-text', '#000000'),
+        '--terras-toggle-glow': v('toggle-glow-' + tone, TOGGLE_TONES[tone]),
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        whiteSpace: 'nowrap',
+        // Segment members share one border line, so each one after the first
+        // pulls back over its neighbour's edge. Which of the collapsed pair wins
+        // is a z-index question, and that lives in chrome.css so `:hover` can
+        // raise the hovered segment without fighting an inline value.
+        position: o.seg ? 'relative' : undefined,
+        marginLeft: o.seg && o.seg !== 'first' && o.seg !== 'only' ? -1 : undefined,
+    }, extra);
+};
+
 module.exports = {
     cssVar: v,
     font: font,
@@ -165,4 +240,7 @@ module.exports = {
     field: field,
     button: button,
     BTN_TONES: BTN_TONES,
+    toggleChip: toggleChip,
+    TOGGLE_TONES: TOGGLE_TONES,
+    segAt: segAt,
 };

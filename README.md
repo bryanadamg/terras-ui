@@ -24,7 +24,16 @@ Plain `React.createElement` (no JSX) so no build step is required to consume the
 | `components/Button` | Raised bevel button, tones `default` / `primary` / `success` / `danger` |
 | `components/Field` | `Input`, `Select`, `Label`, `SearchField` — recessed field chrome |
 | `components/Chip` | Status chip over the five shared status families |
-| `styles` | The style primitives the above are built from (`bevel`, `panel`, `titleBar`, `toolbar`, `field`, `button`, `cssVar`) — for a one-off surface that has no component yet |
+| `components/ToggleChip` | Pressed/unpressed chip, tones `blue` / `green` / `red` / `amber` |
+| `components/FilterChipBar` | Segmented "pick one (or many) of these" filter row |
+| `components/SegmentedBar` | Its stateless sibling — a flush group of plain actions |
+| `styles` | The style primitives the above are built from (`bevel`, `panel`, `titleBar`, `toolbar`, `field`, `button`, `toggleChip`, `cssVar`) — for a one-off surface that has no component yet |
+
+`Chip` and `ToggleChip` are different jobs and keep different faces on purpose: a
+`Chip` is a tinted pill that **reports** state over the five status families and
+never takes a click; a `ToggleChip` is a control that says **pressed**, over four
+tones. Reach for `FilterChipBar` / `SegmentedBar` rather than a hand-spaced row of
+`ToggleChip` — they own the flush segment geometry.
 
 A page assembled from them:
 
@@ -59,7 +68,7 @@ import Window from '@bryanadamg/terras-ui/components/Window'
 ```json
 {
   "dependencies": {
-    "@bryanadamg/terras-ui": "^0.5.0"
+    "@bryanadamg/terras-ui": "^0.7.0"
   }
 }
 ```
