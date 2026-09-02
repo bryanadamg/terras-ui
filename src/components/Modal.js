@@ -10,8 +10,9 @@
 // XP chrome looks like.
 //
 // Not a portal: it renders where it is mounted and relies on the modal z-index
-// tokens instead. Consuming apps mount dialogs at page level, and a portal would
-// drag react-dom into a package that currently peer-depends on react alone.
+// tokens instead. Consuming apps mount dialogs at page level, so it buys
+// nothing here. (`Combobox` does portal — a popup has to escape this dialog's
+// scrolling body — which is why react-dom is a peer dependency now.)
 //
 // `modeless` is the second mode (erp's ModalWrapper prop of the same name): no
 // backdrop, the page behind stays interactive, and the panel is dragged by its

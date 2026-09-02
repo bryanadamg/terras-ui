@@ -23,11 +23,18 @@ Plain `React.createElement` (no JSX) so no build step is required to consume the
 | `components/Tabs` | Tab strip seated in the pane below it — renders the row only |
 | `components/Button` | Raised bevel button, tones `default` / `primary` / `success` / `danger` |
 | `components/Field` | `Input`, `Select`, `Label`, `SearchField` — recessed field chrome |
+| `components/Combobox` | Type-to-search single select — trigger with a ▼ well, portaled popup with its own search box |
 | `components/Chip` | Status chip over the five shared status families |
 | `components/ToggleChip` | Pressed/unpressed chip, tones `blue` / `green` / `red` / `amber` |
 | `components/FilterChipBar` | Segmented "pick one (or many) of these" filter row |
 | `components/SegmentedBar` | Its stateless sibling — a flush group of plain actions |
 | `styles` | The style primitives the above are built from (`bevel`, `panel`, `titleBar`, `toolbar`, `field`, `button`, `toggleChip`, `cssVar`, `font`, `fs`, `trackingCaps`) — for a one-off surface that has no component yet |
+
+Reach for `Combobox` over a `Select` once a list runs past a hundred or so
+options: a native select cannot be typed into, and a native `<datalist>` paints
+the browser's own suggestion list rather than classic chrome. Its popup is
+portaled to `document.body`, which is what lets it escape a `Modal` body's
+`overflow: auto` and stay glued to a modeless panel while it is dragged.
 
 `Chip` and `ToggleChip` are different jobs and keep different faces on purpose: a
 `Chip` is a tinted pill that **reports** state over the five status families and
