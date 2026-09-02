@@ -158,6 +158,23 @@
      away from the fade because a long title lost contrast by its right edge. */
   --terras-form-section-blue: #3a6fc4;
 
+  /* ── Tab strip (erp components/shared/Tabs.tsx) ─────────────────────────────
+     Tabs belong to the PANE below them, so all three faces come from the pane's
+     tan and read as depth: strip (darkest) < inactive tab < active tab, where
+     the active tab is literally `--terras-win-bg` — it is the pane surfacing
+     through the strip. The strip was once the sidebar's blue (#d6dff7), which
+     looked deliberate only under blue window chrome and read as a stray stripe
+     over a tan panel (and as a third unrelated colour over a status-toned
+     window). `--terras-tab-edge` is the one edge colour: the rule under the
+     inactive tabs that the active tab breaks through into the pane. Tan-grey to
+     match the panel borders around it — a blue edge here makes the strip look
+     like chrome that wandered down from the title bar. */
+  --terras-tab-edge: #a8a290;
+  --terras-tab-strip-bg: linear-gradient(to bottom, #dcd9cd, #cdcabe);
+  --terras-tab-face: linear-gradient(to bottom, #e8e6db, #d0cec4);
+  --terras-tab-border-light: #c0bdb5;
+  --terras-tab-text: #444444;
+
   /* ── Table chrome (erp globals.css `.ui-style-classic .table`) ──────────────
      Header cells are their own raised bevel; body cells get a light 1px grid on
      all four sides (classic tables are ruled, not row-striped). */

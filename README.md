@@ -20,6 +20,7 @@ Plain `React.createElement` (no JSX) so no build step is required to consume the
 | `components/Modal` | Same chrome one layer up: backdrop, title bar with close box, footer actions |
 | `components/FormSection` | Field group under a solid blue header bar |
 | `components/Table` | Ruled classic table (`.EmptyRow` for the empty/loading state) |
+| `components/Tabs` | Tab strip seated in the pane below it — renders the row only |
 | `components/Button` | Raised bevel button, tones `default` / `primary` / `success` / `danger` |
 | `components/Field` | `Input`, `Select`, `Label`, `SearchField` — recessed field chrome |
 | `components/Chip` | Status chip over the five shared status families |
