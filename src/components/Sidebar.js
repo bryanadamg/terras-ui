@@ -7,6 +7,13 @@
 // (next/navigation) and react-router (useNavigate) without either being a
 // dependency of this package.
 //
+// Collapsing follows the same split: this file owns what the icon rail LOOKS
+// like, the app owns whether it is collapsed. `collapsed` is a controlled prop
+// exactly like an item's `active` — persisting the choice, a keyboard shortcut
+// and any responsive auto-collapse belong to the app. That is not only
+// consistency: erp is Next.js, and seeding the initial state from localStorage
+// during render is a hydration mismatch each app has to solve its own way.
+//
 // Written as plain React.createElement (no JSX) so no build step is needed to
 // consume it — matches this repo's "no build step, hand-edited source" model.
 // React is a peerDependency; this file never bundles or requires a specific version.
@@ -14,8 +21,11 @@
 const React = require('react');
 const S = require('./styles');
 
-const containerStyle = (width, style) => Object.assign({
-    width: width || S.cssVar('sidebar-width', '200px'),
+const containerStyle = (collapsed, width, collapsedWidth, style) => Object.assign({
+    width: collapsed
+        ? (collapsedWidth || S.cssVar('sidebar-width-collapsed', '44px'))
+        : (width || S.cssVar('sidebar-width', '200px')),
+    transition: 'width 0.12s',
     flexShrink: 0,
     display: 'flex',
     flexDirection: 'column',
@@ -38,7 +48,7 @@ const containerStyle = (width, style) => Object.assign({
 // continuous title band while they match — erp's brand block was once 40px
 // against a 30px header and the band stepped down at the sidebar seam. Height
 // comes from `--terras-app-header-h`; never re-type the number here.
-const brandStyle = {
+const brandStyle = (collapsed, clickable) => ({
     height: S.cssVar('app-header-h', '30px'),
     flexShrink: 0,
     background: S.cssVar('title-flat', '#0058e6'),
@@ -47,24 +57,45 @@ const brandStyle = {
     color: '#ffffff',
     display: 'flex',
     alignItems: 'center',
-    gap: 6,
-    padding: '0 10px',
+    justifyContent: collapsed ? 'center' : undefined,
+    gap: collapsed ? 0 : 6,
+    padding: collapsed ? '0 4px' : '0 10px',
     fontWeight: 'bold',
     fontSize: S.fs.base,
     userSelect: 'none',
     overflow: 'hidden',
+    cursor: clickable ? 'pointer' : undefined,
+});
+
+// The expand/collapse chevron. Deliberately not a `Button` — this sits inside
+// the title band, where a raised bevel face would read as a second window
+// control next to the AppHeader's actions. Classic chrome puts a bare
+// guillemet here.
+const toggleStyle = {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+    width: 14,
+    lineHeight: 1,
+    fontSize: S.fs.title,
+    fontWeight: 'bold',
+    color: '#ffffff',
+    opacity: 0.85,
+    cursor: 'pointer',
 };
 
 const navStyle = { flex: 1, overflowY: 'auto', minHeight: 0 };
 
-const footerStyle = {
+const footerStyle = (collapsed) => ({
     flexShrink: 0,
     background: S.cssVar('sidebar-footer-bg', '#c0cade'),
     borderTop: '1px solid ' + S.cssVar('sidebar-footer-border', '#9098b8'),
-    padding: '6px 8px',
-};
+    padding: collapsed ? '6px 4px' : '6px 8px',
+    overflow: 'hidden',
+});
 
-function itemStyle(active, hovered, sub) {
+function itemStyle(active, hovered, sub, collapsed) {
     const background = hovered
         ? S.cssVar('sidebar-hover-bg', '#0058e6')
         : active
@@ -75,13 +106,20 @@ function itemStyle(active, hovered, sub) {
     return {
         display: 'flex',
         alignItems: 'center',
-        gap: 5,
-        padding: sub ? '4px 8px 4px 22px' : '5px 8px 5px 14px',
+        justifyContent: collapsed ? 'center' : undefined,
+        gap: collapsed ? 0 : 5,
+        // Collapsed drops the `sub` indent — there is no room for it. A sub row
+        // is still told apart from a flat one by `--terras-sidebar-sub-bg`,
+        // which is why that tint has to stay a token and not become padding.
+        padding: collapsed ? '5px 0' : (sub ? '4px 8px 4px 22px' : '5px 8px 5px 14px'),
         cursor: 'pointer',
         userSelect: 'none',
         borderLeft: active && !hovered
             ? '3px solid ' + S.cssVar('sidebar-hover-bg', '#0058e6')
             : '3px solid transparent',
+        // Mirrors the 3px marker on the far side so the lone icon sits on the
+        // rail's true centre instead of 1.5px right of it.
+        borderRight: collapsed ? '3px solid transparent' : undefined,
         borderBottom: '1px solid ' + S.cssVar('sidebar-item-border', '#c0ccee'),
         background: background,
         color: hovered ? S.cssVar('sidebar-hover-color', '#ffffff') : S.cssVar('sidebar-active-color', '#003080'),
@@ -93,8 +131,11 @@ function itemStyle(active, hovered, sub) {
 
 // Group heading — a solid gradient band, not a quiet uppercase label. It is the
 // classic sidebar's strongest structural cue; dropping it is what makes a
-// themed sidebar still read as a generic modern nav rail.
-function sectionStyle(highlighted) {
+// themed sidebar still read as a generic modern nav rail. That is also why the
+// band survives collapsing: it shrinks to its icon, or to a bare 6px stripe
+// when the section has no icon, rather than disappearing and letting two
+// unrelated groups of glyphs run together.
+function sectionStyle(highlighted, collapsed, bare) {
     return {
         background: highlighted
             ? S.cssVar('sidebar-section-bg-hover', 'linear-gradient(to right, #2a7cff, #0058e6)')
@@ -102,19 +143,37 @@ function sectionStyle(highlighted) {
         color: '#ffffff',
         fontWeight: 'bold',
         fontSize: S.fs.sm,
-        padding: '4px 8px',
+        height: bare ? 6 : undefined,
+        padding: bare ? 0 : (collapsed ? '4px 0' : '4px 8px'),
         letterSpacing: S.trackingCaps,
         textTransform: 'uppercase',
         borderTop: '1px solid ' + S.cssVar('sidebar-section-border-top', '#7090cc'),
         borderBottom: '1px solid ' + S.cssVar('sidebar-section-border-bottom', '#003080'),
         display: 'flex',
-        justifyContent: 'space-between',
+        justifyContent: collapsed ? 'center' : 'space-between',
         alignItems: 'center',
-        gap: 6,
+        gap: collapsed ? 0 : 6,
         cursor: 'pointer',
         userSelect: 'none',
         transition: 'background 0.08s',
     };
+}
+
+// A `top` / `footer` slot may be a plain node or a render function, so an app
+// can hand back something rail-safe instead of having its primary action button
+// clipped to 44px. Called with the state rather than a bare boolean so the
+// argument reads at the call site.
+function slot(node, collapsed) {
+    return typeof node === 'function' ? node({ collapsed: collapsed }) : node;
+}
+
+// Falls back to the label so a bare icon still names itself on hover. Only when
+// the label is a string — a ReactNode label has no meaningful `title` text, and
+// `[object Object]` is worse than no tooltip.
+function tooltip(item, collapsed) {
+    if (item.title) return item.title;
+    if (collapsed && typeof item.label === 'string') return item.label;
+    return undefined;
 }
 
 /**
@@ -124,14 +183,15 @@ function sectionStyle(highlighted) {
  */
 function SidebarItem(props) {
     const item = props.item;
+    const collapsed = props.collapsed;
     return React.createElement(
         'div',
         {
             onClick: item.onClick,
             onMouseEnter: props.onHover,
             onMouseLeave: props.onLeave,
-            style: itemStyle(!!item.active, props.hovered, !!item.sub),
-            title: item.title,
+            style: itemStyle(!!item.active, props.hovered, !!item.sub, collapsed),
+            title: tooltip(item, collapsed),
             role: 'button',
             'aria-current': item.active ? 'page' : undefined,
         },
@@ -142,7 +202,9 @@ function SidebarItem(props) {
                 item.icon,
             )
             : null,
-        React.createElement('span', { style: { overflow: 'hidden', textOverflow: 'ellipsis' } }, item.label),
+        collapsed
+            ? null
+            : React.createElement('span', { style: { overflow: 'hidden', textOverflow: 'ellipsis' } }, item.label),
     );
 }
 
@@ -154,20 +216,30 @@ function SidebarItem(props) {
  * Pass `items` for a flat list, `sections` for grouped nav, or both (flat items
  * render first, above the groups — that's where a Dashboard / Home row goes).
  *
+ * Collapsing is controlled: pass `collapsed` and own the state. Pass
+ * `onToggleCollapsed` too and the brand band grows the built-in chevron; leave
+ * it off and no toggle chrome renders at all, for an app that would rather
+ * drive the state from its own AppHeader action.
+ *
  * @param {{
  *   appName?: React.ReactNode,
  *   brandIcon?: React.ReactNode,
- *   top?: React.ReactNode,          // slot above the nav, e.g. a primary action button
+ *   top?: React.ReactNode | ((state: { collapsed: boolean }) => React.ReactNode),
  *   items?: Array<{ key: string, label: React.ReactNode, icon?: React.ReactNode, active?: boolean, sub?: boolean, onClick: () => void, title?: string }>,
  *   sections?: Array<{ key: string, label: React.ReactNode, icon?: React.ReactNode, right?: React.ReactNode, onClick?: () => void, items: Array<object> }>,
- *   footer?: React.ReactNode,
+ *   footer?: React.ReactNode | ((state: { collapsed: boolean }) => React.ReactNode),
+ *   collapsed?: boolean,
+ *   onToggleCollapsed?: () => void,
  *   width?: string | number,
+ *   collapsedWidth?: string | number,
  *   style?: object,
  * }} props
  */
 function Sidebar(props) {
     const items = props.items || [];
     const sections = props.sections || [];
+    const collapsed = !!props.collapsed;
+    const onToggle = props.onToggleCollapsed;
     const hoverState = React.useState(null);
     const hoveredKey = hoverState[0];
     const setHoveredKey = hoverState[1];
@@ -176,55 +248,114 @@ function Sidebar(props) {
         return React.createElement(SidebarItem, {
             key: item.key,
             item: item,
+            collapsed: collapsed,
             hovered: hoveredKey === item.key,
             onHover: function () { setHoveredKey(item.key); },
             onLeave: function () { setHoveredKey(null); },
         });
     };
 
+    const top = slot(props.top, collapsed);
+    const footer = slot(props.footer, collapsed);
+
+    // Collapsed, the band IS the control: the whole 44×30 strip is the hit
+    // target and it keeps showing `brandIcon`, so the rail does not trade its
+    // identity for an affordance. Only a sidebar with no brand mark at all
+    // falls back to drawing the chevron itself.
+    const brandIsToggle = collapsed && !!onToggle;
+    const showBrand = props.appName || props.brandIcon || onToggle;
+
     return React.createElement(
         'aside',
-        { style: containerStyle(props.width, props.style) },
-        props.appName || props.brandIcon
+        { style: containerStyle(collapsed, props.width, props.collapsedWidth, props.style) },
+        showBrand
             ? React.createElement(
                 'div',
-                { style: brandStyle },
-                props.brandIcon || null,
-                props.appName
-                    ? React.createElement(
-                        'span',
-                        { style: { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } },
-                        props.appName,
-                    )
-                    : null,
+                {
+                    style: brandStyle(collapsed, brandIsToggle),
+                    onClick: brandIsToggle ? onToggle : undefined,
+                    title: brandIsToggle ? 'Expand sidebar' : undefined,
+                    role: brandIsToggle ? 'button' : undefined,
+                    'aria-expanded': brandIsToggle ? false : undefined,
+                },
+                collapsed
+                    ? (props.brandIcon || (onToggle ? React.createElement('span', { style: toggleStyle }, '»') : null))
+                    : React.createElement(
+                        React.Fragment,
+                        null,
+                        props.brandIcon || null,
+                        props.appName
+                            ? React.createElement(
+                                'span',
+                                { style: { flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } },
+                                props.appName,
+                            )
+                            : React.createElement('span', { style: { flex: 1 } }),
+                        onToggle
+                            ? React.createElement(
+                                'span',
+                                {
+                                    style: toggleStyle,
+                                    onClick: onToggle,
+                                    title: 'Collapse sidebar',
+                                    role: 'button',
+                                    'aria-label': 'Collapse sidebar',
+                                    'aria-expanded': true,
+                                },
+                                '«',
+                            )
+                            : null,
+                    ),
             )
             : null,
-        props.top ? React.createElement('div', { style: { padding: '8px 8px 4px', flexShrink: 0 } }, props.top) : null,
+        top
+            ? React.createElement(
+                'div',
+                { style: { padding: collapsed ? '8px 4px 4px' : '8px 8px 4px', flexShrink: 0, overflow: 'hidden' } },
+                top,
+            )
+            : null,
         React.createElement(
             'nav',
             { className: 'terras-scroll', style: navStyle },
             items.map(renderItem),
             sections.map(function (section) {
                 const childActive = (section.items || []).some(function (i) { return i.active; });
+                const bare = collapsed && !section.icon;
                 return React.createElement(
                     React.Fragment,
                     { key: section.key },
                     React.createElement(
                         'div',
                         {
-                            style: sectionStyle(hoveredKey === section.key || childActive),
+                            style: sectionStyle(hoveredKey === section.key || childActive, collapsed, bare),
                             onClick: section.onClick,
                             onMouseEnter: function () { setHoveredKey(section.key); },
                             onMouseLeave: function () { setHoveredKey(null); },
                             role: section.onClick ? 'button' : undefined,
+                            title: collapsed && typeof section.label === 'string' ? section.label : undefined,
                         },
-                        React.createElement(
-                            'span',
-                            { style: { display: 'flex', alignItems: 'center', gap: 5, minWidth: 0 } },
-                            section.icon || null,
-                            section.label,
-                        ),
-                        section.right || null,
+                        collapsed
+                            // `section.right` is dropped, not shrunk: it holds a count
+                            // badge or chevron that has nowhere to sit on a 44px rail.
+                            ? (section.icon
+                                ? React.createElement(
+                                    'span',
+                                    { style: { width: 14, display: 'flex', justifyContent: 'center', flexShrink: 0, lineHeight: 0 } },
+                                    section.icon,
+                                )
+                                : null)
+                            : React.createElement(
+                                React.Fragment,
+                                null,
+                                React.createElement(
+                                    'span',
+                                    { style: { display: 'flex', alignItems: 'center', gap: 5, minWidth: 0 } },
+                                    section.icon || null,
+                                    section.label,
+                                ),
+                                section.right || null,
+                            ),
                     ),
                     (section.items || []).map(function (i) {
                         return renderItem(Object.assign({ sub: true }, i));
@@ -232,7 +363,7 @@ function Sidebar(props) {
                 );
             }),
         ),
-        props.footer ? React.createElement('div', { style: footerStyle }, props.footer) : null,
+        footer ? React.createElement('div', { style: footerStyle(collapsed) }, footer) : null,
     );
 }
 

@@ -114,6 +114,10 @@
 
   --terras-sidebar-width: 200px;
   --terras-sidebar-width-mobile: 260px;
+  /* Icon-rail width when the Sidebar is collapsed. Wide enough for the 14px
+     item icon plus its centring padding and the 3px active marker; below
+     ~40px the marker starts to crowd the glyph. */
+  --terras-sidebar-width-collapsed: 44px;
   --terras-app-header-h: 30px;
   --terras-content-pad: 10px;
   --terras-content-pad-mobile: 16px;
@@ -268,5 +272,6 @@
   --terras-shadow-md: 0 2px 6px rgba(31, 91, 138, 0.12);
 
   --terras-sidebar-width: 200px;
+  --terras-sidebar-width-collapsed: 48px;
   --terras-app-header-h: 56px;
 }

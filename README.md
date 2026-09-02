@@ -15,11 +15,11 @@ Plain `React.createElement` (no JSX) so no build step is required to consume the
 | Import | What it is |
 | --- | --- |
 | `components/AppHeader` | Full-bleed blue top band — page name + global actions |
-| `components/Sidebar` | Nav rail: brand block, flat items and/or gradient sections, footer |
+| `components/Sidebar` | Nav rail: brand block, flat items and/or gradient sections, footer — collapses to an icon rail |
 | `components/Window` | The bevelled view frame + `.TitleBar` / `.Toolbar` / `.Separator` / `.Body` / `.StatusBar` |
 | `components/Modal` | Same chrome one layer up: backdrop, title bar with close box, footer actions. `modeless` drops the backdrop and makes the panel draggable |
 | `components/FormSection` | Field group under a solid blue header bar |
-| `components/Table` | Ruled classic table (`.EmptyRow` for the empty/loading state) |
+| `components/Table` | Ruled classic table (`.EmptyRow` for the empty/loading state, `stickyCols` to freeze leading columns) |
 | `components/Tabs` | Tab strip seated in the pane below it — renders the row only |
 | `components/Button` | Raised bevel button, tones `default` / `primary` / `success` / `danger` |
 | `components/Field` | `Input`, `Select`, `Label`, `SearchField` — recessed field chrome |
@@ -35,6 +35,15 @@ options: a native select cannot be typed into, and a native `<datalist>` paints
 the browser's own suggestion list rather than classic chrome. Its popup is
 portaled to `document.body`, which is what lets it escape a `Modal` body's
 `overflow: auto` and stay glued to a modeless panel while it is dragged.
+
+`Table`'s `stickyCols` is Excel's freeze panes: the first N columns hold still
+while the rest scroll sideways, for a table wide enough that an operator would
+otherwise lose which row they are reading. Give it the columns that identify a
+row (a code, a name), not as many as fit — every frozen column is width the
+scrolling half no longer has. Offsets are measured from the laid-out cells, so
+the frozen columns may be content-sized; a row whose cell spans across the
+boundary, such as a `colSpan` group header, stays unfrozen rather than being
+pinned wider than the frozen region.
 
 `Chip` and `ToggleChip` are different jobs and keep different faces on purpose: a
 `Chip` is a tinted pill that **reports** state over the five status families and
@@ -56,6 +65,33 @@ import Window from '@bryanadamg/terras-ui/components/Window'
 ```
 
 `Sidebar` only owns layout + the classic-theme palette (`--terras-sidebar-*` tokens) — routing/active-match stays with the consuming app (works the same under Next.js or react-router).
+
+Collapsing splits the same way: this package owns what the icon rail looks like,
+the app owns whether it is collapsed. Pass `collapsed` (controlled, like an item's
+`active`) and `onToggleCollapsed` to get the built-in chevron in the brand band;
+omit the handler and no toggle chrome renders, for an app that would rather drive
+the state from its own `AppHeader` action. Persisting the choice is the app's job —
+under Next.js, seeding it from `localStorage` during render is a hydration mismatch,
+and each app settles that its own way.
+
+```jsx
+const [collapsed, setCollapsed] = useState(false)
+
+<Sidebar
+  appName="Terras ERP"
+  collapsed={collapsed}
+  onToggleCollapsed={() => setCollapsed(c => !c)}
+  sections={sections}
+  footer={({ collapsed }) => (collapsed ? <Avatar /> : <IdCard user={user} />)}
+/>
+```
+
+At rail width labels drop to a native `title` tooltip, a `sub` row keeps its
+`--terras-sidebar-sub-bg` tint in place of its indent, and a section band shrinks to
+its `icon` — or to a bare 6px gradient stripe when it has none, so two unrelated
+groups of glyphs never run together. `section.right` is dropped rather than shrunk.
+**Give every section an `icon`** unless you want that stripe. `top` and `footer` each
+accept a `({ collapsed }) => node` function for content that can't survive 44px.
 
 **Both stylesheets are required.** `terras-ui/css` is the custom properties; `terras-ui/chrome` carries the rules an inline style object cannot express (`:hover` / `:focus` / `::placeholder`, scrollbars, and the table `th`/`td` descendant selectors). Without the second one, buttons lose their press motion and tables render unruled.
 
