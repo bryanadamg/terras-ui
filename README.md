@@ -17,7 +17,7 @@ Plain `React.createElement` (no JSX) so no build step is required to consume the
 | `components/AppHeader` | Full-bleed blue top band — page name + global actions |
 | `components/Sidebar` | Nav rail: brand block, flat items and/or gradient sections, footer |
 | `components/Window` | The bevelled view frame + `.TitleBar` / `.Toolbar` / `.Separator` / `.Body` / `.StatusBar` |
-| `components/Modal` | Same chrome one layer up: backdrop, title bar with close box, footer actions |
+| `components/Modal` | Same chrome one layer up: backdrop, title bar with close box, footer actions. `modeless` drops the backdrop and makes the panel draggable |
 | `components/FormSection` | Field group under a solid blue header bar |
 | `components/Table` | Ruled classic table (`.EmptyRow` for the empty/loading state) |
 | `components/Tabs` | Tab strip seated in the pane below it — renders the row only |
