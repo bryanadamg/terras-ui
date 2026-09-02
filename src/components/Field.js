@@ -48,7 +48,7 @@ function Label(props) {
             htmlFor: props.htmlFor,
             style: Object.assign({
                 fontFamily: S.font,
-                fontSize: 11,
+                fontSize: S.fs.base,
                 display: 'block',
                 marginBottom: 2,
                 color: S.cssVar('win-text', '#000000'),
@@ -92,7 +92,7 @@ function SearchField(props) {
                 {
                     style: {
                         position: 'absolute', left: 5, top: '50%', transform: 'translateY(-50%)',
-                        display: 'flex', fontSize: 11, lineHeight: 0,
+                        display: 'flex', fontSize: S.fs.base, lineHeight: 0,
                         color: S.cssVar('win-text-3', '#666666'), pointerEvents: 'none',
                     },
                 },
@@ -118,7 +118,7 @@ function SearchField(props) {
                     style: {
                         position: 'absolute', right: 3, top: '50%', transform: 'translateY(-50%)',
                         border: 'none', background: 'none', cursor: 'pointer', padding: 0,
-                        lineHeight: 1, fontSize: 12, fontFamily: S.font,
+                        lineHeight: 1, fontSize: S.fs.title, fontFamily: S.font,
                         color: S.cssVar('win-text-3', '#666666'),
                     },
                 },

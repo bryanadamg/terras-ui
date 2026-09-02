@@ -15,9 +15,9 @@ const React = require('react');
 const S = require('./styles');
 
 const SIZES = {
-    sm: { fontSize: 11, padding: '1px 8px', minHeight: 18 },
-    md: { fontSize: 11, padding: '2px 10px', minHeight: 22 },
-    lg: { fontSize: 12, padding: '4px 14px', minHeight: 26 },
+    sm: { fontSize: S.fs.base, padding: '1px 8px', minHeight: 18 },
+    md: { fontSize: S.fs.base, padding: '2px 10px', minHeight: 22 },
+    lg: { fontSize: S.fs.title, padding: '4px 14px', minHeight: 26 },
 };
 
 /**

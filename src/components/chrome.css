@@ -144,7 +144,7 @@
   border-top-color: var(--terras-win-border-light, #ffffff);
   border-left-color: var(--terras-win-border-light, #ffffff);
   color: var(--terras-win-text, #000000);
-  font-size: 11px;
+  font-size: var(--terras-fs-base, 11px);
   font-weight: bold;
   text-align: left;
   text-transform: none;
@@ -160,7 +160,7 @@
 .terras-table td {
   border: 1px solid var(--terras-table-line, #d6d3ce);
   padding: 4px 8px;
-  font-size: 12px;
+  font-size: var(--terras-fs-title, 12px);
   color: var(--terras-win-text, #000000);
   white-space: nowrap;
 }

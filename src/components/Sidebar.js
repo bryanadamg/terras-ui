@@ -29,7 +29,7 @@ const containerStyle = (width, style) => Object.assign({
     background: S.cssVar('sidebar-bg', S.cssVar('win-bg', '#f3f4f6')),
     borderRight: '1px solid ' + S.cssVar('sidebar-border', '#718bb7'),
     fontFamily: S.font,
-    fontSize: 11,
+    fontSize: S.fs.base,
     color: S.cssVar('sidebar-active-color', '#003080'),
 }, style);
 
@@ -50,7 +50,7 @@ const brandStyle = {
     gap: 6,
     padding: '0 10px',
     fontWeight: 'bold',
-    fontSize: 11,
+    fontSize: S.fs.base,
     userSelect: 'none',
     overflow: 'hidden',
 };
@@ -86,7 +86,7 @@ function itemStyle(active, hovered, sub) {
         background: background,
         color: hovered ? S.cssVar('sidebar-hover-color', '#ffffff') : S.cssVar('sidebar-active-color', '#003080'),
         fontWeight: active ? 'bold' : 'normal',
-        fontSize: sub ? 10.5 : 11,
+        fontSize: sub ? S.fs.sub : S.fs.base,
         transition: 'background 0.08s',
     };
 }
@@ -101,9 +101,9 @@ function sectionStyle(highlighted) {
             : S.cssVar('sidebar-section-bg', 'linear-gradient(to right, #0058e6, #003080)'),
         color: '#ffffff',
         fontWeight: 'bold',
-        fontSize: 10,
+        fontSize: S.fs.sm,
         padding: '4px 8px',
-        letterSpacing: '0.5px',
+        letterSpacing: S.trackingCaps,
         textTransform: 'uppercase',
         borderTop: '1px solid ' + S.cssVar('sidebar-section-border-top', '#7090cc'),
         borderBottom: '1px solid ' + S.cssVar('sidebar-section-border-bottom', '#003080'),

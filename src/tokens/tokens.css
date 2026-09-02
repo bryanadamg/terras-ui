@@ -26,6 +26,26 @@
   --terras-font-print: Arial, Helvetica, sans-serif;
   --terras-font-print-serif: Georgia, serif;
 
+  /* Classic type scale. erp has NO ramp and no Tailwind: `.ui-style-classic`
+     sets 11px (globals.css) and the whole app then works in a closed set of px
+     steps written inline in xpTheme.tsx. These four are the steps this package
+     actually paints — base 11 (controls, body, table head), sm 10 (caps labels,
+     chips, sub-text), sub 10.5 (sidebar sub-item, erp Sidebar.tsx), title 12
+     (title bar, card title, lg button, table cell). Theme-independent, same
+     reasoning as the chip/button radii above.
+     Don't add a step no component paints, and don't add a display tier: erp's
+     own large sizes (13/14/15/20/26) are ad-hoc per print sheet and KPI tile,
+     inconsistent between views, and deliberately not mirrored here. */
+  --terras-fs-sub: 10.5px;
+  --terras-fs-sm: 10px;
+  --terras-fs-base: 11px;
+  --terras-fs-title: 12px;
+
+  /* Uppercase micro-label tracking. Always arrives with fs-sm + bold +
+     text-transform: uppercase — that quartet IS the classic section label
+     (erp xpTheme.tsx FormSection header). */
+  --terras-tracking-caps: 0.5px;
+
   --terras-z-modal-1: 20000;
   --terras-z-modal-2: 20100;
   --terras-z-modal-3: 20200;

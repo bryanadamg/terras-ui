@@ -120,7 +120,7 @@ function StatusBar(props) {
                 gap: 6,
                 flexShrink: 0,
                 fontFamily: S.font,
-                fontSize: 11,
+                fontSize: S.fs.base,
                 color: S.cssVar('win-text-2', '#333333'),
             }, props.style),
         },

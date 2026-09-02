@@ -4,7 +4,8 @@
 export interface Tokens {
   color: Record<string, Record<string, any>>;
   radius: Record<string, number>;
-  font: Record<string, string>;
+  /** Family stacks, plus `size` (the fs-* scale, px numbers) and `trackingCaps`. */
+  font: Record<string, any>;
   shadow: Record<string, string>;
   layout: Record<string, number>;
   zIndex: Record<string, number>;

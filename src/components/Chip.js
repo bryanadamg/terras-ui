@@ -51,7 +51,7 @@ function Chip(props) {
                 borderRadius: S.cssVar('radius-chip', '3px'),
                 padding: '0 4px',
                 fontFamily: props.mono ? S.fontMono : S.font,
-                fontSize: 10,
+                fontSize: S.fs.sm,
                 fontWeight: 'bold',
                 lineHeight: '14px',
                 whiteSpace: 'nowrap',

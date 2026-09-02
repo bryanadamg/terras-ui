@@ -192,7 +192,7 @@ function Modal(props) {
                 display: 'flex',
                 flexDirection: 'column',
                 fontFamily: S.font,
-                fontSize: 11,
+                fontSize: S.fs.base,
                 color: S.cssVar('win-text', '#000000'),
             }, floatingStyle, props.style)),
         }, rest),
@@ -217,7 +217,7 @@ function Modal(props) {
                             'span',
                             {
                                 style: {
-                                    display: 'block', fontWeight: 'normal', fontSize: 10,
+                                    display: 'block', fontWeight: 'normal', fontSize: S.fs.sm,
                                     opacity: 0.85, overflow: 'hidden', textOverflow: 'ellipsis',
                                     whiteSpace: 'nowrap',
                                 },
@@ -238,7 +238,7 @@ function Modal(props) {
                         // The XP close box: a small raised button in the bar, not a
                         // bare glyph — it has to look pressable against the gradient.
                         style: S.button({
-                            padding: 0, width: 16, height: 14, fontSize: 10,
+                            padding: 0, width: 16, height: 14, fontSize: S.fs.sm,
                             lineHeight: 1, fontWeight: 'bold', flexShrink: 0,
                         }),
                     },

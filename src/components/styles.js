@@ -16,6 +16,21 @@ const v = (name, fallback) =>
 const font = v('font-classic', '"Tahoma", "Segoe UI", "Arial", sans-serif');
 const fontMono = v('font-mono', 'Consolas, monospace');
 
+// The classic type scale (tokens.css `--terras-fs-*`). erp has no ramp — the
+// theme class sets 11px and every size is a px step written inline — so these
+// are the four steps this package paints, not a generated scale. Use them
+// instead of a bare number so an app can retune the surface in one place; a new
+// step means checking erp first, the same rule as a new tone or radius.
+const fs = {
+    sub: v('fs-sub', '10.5px'),
+    sm: v('fs-sm', '10px'),
+    base: v('fs-base', '11px'),
+    title: v('fs-title', '12px'),
+};
+
+// Rides with fs.sm + bold + uppercase; that quartet is the classic micro-label.
+const trackingCaps = v('tracking-caps', '0.5px');
+
 // Two-tone 1px bevel: light on top/left, dark on bottom/right = raised;
 // swap them for a recessed well. This IS the classic button/panel — it can't be
 // reduced to a single border color, which is why `--line` alone never looked right.
@@ -63,7 +78,7 @@ const titleBar = (extra, tone) => {
         background: t.background,
         color: '#ffffff',
         fontFamily: font,
-        fontSize: 12,
+        fontSize: fs.title,
         fontWeight: 'bold',
         padding: '4px 8px',
         // The inset highlight is what makes the bar read as lit from above —
@@ -91,7 +106,7 @@ const toolbar = (extra) => Object.assign({
     flexWrap: 'wrap',
     flexShrink: 0,
     fontFamily: font,
-    fontSize: 11,
+    fontSize: fs.base,
 }, extra);
 
 // Vertical rule between toolbar groups.
@@ -108,7 +123,7 @@ const separator = {
 // `--terras-input-border`, not the button bevel's gray.
 const field = (extra) => Object.assign({
     fontFamily: font,
-    fontSize: 11,
+    fontSize: fs.base,
     border: '1px solid ' + v('input-border', '#7f9db9'),
     borderRadius: v('radius-btn', '3px'),
     padding: '1px 6px',
@@ -138,7 +153,7 @@ const BTN_TONES = {
 
 const button = (extra) => Object.assign({
     fontFamily: font,
-    fontSize: 11,
+    fontSize: fs.base,
     padding: '2px 10px',
     cursor: 'pointer',
     background: v('btn-face', 'linear-gradient(to bottom, #ffffff 0%, #d4d0c8 100%)'),
@@ -195,7 +210,7 @@ const toggleChip = (extra, opts) => {
 
     return Object.assign({
         fontFamily: font,
-        fontSize: 11,
+        fontSize: fs.base,
         fontWeight: o.on ? 'bold' : 'normal',
         minWidth: o.minWidth,
         padding: '2px 9px',
@@ -230,6 +245,8 @@ module.exports = {
     cssVar: v,
     font: font,
     fontMono: fontMono,
+    fs: fs,
+    trackingCaps: trackingCaps,
     raised: raised,
     bevel: bevel,
     panel: panel,

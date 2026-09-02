@@ -28,14 +28,14 @@ const headerStyle = (style) => Object.assign({
     gap: 8,
     padding: '0 6px',
     fontFamily: S.font,
-    fontSize: 11,
+    fontSize: S.fs.base,
     fontWeight: 'bold',
     userSelect: 'none',
 }, style);
 
 const titleStyle = {
     textTransform: 'uppercase',
-    letterSpacing: '0.5px',
+    letterSpacing: S.trackingCaps,
     // Same 1px dark shadow erp's `.classic-header h5` carries — white bold text
     // on the mid-blue gradient reads thin without it.
     textShadow: '1px 1px 1px rgba(0,0,0,0.3)',

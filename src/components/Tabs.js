@@ -45,7 +45,7 @@ function tabStyle(active) {
     const radius = S.cssVar('radius-btn', '3px');
     return {
         fontFamily: S.font,
-        fontSize: 11,
+        fontSize: S.fs.base,
         padding: '3px 12px 4px',
         cursor: 'pointer',
         border: '1px solid',

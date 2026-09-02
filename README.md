@@ -27,7 +27,7 @@ Plain `React.createElement` (no JSX) so no build step is required to consume the
 | `components/ToggleChip` | Pressed/unpressed chip, tones `blue` / `green` / `red` / `amber` |
 | `components/FilterChipBar` | Segmented "pick one (or many) of these" filter row |
 | `components/SegmentedBar` | Its stateless sibling — a flush group of plain actions |
-| `styles` | The style primitives the above are built from (`bevel`, `panel`, `titleBar`, `toolbar`, `field`, `button`, `toggleChip`, `cssVar`) — for a one-off surface that has no component yet |
+| `styles` | The style primitives the above are built from (`bevel`, `panel`, `titleBar`, `toolbar`, `field`, `button`, `toggleChip`, `cssVar`, `font`, `fs`, `trackingCaps`) — for a one-off surface that has no component yet |
 
 `Chip` and `ToggleChip` are different jobs and keep different faces on purpose: a
 `Chip` is a tinted pill that **reports** state over the five status families and
