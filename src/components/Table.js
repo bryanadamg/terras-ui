@@ -15,7 +15,8 @@
 // `terras-cell-flush` (drop the 4px/8px padding, e.g. for an embedded chip row).
 //
 // `stickyCols` freezes the leading columns — Excel's freeze panes. See
-// pinLeadingCells below for why the offsets are measured rather than declared.
+// pinLeadingCells below for why the offsets are measured rather than declared,
+// and chrome.css for why the table's borders are separate rather than collapsed.
 
 const React = require('react');
 const S = require('./styles');
@@ -34,20 +35,24 @@ const STICKY_LAST = 'terras-sticky-col-last';
  * measure, then write `left` onto the cells.
  *
  * Each cell is measured against the table's own left edge rather than by
- * accumulating the widths before it. Summing is the intuitive spelling and it
- * is wrong here: under `border-collapse: collapse` a cell's border box takes in
- * the border it SHARES with its neighbour, so adjacent cells overlap by a
- * border and a running total gains one per boundary — which pushed each
- * further column right of where it belongs and opened a hollow strip between
- * the frozen columns, with the scrolling ones visible through it. Reading the
- * offset the browser already computed cannot drift, however the shared borders
- * are apportioned.
+ * accumulating the widths before it. Reading the offset the browser already
+ * computed cannot drift; a running total has to re-derive the geometry and gets
+ * one rounding, one border or one collapsed edge away from the truth per
+ * column, which shows up as a hairline gap between the frozen columns.
  *
  * Measurement needs the cells UNPINNED (`unpinCells` first, which every caller
  * here does): a cell already carrying a `left` is displaced by it, so its own
  * offset would be read back through the last pin instead of from the layout.
  * Hence also the two passes — every read finishes before the first write, so
  * no cell is measured after a sibling has moved.
+ *
+ * Which cell sits in which column is NOT its index among its row's children: a
+ * `rowSpan` above reaches down and occupies a column in this row without
+ * putting a cell in it, so the row's first child can be column 1. Counting
+ * children instead of columns pinned one column too many under every spanning
+ * cell — freezing a column that should scroll, and putting the freeze seam in a
+ * different place on those rows than on the rest. So the scan carries the
+ * occupancy of the rows above it, per row group, since a span cannot cross one.
  *
  * The cells belong to the caller's markup, so this touches the DOM directly
  * rather than cloning elements. Safe in practice because `left` and these two
@@ -62,23 +67,40 @@ const STICKY_LAST = 'terras-sticky-col-last';
  */
 function pinLeadingCells(table, count) {
     const origin = table.getBoundingClientRect().left;
-    const rows = table.querySelectorAll('tr');
+    const groups = table.querySelectorAll('thead, tbody, tfoot');
     const pins = [];
-    for (let r = 0; r < rows.length; r++) {
-        const cells = rows[r].children;
-        let column = 0;
-        for (let c = 0; c < cells.length && column < count; c++) {
-            const cell = cells[c];
-            const span = cell.colSpan || 1;
-            if (column + span > count) break;
-            // Fractional, not rounded: the frozen block then reproduces the
-            // table's own geometry exactly, seams included.
-            pins.push({
-                cell: cell,
-                left: cell.getBoundingClientRect().left - origin,
-                last: column + span === count,
-            });
-            column += span;
+    for (let g = 0; g < groups.length; g++) {
+        const rows = groups[g].querySelectorAll('tr');
+        // occupied[c] — how many more rows, this one included, a `rowSpan` from
+        // above still covers column c. Reset per group: a span cannot cross
+        // from one row group into the next.
+        const occupied = [];
+        for (let r = 0; r < rows.length; r++) {
+            const cells = rows[r].children;
+            let column = 0;
+            for (let c = 0; c < cells.length; c++) {
+                while (occupied[column] > 0) column++;
+                if (column >= count) break;
+                const cell = cells[c];
+                const span = cell.colSpan || 1;
+                if (column + span > count) break;
+                // Fractional, not rounded: the frozen block then reproduces the
+                // table's own geometry exactly, seams included.
+                pins.push({
+                    cell: cell,
+                    left: cell.getBoundingClientRect().left - origin,
+                    last: column + span === count,
+                });
+                // `rowSpan` 0 means "to the end of the row group" — never ends.
+                const down = cell.rowSpan === 0 ? Infinity : cell.rowSpan || 1;
+                if (down > 1) {
+                    for (let k = column; k < column + span; k++) occupied[k] = down;
+                }
+                column += span;
+            }
+            for (let k = 0; k < count; k++) {
+                if (occupied[k] > 0) occupied[k]--;
+            }
         }
     }
     for (let i = 0; i < pins.length; i++) {

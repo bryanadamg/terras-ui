@@ -127,22 +127,45 @@
 }
 
 /* ── Tables ──────────────────────────────────────────────────────────────────
-   Classic tables are RULED, not striped: every body cell carries a light 1px
-   grid on all four sides, and the header cells are their own raised bevel
-   (white top/left, dark bottom/right over a top-light gradient). Tabular
-   numerals so a column of digits doesn't jitter with each digit's width. */
+   Classic tables are RULED, not striped: a 1px grid on every cell, and the
+   header is its own raised bevel (white top, dark rules and underline over a
+   top-light gradient). Tabular numerals so a column of digits doesn't jitter
+   with each digit's width.
+
+   SEPARATE borders with zero spacing, not collapsed — load-bearing, not a
+   style preference. Under `border-collapse: collapse` a cell's borders are
+   painted by the TABLE rather than by the cell, at the table's own
+   coordinates. A cell moved by `position: sticky` therefore leaves its borders
+   behind: the frozen columns lose the rules between them, and the sticky
+   header loses its underline, the moment either scrolls away from where the
+   table thinks it is. With `border-spacing: 0` the separate model draws the
+   same grid to the pixel, and every border travels with the cell that owns it.
+
+   The apportionment: each cell owns its RIGHT and BOTTOM edge; the table owns
+   its own left and top. Right/bottom rather than left/top is what keeps
+   `rowSpan` honest — a spanning cell draws one right edge down its full
+   height and the row beside it adds nothing, where a left-edge rule would
+   double into 2px against the `:first-child` of the row tucked beside it. */
 .terras-table {
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
+  /* The table's own outer left/top, the two edges no cell owns. The top takes
+     the header's white bevel when there is a header to bevel, and the body's
+     line when the table is bare rows. The left is the body's line throughout:
+     one border cannot be two colours, and against the window chrome it sits
+     beside, a light rule reads truer than white for the whole height. */
+  border-left: 1px solid var(--terras-table-line, #d6d3ce);
+  border-top: 1px solid var(--terras-table-line, #d6d3ce);
   width: 100%;
   background: var(--terras-table-bg, #ffffff);
   font-family: var(--terras-font-classic);
   font-variant-numeric: tabular-nums;
 }
+.terras-table:has(> thead) { border-top-color: var(--terras-win-border-light, #ffffff); }
 .terras-table th {
   background: var(--terras-table-head, linear-gradient(to bottom, #ffffff 0%, #d6d3ce 100%));
-  border: 1px solid var(--terras-table-head-line, #808080);
-  border-top-color: var(--terras-win-border-light, #ffffff);
-  border-left-color: var(--terras-win-border-light, #ffffff);
+  border-right: 1px solid var(--terras-table-head-line, #808080);
+  border-bottom: 1px solid var(--terras-table-head-line, #808080);
   color: var(--terras-win-text, #000000);
   font-size: var(--terras-fs-base, 11px);
   font-weight: bold;
@@ -158,7 +181,8 @@
   z-index: 2;
 }
 .terras-table td {
-  border: 1px solid var(--terras-table-line, #d6d3ce);
+  border-right: 1px solid var(--terras-table-line, #d6d3ce);
+  border-bottom: 1px solid var(--terras-table-line, #d6d3ce);
   padding: 4px 8px;
   font-size: var(--terras-fs-title, 12px);
   color: var(--terras-win-text, #000000);
@@ -176,7 +200,9 @@
 
 /* Frozen leading columns, driven by <Table stickyCols>. The component measures
    each column and writes the `left` offset onto the cells; everything that is
-   the same for all of them lives here.
+   the same for all of them lives here. Because the cells own their borders,
+   the grid inside the frozen block is simply those borders, pinned along with
+   the cells that draw them — there is nothing further to reconstruct.
 
    z-index 3 on the header, above the sticky header row's own 2, so the corner
    cell where the two freezes meet stays on top of both. */
@@ -194,27 +220,11 @@
    from the rule above — and repainting the frozen ones in the body's flat
    white is what made the header read as two tables joined at the freeze. */
 .terras-table td.terras-sticky-col { background: var(--terras-table-bg, #ffffff); }
-/* The freeze boundary, drawn as a strip the cell paints inside itself.
-   Neither of the obvious spellings survives here: with `border-collapse:
-   collapse` the border along the freeze edge is shared with a neighbour that
-   has scrolled out from under the frozen cell, so it is painted where that
-   neighbour now is rather than at the seam — and WebKit/Blink drop
-   `box-shadow` on a collapsed-border cell outright, which left the edge with
-   no line at all. An `::after` travels with the pinned cell and sits above the
-   columns sliding under it, so the seam is always visible.
-
-   `right: -1px` lands the strip on the collapsed border pixel itself, so the
-   boundary reads as one dark rule and not as a dark line beside a light one. */
-.terras-table td.terras-sticky-col-last::after,
-.terras-table th.terras-sticky-col-last::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  right: -1px;
-  bottom: 0;
-  width: 1px;
-  background: var(--terras-table-head-line, #808080);
-  pointer-events: none;
+/* The freeze boundary reads darker than the interior rules — the header's own
+   line, carried down through the body — so the eye can see where the frozen
+   block ends and the scrolling columns begin. */
+.terras-table td.terras-sticky-col-last {
+  border-right-color: var(--terras-table-head-line, #808080);
 }
 
 /* ── Scrollbars ──────────────────────────────────────────────────────────────
