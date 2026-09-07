@@ -64,6 +64,114 @@
   --terras-chip-blue-bg: #dce4f5;    --terras-chip-blue-border: #3a5faa;    --terras-chip-blue-text: #0d2a6e;
   --terras-chip-green-bg: #d4edda;   --terras-chip-green-border: #27713a;   --terras-chip-green-text: #0c3a1a;
   --terras-chip-red-bg: #f8d7da;     --terras-chip-red-border: #a01a1a;     --terras-chip-red-text: #4a0000;
+
+  /* Display/wordmark face for the sign-in screen. erp loads Sora as
+     `--font-display` in layout.tsx; falls back to the modern stack so the brand
+     never lands in a default serif on an app that loads no display font. */
+  --terras-font-display: var(--terras-font-modern);
+
+  /* Viewport units the sign-in screen sizes itself against. erp scales its whole
+     UI by a `--ui-zoom` factor and publishes `--app-vh` / `--app-vw` that divide
+     the zoom back out; an app that doesn't scale leaves these at the real units.
+     Indirected through a token rather than read directly because `calc()` over an
+     UNDEFINED var invalidates the whole declaration — a missing `--app-vw` would
+     drop a font-size outright instead of falling back to it. In erp, override
+     these two to `var(--app-vh)` / `var(--app-vw)`.
+     Deliberately CSS-only, with no tokens.json counterpart: they are indirection
+     hooks for an app to redefine, not values this package publishes. */
+  --terras-app-vh: 100dvh;
+  --terras-app-vw: 100vw;
+
+  /* ── Sign-in screen (erp app/login/page.tsx) ─────────────────────────────────
+     In `:root`, not under a theme class, on purpose: the sign-in screen sits
+     OUTSIDE the app chrome — deep blue, modern face, no bevels — and looks the
+     same whichever theme the app boots into. It is the one Terras surface that
+     is not classic, which is why none of these reuse the win- or title- vars. */
+  --terras-login-bg: linear-gradient(135deg, #0d1f5c 0%, #1a3fa8 40%, #0a246a 100%);
+  --terras-login-stripe-top: linear-gradient(to bottom, rgba(255, 255, 255, 0.08) 0%, transparent 100%);
+  --terras-login-stripe-bottom: linear-gradient(to top, rgba(0, 0, 60, 0.7) 0%, transparent 100%);
+  --terras-login-stripe-top-border: rgba(166, 202, 240, 0.15);
+  --terras-login-stripe-bottom-border: rgba(166, 202, 240, 0.1);
+  --terras-login-text: #ffffff;
+  /* Three muted tiers, all cool blue-greys against the deep blue: the footer
+     clock/status line, then version + last-updated one step back, then the
+     module word beside the wordmark, which is dimmer still. */
+  --terras-login-text-2: #a8bee0;
+  --terras-login-text-3: #7f97c0;
+  --terras-login-module: #7f9ecb;
+  --terras-login-tagline: #a0c2f5;
+  --terras-login-hint: #b8ccf0;
+  --terras-login-muted: #9fb8dc;
+  --terras-login-divider: rgba(166, 202, 240, 0.35);
+  /* Field pair. The password step's edge and label go amber while the username
+     step's stay blue — the colour change IS the step change, alongside the slide. */
+  --terras-login-label: #c0d8f8;
+  --terras-login-label-pw: #e8c870;
+  --terras-login-field-bg: rgba(255, 255, 255, 0.15);
+  --terras-login-field-border: rgba(166, 202, 240, 0.6);
+  --terras-login-field-border-pw: rgba(232, 200, 112, 0.5);
+  --terras-login-submit: linear-gradient(to bottom, #4a90d9, #2563c4);
+  --terras-login-submit-busy: linear-gradient(to bottom, #3a6090, #1a3a6a);
+  --terras-login-submit-border: #0a246a;
+  --terras-login-back: linear-gradient(to bottom, #607090, #404860);
+  --terras-login-back-border: rgba(100, 130, 180, 0.4);
+  --terras-login-error-text: #ff9080;
+  --terras-login-error-bg: rgba(180, 40, 20, 0.25);
+  --terras-login-error-border: rgba(180, 40, 20, 0.4);
+  --terras-login-error-link: #ffc0b0;
+  /* "View Documentation" pill — an outline that glows on hover (chrome.css). */
+  --terras-login-pill: #a8cef2;
+  --terras-login-pill-border: rgba(122, 176, 232, 0.3);
+  /* Suite tiles. Active carries the accent fill + glow; the rest are near-empty
+     outlines that fade with distance from the active pair. */
+  --terras-login-accent: #4a90d9;
+  --terras-login-tile-bg: rgba(255, 255, 255, 0.05);
+  --terras-login-tile-border: rgba(166, 202, 240, 0.2);
+  --terras-login-tile-icon: #5f7aa8;
+  --terras-login-tile-active-bg: rgba(74, 144, 217, 0.28);
+  --terras-login-tile-glow: rgba(74, 144, 217, 0.6);
+  --terras-login-tile-hover-glow: rgba(166, 202, 240, 0.4);
+  --terras-login-tip-bg: rgba(10, 20, 60, 0.92);
+  --terras-login-tip-border: rgba(166, 202, 240, 0.4);
+  /* Server-status dot. Its own four colours, NOT the status families: those are
+     tuned to read on beige and would sit dull on the deep blue. */
+  --terras-login-status-checking: #c0c8d8;
+  --terras-login-status-ok: #5ad06a;
+  --terras-login-status-degraded: #e8c870;
+  --terras-login-status-offline: #ff6b5a;
+
+  /* ── Staff ID badge (erp login StaffIdCard + Sidebar footer) ─────────────────
+     Issued-card stock: light blue, deliberately NOT white, so it reads as
+     printed by the same system as the chrome rather than as a floating panel.
+     Shared because it is one object in two places — the badge shown before
+     signing in is the badge carried inside the app. */
+  --terras-badge-face: linear-gradient(to bottom, #d6e2f6, #a8c3e7);
+  --terras-badge-border-light: #eaf2fd;
+  --terras-badge-border-dark: #5f78a6;
+  --terras-badge-spine: linear-gradient(to bottom, #4a7ddb, #003080);
+  --terras-badge-shadow: 0 2px 8px rgba(0, 10, 40, 0.28);
+  --terras-badge-photo-bg: #eaf1fb;
+  --terras-badge-photo-border: #6d84b0;
+  /* Closed (pre-confirmation) photo well: one step darker, because at that point
+     there is no card behind it to lift it off the screen. */
+  --terras-badge-photo-bg-idle: #c8d8f0;
+  --terras-badge-photo-border-idle: #8fa4c8;
+  --terras-badge-text: #16294f;
+  --terras-badge-text-2: #3d5480;
+  --terras-badge-text-3: #5b6c92;
+  --terras-badge-role-bg: #bcd0ee;
+  --terras-badge-role-border: #7891bd;
+
+  /* ── Boot splash (erp BootSplash.tsx) ────────────────────────────────────────
+     Classic beige, unlike the sign-in screen above: the splash stands in for the
+     app frame that has not painted yet, so it wears the app's face, not the
+     login screen's. The bar's fill is `--terras-status-blue`, reused. */
+  --terras-boot-bg: #ece9d8;
+  --terras-boot-title: #1a3d90;
+  --terras-boot-sub: #5a6470;
+  --terras-boot-text: #33393f;
+  --terras-boot-track: #e9e9e9;
+  --terras-boot-track-border: #7f9db9;
 }
 
 /* Classic (XP) — the primary Terras brand identity. */

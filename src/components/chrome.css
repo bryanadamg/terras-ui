@@ -240,6 +240,119 @@
 }
 .terras-scroll::-webkit-scrollbar-thumb:hover { background: #dcd9cf; }
 
+/* ── Sign-in screen (LoginScreen) ────────────────────────────────────────────
+   The step slide, the badge glimmer, and the docs pill's hover — mirrored from
+   teras-erp/frontend/app/globals.css (`login-*` block). The card's OWN motion
+   (face fade, frame re-shape, avatar glide) is inline in the component, because
+   those animate one persistent set of nodes; keyframes were the wrong tool
+   there — see the comment in LoginScreen.js. */
+
+/* Direction carries meaning: forward slides in from the right, Back mirrors it,
+   so the motion is a wayfinding cue rather than decoration. Enter-only by
+   design — the outgoing field unmounts immediately (React has no exit phase
+   without keeping a ghost node around, and a 2-field auth form does not justify
+   that machinery). The incoming pane is remounted via a `key`, which is what
+   restarts the animation. */
+@keyframes terras-login-step-in-right {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes terras-login-step-in-left {
+  from { opacity: 0; transform: translateX(-20px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes terras-login-fade-up {
+  from { opacity: 0; transform: translateY(7px); }
+  to   { opacity: 1; transform: none; }
+}
+.terras-login-step {
+  animation: terras-login-step-in-right 280ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+.terras-login-step-back {
+  animation-name: terras-login-step-in-left;
+}
+/* Trails the field by a beat so the eye lands on the input first. */
+.terras-login-identity {
+  animation: terras-login-fade-up 300ms cubic-bezier(0.22, 0.61, 0.36, 1) 60ms both;
+}
+
+/* The dark fields paint `outline: none` inline (a browser's default ring is a
+   modern focus halo that reads as foreign on this surface), so the ring has to
+   be redrawn here or a keyboard user loses the caret's location entirely. Only
+   `:focus-visible`, so a click doesn't leave it lit. */
+.terras-login-input::placeholder { color: rgba(255, 255, 255, 0.45); }
+.terras-login-input:focus-visible {
+  border-color: var(--terras-login-pill, #a8cef2);
+  box-shadow: 0 0 0 2px var(--terras-login-tile-hover-glow, rgba(166, 202, 240, 0.4));
+}
+
+/* "View Documentation" pill — a plain glow on hover, not a travelling effect,
+   so it needs no reduced-motion guard the way the badge glimmer below does. */
+.terras-login-pill {
+  transition: box-shadow 0.15s ease, border-color 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+}
+.terras-login-pill:hover {
+  border-color: rgba(122, 176, 232, 0.75);
+  background: rgba(122, 176, 232, 0.14);
+  color: #dcefff;
+  box-shadow: 0 0 10px rgba(122, 176, 232, 0.55), 0 0 22px rgba(122, 176, 232, 0.25);
+}
+
+/* Badge glimmer: a light band raked across the card face on hover, the way a
+   real laminated badge catches a ceiling light. A pseudo-element because the
+   card's own background is an inline gradient carrying the card stock — this
+   overlays it instead of fighting it for the same property. Parked off-canvas
+   at rest so nothing paints until hover, and `pointer-events: none` so it never
+   eats a click meant for the card. Gated on `-open` so a closed (invisible)
+   badge cannot glimmer, while `.terras-badge` itself is always present — the
+   reduced-motion rule below has to reach the card in BOTH states. */
+.terras-badge { position: relative; }
+.terras-badge-open::after,
+.terras-badge-static::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(105deg,
+    transparent 38%,
+    rgba(255, 255, 255, 0.28) 46%,
+    rgba(255, 255, 255, 0.72) 50%,
+    rgba(255, 255, 255, 0.28) 54%,
+    transparent 62%);
+  transform: translateX(-120%);
+  opacity: 0;
+}
+.terras-badge-open:hover::after,
+.terras-badge-static:hover::after {
+  animation: terras-badge-glimmer 850ms cubic-bezier(0.3, 0.1, 0.3, 1);
+}
+@keyframes terras-badge-glimmer {
+  0%   { transform: translateX(-120%); opacity: 0; }
+  12%  { opacity: 1; }
+  88%  { opacity: 1; }
+  100% { transform: translateX(120%); opacity: 0; }
+}
+
+/* Suite tiles: z-index for the hover pop lives here, not inline, so the hovered
+   tile can rise above its neighbours' scaled edges — an inline value would
+   outrank this rule and freeze the stack, the same reason ToggleChip's segment
+   z-index lives in this file. */
+.terras-suite-tile { position: relative; z-index: 1; }
+.terras-suite-tile:hover { z-index: 5; }
+
+@media (prefers-reduced-motion: reduce) {
+  .terras-login-step,
+  .terras-login-step-back,
+  .terras-login-identity { animation: none; }
+  /* The card still appears — it carries information. Only the travel goes, and
+     the glimmer is pure decoration, so it goes entirely. Killing the inline
+     transitions needs !important: an inline style outranks any rule here. */
+  .terras-badge,
+  .terras-badge * { transition: none !important; }
+  .terras-badge-open:hover::after,
+  .terras-badge-static:hover::after { animation: none; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .terras-btn,
   .terras-tab,

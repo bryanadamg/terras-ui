@@ -28,6 +28,8 @@ Plain `React.createElement` (no JSX) so no build step is required to consume the
 | `components/ToggleChip` | Pressed/unpressed chip, tones `blue` / `green` / `red` / `amber` |
 | `components/FilterChipBar` | Segmented "pick one (or many) of these" filter row |
 | `components/SegmentedBar` | Its stateless sibling — a flush group of plain actions |
+| `components/LoginScreen` | The sign-in screen — wordmark, suite panel, two-step form, ID badge (+ `.SuitePanel` / `.IdCard` / `.StatusDot`) |
+| `components/BootSplash` | Pre-chrome boot screen + `useBootIndicator`, the two guards that keep it from flashing |
 | `styles` | The style primitives the above are built from (`bevel`, `panel`, `titleBar`, `toolbar`, `field`, `button`, `toggleChip`, `cssVar`, `font`, `fs`, `trackingCaps`) — for a one-off surface that has no component yet |
 
 Reach for `Combobox` over a `Select` once a list runs past a hundred or so
@@ -50,6 +52,67 @@ pinned wider than the frozen region.
 never takes a click; a `ToggleChip` is a control that says **pressed**, over four
 tones. Reach for `FilterChipBar` / `SegmentedBar` rather than a hand-spaced row of
 `ToggleChip` — they own the flush segment geometry.
+
+`LoginScreen` is the one component here that is **not** classic chrome: sign-in
+sits outside the app, so it is a deep blue field in the modern face and looks the
+same whichever theme the app boots into (its palette lives in `:root`, as
+`--terras-login-*` / `--terras-badge-*`). It is shared because sign-in is the only
+screen where all three apps show the *same* thing — the wordmark and the suite
+panel are suite identity, and `SUITE_MODULES` is one list of what Terras is.
+
+It owns the flow; the app owns auth. Everything two-step — the fields, the slide
+direction, focus handoff, the badge opening, the clock, the error line — is UI and
+lives in the component. `onSubmit` performs the sign-in and returns `true` or the
+message to show. Anything device-local stays with the app: the remembered username
+you seed `initialUsername` with, the cached name/role you answer `identityFor`
+with, and where a signed-in user goes next. This package has no router, no fetch
+and no storage keys, and a login screen is not the thing to give it any.
+
+```jsx
+<LoginScreen
+  module="SKU"                       // "Terras" is the suite; this is the module
+  activeModules={['pim']}
+  suiteIcons={{ pim: <i className="bi bi-tags-fill" /> }}
+  initialUsername={remembered}       // read from storage BEFORE this mounts
+  identityFor={recallIdentity}       // device-cached {fullName, role}, never a lookup
+  avatar={({ username, size }) => <PixelAvatar seed={username} size={size} />}
+  onUsernameConfirmed={u => localStorage.setItem('terras_last_username', u)}
+  onSubmit={async (u, p) => (await login(u, p)) === true || 'Invalid username or password'}
+  status={health} version={version} docsHref="/docs"
+/>
+```
+
+`avatar` is a **slot** on purpose: the apps draw faces with `@dicebear/*`, and this
+package carries no runtime dependency but react. Render at the `size` you are
+handed and don't re-size it when the badge opens — the card animates one
+persistent set of nodes precisely so the face never pops, and nothing can
+transition across an unmount. `identityFor` must be synchronous and device-local:
+a pre-auth lookup would confirm to anyone that a given account exists, so an
+unknown username still gets a card, reading "Role confirmed at sign-in".
+
+`SuitePanel` takes `icons` as a `{ key: node }` map because this package ships no
+icon set; a module with no icon falls back to its `short` acronym rather than an
+empty tile. `IdCard` is exported on its own for the Sidebar footer — it is the same
+object in both places, and omitting `open` there gives you the always-open card.
+
+`BootSplash` covers the gap before there is any chrome to draw — hydration plus the
+session round-trip. Gate it on `useBootIndicator`, which holds the two guards that
+keep it from flashing: nothing shows for the first 250ms (a warm start with no
+stored token finishes in a few ms, and a splash flashed across it makes the app
+feel slower than silence), and once shown it stays at least 400ms. Render
+**nothing** in the window where the hook is false but boot is still running.
+
+```jsx
+const booting = !mounted || loading
+const showBoot = useBootIndicator(booting)
+if (showBoot) return <BootSplash phase={mounted ? bootPhase : 'hydrating'} />
+if (booting) return null
+```
+
+If your app scales its whole UI (teras-erp divides a `--ui-zoom` factor back out
+into `--app-vh` / `--app-vw`), point the two tokens `--terras-app-vh` /
+`--terras-app-vw` at yours — `LoginScreen` sizes itself against those, and they
+default to the real viewport units.
 
 A page assembled from them:
 
