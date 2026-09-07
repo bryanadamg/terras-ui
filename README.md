@@ -82,6 +82,12 @@ and no storage keys, and a login screen is not the thing to give it any.
 />
 ```
 
+An app that signs in by address rather than username passes
+`identityType="email"` — same flow, and only the label, the input `type` /
+`autocomplete`, the hint copy and the fallback error message move with it. The
+rest of the API keeps saying "username" for whatever the operator types first,
+so there is one vocabulary rather than two parallel sets of props.
+
 `avatar` is a **slot** on purpose: the apps draw faces with `@dicebear/*`, and this
 package carries no runtime dependency but react. Render at the `size` you are
 handed and don't re-size it when the badge opens — the card animates one

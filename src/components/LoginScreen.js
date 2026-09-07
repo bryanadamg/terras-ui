@@ -307,7 +307,11 @@ function IdCard(props) {
                             overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                         },
                     },
-                    '@' + username,
+                    // erp signs in by username, sku by email. An address is
+                    // already a whole handle, so prefixing it would read as a
+                    // second @ — the sub-line only wears the sigil when the
+                    // value doesn't carry one.
+                    username.indexOf('@') >= 0 ? username : '@' + username,
                 ),
                 // Chip when the role is known, plain italic line when it is not —
                 // a chip around "confirmed at sign-in" would read as a role
@@ -512,6 +516,11 @@ function DocsPill(props) {
 // ── The screen ──────────────────────────────────────────────────────────────
 
 /**
+ * The `username` in these props is "whatever the operator types first" — a
+ * username in erp, an email address in sku (`identityType: 'email'`). One
+ * vocabulary rather than two sets of props; only the label, the input type and
+ * the copy change.
+ *
  * @param {{
  *   appName?: string,                 // the wordmark; defaults to 'Terras'
  *   module?: React.ReactNode,         // the small caps word beside it ('ERP', 'SKU')
@@ -525,6 +534,8 @@ function DocsPill(props) {
  *   suiteIcons?: Object,              // { [key]: ReactNode }
  *   activeModules?: string[],
  *
+ *   identityType?: 'text'|'email',    // what the first field IS; drives label, type, autocomplete, copy
+ *   identityLabel?: React.ReactNode,  // override the derived 'Username' / 'Email'
  *   initialUsername?: string,         // read from device storage BEFORE this mounts
  *   onSubmit: (username: string, password: string) => Promise<true|string> | true | string,
  *   onUsernameConfirmed?: (username: string) => void,
@@ -587,6 +598,17 @@ function LoginScreen(props) {
     const showClock = props.clock !== false;
     const locale = props.locale || 'en-US';
 
+    // The first field's vocabulary. erp signs in by username, sku by email; the
+    // flow is identical, so this is a label + input type + three strings rather
+    // than a second component.
+    const byEmail = props.identityType === 'email';
+    const identityLabel = props.identityLabel === undefined
+        ? (byEmail ? 'Email' : 'Username')
+        : props.identityLabel;
+    const invalidMessage = byEmail
+        ? 'Invalid email or password'
+        : 'Invalid username or password';
+
     React.useEffect(function () {
         if (!showClock) return;
         setNow(new Date());
@@ -641,7 +663,7 @@ function LoginScreen(props) {
                 // message to show. Leaving `busy` set on success is deliberate —
                 // the button must not go live again under a route change.
                 if (result === true) return;
-                setError(typeof result === 'string' && result ? result : 'Invalid username or password');
+                setError(typeof result === 'string' && result ? result : invalidMessage);
                 setBusy(false);
             })
             .catch(function () {
@@ -741,7 +763,7 @@ function LoginScreen(props) {
             },
         },
         step === 'username'
-            ? (compact ? 'Enter your username to sign in' : 'Type your username to sign in')
+            ? (compact ? 'Enter your ' : 'Type your ') + (byEmail ? 'email address' : 'username') + ' to sign in'
             : 'Enter your password to continue',
     );
 
@@ -793,15 +815,15 @@ function LoginScreen(props) {
                                 fontSize: labelFs, color: S.cssVar('login-label', '#c0d8f8'),
                             },
                         },
-                        'Username',
+                        identityLabel,
                     ),
                     React.createElement('input', {
                         id: 'terras-login-username',
                         className: 'terras-login-input',
                         'data-testid': 'username-input',
                         ref: usernameRef,
-                        type: 'text',
-                        autoComplete: 'username',
+                        type: byEmail ? 'email' : 'text',
+                        autoComplete: byEmail ? 'email' : 'username',
                         // Desktop only: a focused field on mobile raises the
                         // keyboard over the screen the user has not read yet.
                         autoFocus: !small,
@@ -887,7 +909,7 @@ function LoginScreen(props) {
                                 cursor: 'pointer',
                             },
                         },
-                        'Try a different username',
+                        byEmail ? 'Try a different email' : 'Try a different username',
                     ),
                 )
                 : null,

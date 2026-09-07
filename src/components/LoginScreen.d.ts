@@ -83,6 +83,18 @@ export interface LoginScreenProps {
   activeModules?: string[];
 
   /**
+   * What the first field *is*. erp signs in by username, sku by email — one flow,
+   * so this switches the label, the input `type`, `autocomplete`, the hint copy
+   * and the fallback error message. Defaults to `'text'` (username).
+   *
+   * Everything else in this API keeps saying "username" for whatever the operator
+   * types first, `identityType: 'email'` included — one vocabulary rather than
+   * two parallel sets of props.
+   */
+  identityType?: 'text' | 'email';
+  /** Overrides the derived label ('Username', or 'Email' when `identityType` is 'email'). */
+  identityLabel?: ReactNode;
+  /**
    * The remembered username, read from device storage by the app **before** this
    * mounts — it seeds the field and the badge on the first render only, so
    * render the screen after your boot gate rather than passing it in late.
@@ -128,6 +140,9 @@ declare function SuitePanel(props: SuitePanelProps): JSX.Element;
  * direction, focus handoff, the badge, the clock and the error line. The app
  * owns auth (`onSubmit`), anything device-local (`initialUsername`,
  * `identityFor`), the avatar face (`avatar`) and where a signed-in user goes.
+ *
+ * Pass `identityType="email"` for an app that signs in by address rather than
+ * username; the flow is the same and only the label, input type and copy move.
  *
  * ```tsx
  * <LoginScreen
