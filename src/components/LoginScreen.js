@@ -48,6 +48,17 @@ const CityMatrix = require('./CityMatrix');
 // An app can still override or drop it via the `cityMatrix` prop.
 const DEFAULT_CITY_MATRIX = require('../assets/cityMatrix.tangerang');
 
+// Where the dot field is faded so the form stays readable, as fractions of the
+// screen. Without this the city's brightness is capped by whatever the inputs
+// can survive, which is the wrong trade: the dots are only bright enough to read
+// as a city in the open half of the screen, and the form is the half that has to
+// win. Module constants, not literals in render — CityMatrix repaints its whole
+// field when this array's identity changes.
+// Desktop: the right-hand column (minWidth 38%, maxWidth 420) plus its badge.
+const DESKTOP_QUIET_ZONES = [{ x: 0.79, y: 0.53, rx: 0.19, ry: 0.32, strength: 0.9 }];
+// Compact: one centred column, so the zone is wide and shallow instead.
+const COMPACT_QUIET_ZONES = [{ x: 0.5, y: 0.54, rx: 0.6, ry: 0.28, strength: 0.9 }];
+
 // The display/wordmark face. Falls back through the modern stack, so the brand
 // never lands in a default serif on an app that loads no display font.
 const brandFont = S.cssVar('font-display', S.cssVar('font-modern', 'system-ui, sans-serif'));
@@ -1035,6 +1046,7 @@ function LoginScreen(props) {
         ? React.createElement(CityMatrix, {
             data: matrixData,
             blink: props.cityMatrixBlink,
+            quietZones: compact ? COMPACT_QUIET_ZONES : DESKTOP_QUIET_ZONES,
             style: { zIndex: -1 },
         })
         : null;

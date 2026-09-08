@@ -45,6 +45,9 @@ const BLINK_MS = 900;
 // Concurrent blinks as a fraction of lit dots, so the rate reads the same on a
 // phone and on a 4K panel instead of frantic on one and dead on the other.
 const BLINK_FRACTION = 0.004;
+// Below this a dot is erased far enough that lighting it up would only reveal
+// the mask. Blinks skip those cells rather than blinking invisibly.
+const QUIET_BLINK_FLOOR = 0.25;
 const MIN_BLINKS = 6;
 
 // Mirror --terras-login-dot / --terras-login-dot-blink. Only reached when
@@ -89,6 +92,7 @@ function readVar(el, name, fallback) {
  *   color?: string,        // overrides --terras-login-dot
  *   blinkColor?: string,   // overrides --terras-login-dot-blink
  *   blink?: boolean,       // default true; forced off under reduced-motion
+ *   quietZones?: Array<{x: number, y: number, rx: number, ry: number, strength?: number}>,
  *   style?: object,
  * }} props
  */
@@ -101,6 +105,10 @@ function CityMatrix(props) {
     const blink = props.blink !== false;
     const color = props.color;
     const blinkColor = props.blinkColor;
+    // Ellipses, in fractions of the canvas, where the field is faded out so the
+    // UI on top of it stays readable. The component does not know where a form
+    // sits — the caller does — so this is a shape, not a layout rule.
+    const zones = props.quietZones;
 
     React.useEffect(function () {
         const canvas = ref.current;
@@ -125,6 +133,11 @@ function CityMatrix(props) {
         let xs = null;
         let ys = null;
         let lvls = null;
+        // Per-dot survival factor under the quiet zones, 1 where untouched. The
+        // base field is faded by one composited gradient per zone, but a blink
+        // repaints a single dot and would otherwise pop back to full strength
+        // inside the mask — it needs the same number the gradient applied.
+        let fades = null;
         let lit = 0;
         let frame = 0;
         let active = null;
@@ -150,6 +163,7 @@ function CityMatrix(props) {
             xs = new Float32Array(cols * rows);
             ys = new Float32Array(cols * rows);
             lvls = new Uint8Array(cols * rows);
+            fades = new Float32Array(cols * rows);
             lit = 0;
 
             // MAX over the grid cells a dot covers, not the centre cell's value.
@@ -183,9 +197,12 @@ function CityMatrix(props) {
                         }
                     }
                     if (!lvl) continue;
-                    xs[lit] = c * pitch;
-                    ys[lit] = r * pitch;
+                    const px = c * pitch;
+                    const py = r * pitch;
+                    xs[lit] = px;
+                    ys[lit] = py;
                     lvls[lit] = lvl;
+                    fades[lit] = zoneFactor(px, py, w, h);
                     lit++;
                 }
             }
@@ -201,6 +218,7 @@ function CityMatrix(props) {
                 }
             }
             ctx.globalAlpha = 1;
+            eraseQuietZones(w, h);
 
             if (animate) {
                 const n = Math.max(MIN_BLINKS, Math.round(lit * BLINK_FRACTION));
@@ -212,15 +230,73 @@ function CityMatrix(props) {
             }
         }
 
+        // Same smoothstep the gradient below is sampled from, so a blinking dot
+        // inside a zone lands on exactly the brightness the base field has there.
+        function zoneFactor(x, y, w, h) {
+            if (!zones || !zones.length) return 1;
+            let f = 1;
+            for (let z = 0; z < zones.length; z++) {
+                const zone = zones[z];
+                const rx = zone.rx * w;
+                const ry = zone.ry * h;
+                if (!(rx > 0) || !(ry > 0)) continue;
+                const dx = (x - zone.x * w) / rx;
+                const dy = (y - zone.y * h) / ry;
+                const t = Math.sqrt(dx * dx + dy * dy);
+                if (t >= 1) continue;
+                const strength = typeof zone.strength === 'number' ? zone.strength : 1;
+                const factor = 1 - strength * (1 - t * t * (3 - 2 * t));
+                if (factor < f) f = factor;
+            }
+            return f;
+        }
+
+        // One composited gradient per zone rather than a per-dot alpha: the base
+        // field's whole point is three fillStyle changes for twenty thousand
+        // dots, and fading it per dot would put a globalAlpha write on each one.
+        // `destination-out` subtracts from what is already painted, so the dots
+        // thin out instead of a translucent panel sitting over them.
+        function eraseQuietZones(w, h) {
+            if (!zones || !zones.length) return;
+            for (let z = 0; z < zones.length; z++) {
+                const zone = zones[z];
+                const rx = zone.rx * w;
+                const ry = zone.ry * h;
+                if (!(rx > 0) || !(ry > 0)) continue;
+                const strength = typeof zone.strength === 'number' ? zone.strength : 1;
+                ctx.save();
+                ctx.globalCompositeOperation = 'destination-out';
+                // Drawn as a circle of radius ry in a horizontally scaled space:
+                // createRadialGradient has no elliptical form.
+                ctx.translate(zone.x * w, zone.y * h);
+                ctx.scale(rx / ry, 1);
+                const g = ctx.createRadialGradient(0, 0, 0, 0, 0, ry);
+                for (let i = 0; i <= 4; i++) {
+                    const t = i / 4;
+                    g.addColorStop(t, 'rgba(0,0,0,' + strength * (1 - t * t * (3 - 2 * t)) + ')');
+                }
+                ctx.fillStyle = g;
+                ctx.fillRect(-ry, -ry, 2 * ry, 2 * ry);
+                ctx.restore();
+            }
+        }
+
         function spawn(now) {
-            return { i: (Math.random() * lit) | 0, start: now + Math.random() * BLINK_MS };
+            // Rejection sampling: a handful of tries is cheaper than keeping a
+            // filtered index array in step, and a zone covers a small slice of
+            // the field, so the first pick almost always lands outside one.
+            let i = (Math.random() * lit) | 0;
+            for (let tries = 0; tries < 8 && fades[i] < QUIET_BLINK_FLOOR; tries++) {
+                i = (Math.random() * lit) | 0;
+            }
+            return { i: i, start: now + Math.random() * BLINK_MS };
         }
 
         function drawDot(i, alpha, fill) {
             // Its own size, or a blinking arterial would clear 4px and repaint 3.
             const size = dot + LEVEL_DOT_BONUS[lvls[i]];
             ctx.clearRect(xs[i], ys[i], size, size);
-            ctx.globalAlpha = alpha;
+            ctx.globalAlpha = alpha * fades[i];
             ctx.fillStyle = fill;
             ctx.fillRect(xs[i], ys[i], size, size);
             ctx.globalAlpha = 1;
@@ -287,7 +363,7 @@ function CityMatrix(props) {
             else window.removeEventListener('resize', onResize);
             document.removeEventListener('visibilitychange', onVisibility);
         };
-    }, [data, pitch, dot, opacityProp, blink, color, blinkColor]);
+    }, [data, pitch, dot, opacityProp, blink, color, blinkColor, zones]);
 
     if (!data || !data.cells) return null;
 

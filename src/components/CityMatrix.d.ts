@@ -39,6 +39,15 @@ export interface CityMatrixProps {
   blinkColor?: string;
   /** Default true. Forced off under `prefers-reduced-motion`. */
   blink?: boolean;
+  /**
+   * Ellipses where the field fades out so UI on top of it stays readable — a
+   * form column, typically. All four values are fractions of the canvas (`x`/`rx`
+   * of its width, `y`/`ry` of its height); `strength` is how much is removed at
+   * the centre, 0..1, default 1. The component has no idea where a form sits, so
+   * the caller supplies the shape. Pass a stable array (module constant or
+   * memoized) — a fresh literal each render repaints the field.
+   */
+  quietZones?: Array<{ x: number; y: number; rx: number; ry: number; strength?: number }>;
   style?: CSSProperties;
 }
 
