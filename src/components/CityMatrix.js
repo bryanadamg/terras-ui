@@ -139,6 +139,13 @@ function CityMatrix(props) {
         // inside the mask — it needs the same number the gradient applied.
         let fades = null;
         let lit = 0;
+        // Device-pixel ratio and the snapped px size of a dot at each level, both
+        // rebuilt per paint. A halftone screen lives on crisp dots, and at 125%
+        // or 150% Windows scaling a 3px dot is 3.75 device px: the browser
+        // antialiases the last quarter-pixel on two edges of every dot, which
+        // over twenty thousand of them reads as haze rather than as a screen.
+        let ratio = 1;
+        let sizes = null;
         let frame = 0;
         let active = null;
 
@@ -146,10 +153,16 @@ function CityMatrix(props) {
             const w = canvas.clientWidth;
             const h = canvas.clientHeight;
             if (!w || !h) return;
-            const dpr = window.devicePixelRatio || 1;
-            canvas.width = Math.round(w * dpr);
-            canvas.height = Math.round(h * dpr);
-            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            ratio = window.devicePixelRatio || 1;
+            canvas.width = Math.round(w * ratio);
+            canvas.height = Math.round(h * ratio);
+            ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+            // A whole number of device pixels, expressed back in the CSS px the
+            // transform expects. Never below one device pixel.
+            sizes = [0, 0, 0, 0];
+            for (let lvl = 1; lvl <= 3; lvl++) {
+                sizes[lvl] = Math.max(1, Math.round((dot + LEVEL_DOT_BONUS[lvl]) * ratio)) / ratio;
+            }
             ctx.clearRect(0, 0, w, h);
 
             const cols = Math.ceil(w / pitch);
@@ -197,8 +210,11 @@ function CityMatrix(props) {
                         }
                     }
                     if (!lvl) continue;
-                    const px = c * pitch;
-                    const py = r * pitch;
+                    // Snapped to the device-pixel grid for the same reason as
+                    // the sizes: pitch x ratio is not an integer for every
+                    // combination, and a half-pixel origin blurs both edges.
+                    const px = Math.round(c * pitch * ratio) / ratio;
+                    const py = Math.round(r * pitch * ratio) / ratio;
                     xs[lit] = px;
                     ys[lit] = py;
                     lvls[lit] = lvl;
@@ -212,7 +228,7 @@ function CityMatrix(props) {
             for (let lvl = 1; lvl <= 3; lvl++) {
                 ctx.globalAlpha = opacity * LEVEL_ALPHA[lvl];
                 ctx.fillStyle = base;
-                const size = dot + LEVEL_DOT_BONUS[lvl];
+                const size = sizes[lvl];
                 for (let i = 0; i < lit; i++) {
                     if (lvls[i] === lvl) ctx.fillRect(xs[i], ys[i], size, size);
                 }
@@ -294,7 +310,7 @@ function CityMatrix(props) {
 
         function drawDot(i, alpha, fill) {
             // Its own size, or a blinking arterial would clear 4px and repaint 3.
-            const size = dot + LEVEL_DOT_BONUS[lvls[i]];
+            const size = sizes[lvls[i]];
             ctx.clearRect(xs[i], ys[i], size, size);
             ctx.globalAlpha = alpha * fades[i];
             ctx.fillStyle = fill;
