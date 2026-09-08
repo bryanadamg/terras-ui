@@ -31,6 +31,7 @@ Plain `React.createElement` (no JSX) so no build step is required to consume the
 | `components/SegmentedBar` | Its stateless sibling — a flush group of plain actions |
 | `components/LoginScreen` | The sign-in screen — wordmark, suite panel, two-step form, ID badge (+ `.SuitePanel` / `.IdCard` / `.StatusDot`) |
 | `components/BootSplash` | Pre-chrome boot screen + `useBootIndicator`, the two guards that keep it from flashing |
+| `components/CityMatrix` | The dot-matrix city behind the sign-in field — a canvas of blinking dots over a generated grid |
 | `styles` | The style primitives the above are built from (`bevel`, `panel`, `titleBar`, `toolbar`, `field`, `button`, `toggleChip`, `cssVar`, `font`, `fs`, `trackingCaps`) — for a one-off surface that has no component yet |
 
 Reach for `Combobox` over a `Select` once a list runs past a hundred or so
@@ -124,6 +125,25 @@ unknown username still gets a card, reading "Role confirmed at sign-in".
 icon set; a module with no icon falls back to its `short` acronym rather than an
 empty tile. `IdCard` is exported on its own for the Sidebar footer — it is the same
 object in both places, and omitting `open` there gives you the always-open card.
+
+The dot-matrix city behind the field is `CityMatrix`, and `LoginScreen` renders it
+for you — there is nothing to pass. Which city sign-in shows is *suite* identity,
+the same argument that makes `SUITE_MODULES` one list, so the Tangerang grid is
+bundled rather than chosen per app. Pass `cityMatrix={null}` to drop it, or
+`cityMatrixBlink={false}` to still the dots; `prefers-reduced-motion` already
+stills them.
+
+It paints on one `<canvas>`, not as elements: a full-bleed 7px grid is ~25k dots on
+a desktop viewport, which as DOM nodes or SVG rects is a dead page on the one
+screen that has to paint fastest. The dot pitch is a constant, not a fraction of
+the viewport — a halftone screen doesn't resize with the page it's printed on — so
+the city is cover-fit and cropped instead, and no viewport shows the grid's edge.
+
+New cities come from `tools/city-matrix/generate.py` (build-time only; `files:
+["src"]` keeps it out of the package). It rasterizes the OSM road network,
+weighting road length by `highway` class, and punches water out as holes. Read that
+tool's README before changing its knobs — the weighting and the near-absent radial
+falloff are what keep the output from being a flat field or a disc respectively.
 
 `BootSplash` covers the gap before there is any chrome to draw — hydration plus the
 session round-trip. Gate it on `useBootIndicator`, which holds the two guards that

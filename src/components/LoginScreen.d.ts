@@ -1,4 +1,5 @@
 import type { CSSProperties, ReactNode } from 'react';
+import type { CityMatrixData } from './CityMatrix';
 
 export type SystemStatus = 'checking' | 'ok' | 'degraded' | 'offline';
 
@@ -125,6 +126,14 @@ export interface LoginScreenProps {
   clock?: boolean;
   /** Locale for the clock. Defaults to 'en-US'. */
   locale?: string;
+  /**
+   * The dot-matrix city behind the field. Omit for the bundled Tangerang grid —
+   * which city sign-in shows is suite identity, so apps should normally leave
+   * this alone. Pass `null` to drop it, or another generated grid to replace it.
+   */
+  cityMatrix?: CityMatrixData | null;
+  /** Blinking dots. On by default; forced off under `prefers-reduced-motion`. */
+  cityMatrixBlink?: boolean;
   style?: CSSProperties;
 }
 

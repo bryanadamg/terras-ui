@@ -40,6 +40,13 @@
 
 const React = require('react');
 const S = require('./styles');
+const CityMatrix = require('./CityMatrix');
+
+// The city behind the field. Bundled rather than passed in, for the same reason
+// `SUITE_MODULES` is: which city sign-in shows is suite identity, so three apps
+// choosing it independently is three answers to a question with one answer.
+// An app can still override or drop it via the `cityMatrix` prop.
+const DEFAULT_CITY_MATRIX = require('../assets/cityMatrix.tangerang');
 
 // The display/wordmark face. Falls back through the modern stack, so the brand
 // never lands in a default serif on an app that loads no display font.
@@ -549,11 +556,15 @@ function DocsPill(props) {
  *   lastUpdated?: string,
  *   clock?: boolean,                  // default true
  *   locale?: string,                  // default 'en-US'
+ *   cityMatrix?: object|null,         // omitted = bundled Tangerang; null = no city
+ *   cityMatrixBlink?: boolean,        // default true; forced off under reduced-motion
  *   style?: object,
  * }} props
  */
 function LoginScreen(props) {
     const compact = useMediaQuery(MOBILE_QUERY);
+    // undefined = the bundled city; null/false = no city at all.
+    const matrixData = props.cityMatrix === undefined ? DEFAULT_CITY_MATRIX : props.cityMatrix;
 
     const usernameState = React.useState(props.initialUsername || '');
     const username = usernameState[0];
@@ -1008,12 +1019,31 @@ function LoginScreen(props) {
         display: 'flex',
         flexDirection: 'column',
         overflowY: 'auto',
+        // For the dot-matrix canvas: `relative` gives it a containing block, and
+        // `isolate` forces a stacking context so its z-index:-1 lands between
+        // this element's own gradient and the content, rather than escaping
+        // behind an ancestor. Without `isolate` the city can vanish under the
+        // host page in an app that wraps sign-in in its own positioned shell.
+        position: 'relative',
+        isolation: 'isolate',
     }, props.style);
+
+    // z-index:-1 rather than 0: negative-index positioned children paint above
+    // the root's background but below non-positioned block descendants, so every
+    // existing child stays on top without needing a stacking fix of its own.
+    const cityNode = matrixData
+        ? React.createElement(CityMatrix, {
+            data: matrixData,
+            blink: props.cityMatrixBlink,
+            style: { zIndex: -1 },
+        })
+        : null;
 
     if (compact) {
         return React.createElement(
             'div',
             { style: screenStyle },
+            cityNode,
             React.createElement(
                 'div',
                 { style: { padding: '32px 28px 20px', textAlign: 'center' } },
@@ -1085,6 +1115,7 @@ function LoginScreen(props) {
     return React.createElement(
         'div',
         { style: screenStyle },
+        cityNode,
         // ── Top stripe ──────────────────────────────────────────────────────
         React.createElement(
             'div',
