@@ -98,7 +98,7 @@
      Opacity is the peak alpha of the brightest level, not a CSS opacity. */
   --terras-login-dot: #bcd2f2;
   --terras-login-dot-blink: #d3e4ff;
-  --terras-login-dot-opacity: 0.42;
+  --terras-login-dot-opacity: 0.5;
   --terras-login-text: #ffffff;
   /* Three muted tiers, all cool blue-greys against the deep blue: the footer
      clock/status line, then version + last-updated one step back, then the

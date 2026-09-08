@@ -30,7 +30,7 @@ export interface CityMatrixProps {
   dotSize?: number;
   /**
    * Peak alpha of the brightest level; the two dimmer levels scale off it.
-   * Defaults to `--terras-login-dot-opacity`, then 0.42.
+   * Defaults to `--terras-login-dot-opacity`, then 0.5.
    */
   opacity?: number;
   /** Overrides `--terras-login-dot`. */

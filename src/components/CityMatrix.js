@@ -28,12 +28,19 @@ const React = require('react');
 
 const DEFAULT_PITCH = 8;
 const DEFAULT_DOT = 3;
-const DEFAULT_OPACITY = 0.42;
+const DEFAULT_OPACITY = 0.5;
 // Level 0 is off. Relative weights of the three lit levels; level 3 is the
 // arterial network, level 1 the residential fringe. The spread is wide on
 // purpose — evenly spaced alphas over the sign-in blue read as noise rather
-// than as a city, because the fringe is most of the dots.
-const LEVEL_ALPHA = [0, 0.22, 0.55, 1];
+// than as a city, because the fringe is most of the dots. Level 3 is only ~3%
+// of the shipped grid's lit cells, so it can carry the full alpha without
+// lifting the field's overall brightness: the arterials are what make the
+// background legible as a map rather than as texture.
+const LEVEL_ALPHA = [0, 0.16, 0.4, 1];
+// Extra px on the arterial dot. One step is enough to read as a line rather
+// than a brighter speck, and it is the same colour, not a second hue — the
+// field has exactly one dot colour and three alphas.
+const LEVEL_DOT_BONUS = [0, 0, 0, 1];
 const BLINK_MS = 900;
 // Concurrent blinks as a fraction of lit dots, so the rate reads the same on a
 // phone and on a 4K panel instead of frantic on one and dead on the other.
@@ -78,7 +85,7 @@ function readVar(el, name, fallback) {
  *   data: {city?: string, w: number, h: number, cells: string},
  *   pitch?: number,        // px between dot centres (default 8)
  *   dotSize?: number,      // px square (default 3)
- *   opacity?: number,      // peak alpha of the brightest level (default 0.42)
+ *   opacity?: number,      // peak alpha of the brightest level (default 0.5)
  *   color?: string,        // overrides --terras-login-dot
  *   blinkColor?: string,   // overrides --terras-login-dot-blink
  *   blink?: boolean,       // default true; forced off under reduced-motion
@@ -145,14 +152,36 @@ function CityMatrix(props) {
             lvls = new Uint8Array(cols * rows);
             lit = 0;
 
+            // MAX over the grid cells a dot covers, not the centre cell's value.
+            // Point-sampling at scale > 1 drops whichever cells fall between dot
+            // centres, and an arterial is a one-cell-wide line: it came through
+            // as a dashed row of specks, which is what made the field read as
+            // texture instead of as roads. Taking the max cannot lose a thin
+            // bright line, and it only ever brightens — the fringe is already
+            // contiguous, so it looks the same.
             for (let r = 0; r < rows; r++) {
-                const gy = Math.floor((r + 0.5) * scale + offY);
-                if (gy < 0 || gy >= data.h) continue;
-                const rowBase = gy * data.w;
+                const gy0 = Math.floor(r * scale + offY);
+                const gy1 = Math.max(gy0 + 1, Math.floor((r + 1) * scale + offY));
+                if (gy1 <= 0 || gy0 >= data.h) continue;
+                const yStart = gy0 < 0 ? 0 : gy0;
+                const yEnd = gy1 > data.h ? data.h : gy1;
                 for (let c = 0; c < cols; c++) {
-                    const gx = Math.floor((c + 0.5) * scale + offX);
-                    if (gx < 0 || gx >= data.w) continue;
-                    const lvl = levels[rowBase + gx];
+                    const gx0 = Math.floor(c * scale + offX);
+                    const gx1 = Math.max(gx0 + 1, Math.floor((c + 1) * scale + offX));
+                    if (gx1 <= 0 || gx0 >= data.w) continue;
+                    const xStart = gx0 < 0 ? 0 : gx0;
+                    const xEnd = gx1 > data.w ? data.w : gx1;
+                    let lvl = 0;
+                    for (let gy = yStart; gy < yEnd && lvl < 3; gy++) {
+                        const rowBase = gy * data.w;
+                        for (let gx = xStart; gx < xEnd; gx++) {
+                            const v = levels[rowBase + gx];
+                            if (v > lvl) {
+                                lvl = v;
+                                if (lvl === 3) break;
+                            }
+                        }
+                    }
                     if (!lvl) continue;
                     xs[lit] = c * pitch;
                     ys[lit] = r * pitch;
@@ -166,8 +195,9 @@ function CityMatrix(props) {
             for (let lvl = 1; lvl <= 3; lvl++) {
                 ctx.globalAlpha = opacity * LEVEL_ALPHA[lvl];
                 ctx.fillStyle = base;
+                const size = dot + LEVEL_DOT_BONUS[lvl];
                 for (let i = 0; i < lit; i++) {
-                    if (lvls[i] === lvl) ctx.fillRect(xs[i], ys[i], dot, dot);
+                    if (lvls[i] === lvl) ctx.fillRect(xs[i], ys[i], size, size);
                 }
             }
             ctx.globalAlpha = 1;
@@ -187,10 +217,12 @@ function CityMatrix(props) {
         }
 
         function drawDot(i, alpha, fill) {
-            ctx.clearRect(xs[i], ys[i], dot, dot);
+            // Its own size, or a blinking arterial would clear 4px and repaint 3.
+            const size = dot + LEVEL_DOT_BONUS[lvls[i]];
+            ctx.clearRect(xs[i], ys[i], size, size);
             ctx.globalAlpha = alpha;
             ctx.fillStyle = fill;
-            ctx.fillRect(xs[i], ys[i], dot, dot);
+            ctx.fillRect(xs[i], ys[i], size, size);
             ctx.globalAlpha = 1;
         }
 
