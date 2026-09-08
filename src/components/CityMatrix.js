@@ -146,6 +146,12 @@ function CityMatrix(props) {
         // over twenty thousand of them reads as haze rather than as a screen.
         let ratio = 1;
         let sizes = null;
+        // Indices of the level 2-3 dots. Blinks are drawn from these rather than
+        // from every lit dot: the residential fabric is about 70% of the field,
+        // so a uniform pick put nearly every blink in the noise, where it read as
+        // stray sparkle. On the arterials the same motion reads as traffic.
+        let bright = null;
+        let brightCount = 0;
         let frame = 0;
         let active = null;
 
@@ -177,7 +183,9 @@ function CityMatrix(props) {
             ys = new Float32Array(cols * rows);
             lvls = new Uint8Array(cols * rows);
             fades = new Float32Array(cols * rows);
+            bright = new Int32Array(cols * rows);
             lit = 0;
+            brightCount = 0;
 
             // MAX over the grid cells a dot covers, not the centre cell's value.
             // Point-sampling at scale > 1 drops whichever cells fall between dot
@@ -219,6 +227,7 @@ function CityMatrix(props) {
                     ys[lit] = py;
                     lvls[lit] = lvl;
                     fades[lit] = zoneFactor(px, py, w, h);
+                    if (lvl >= 2) bright[brightCount++] = lit;
                     lit++;
                 }
             }
@@ -297,13 +306,20 @@ function CityMatrix(props) {
             }
         }
 
+        function pick() {
+            // A city with no classified roads in frame still has to blink.
+            if (!brightCount) return (Math.random() * lit) | 0;
+            return bright[(Math.random() * brightCount) | 0];
+        }
+
         function spawn(now) {
-            // Rejection sampling: a handful of tries is cheaper than keeping a
-            // filtered index array in step, and a zone covers a small slice of
-            // the field, so the first pick almost always lands outside one.
-            let i = (Math.random() * lit) | 0;
+            // Rejection sampling against the quiet zones: a handful of tries is
+            // cheaper than keeping a second filtered array in step, and a zone
+            // covers a small slice of the field, so the first pick almost always
+            // lands outside one.
+            let i = pick();
             for (let tries = 0; tries < 8 && fades[i] < QUIET_BLINK_FLOOR; tries++) {
-                i = (Math.random() * lit) | 0;
+                i = pick();
             }
             return { i: i, start: now + Math.random() * BLINK_MS };
         }
