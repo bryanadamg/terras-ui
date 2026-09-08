@@ -48,6 +48,38 @@ const CityMatrix = require('./CityMatrix');
 // An app can still override or drop it via the `cityMatrix` prop.
 const DEFAULT_CITY_MATRIX = require('../assets/cityMatrix.tangerang');
 
+// Where the dot field is faded so the form stays readable, as fractions of the
+// screen. Without this the city's brightness is capped by whatever the inputs
+// can survive, which is the wrong trade: the dots are only bright enough to read
+// as a city in the open half of the screen, and the form is the half that has to
+// win. Module constants, not literals in render — CityMatrix repaints its whole
+// field when this array's identity changes.
+// Desktop: the right-hand column (minWidth 38%, maxWidth 420) plus its badge.
+// Desktop keeps the city in the left two thirds and tapers it out before the
+// form column starts, rather than punching a hole where the form sits. A hole
+// has two edges to get wrong and still leaves dots either side of the field; a
+// taper has one direction and ends in clean ground. `spanX` is what actually
+// moves the map left — panning cannot, because cover-fit already fills the
+// width exactly — and it lands the field's own right edge inside the faded part
+// where no seam can show.
+const DESKTOP_SPAN_X = 0.75;
+const DESKTOP_FADE_X = { start: 0.4, end: 0.7, strength: 1 };
+// Compact stacks brand, form and footer in one centred column, so there is no
+// empty side to move the city into: it keeps the full width and an ellipse
+// behind the form instead.
+const COMPACT_QUIET_ZONES = [
+    { x: 0.5, y: 0.54, rx: 0.62, ry: 0.34, inner: 0.4, strength: 1 },
+];
+
+// Which band of the city the crop keeps. Cover-fit spends all the slack on the
+// cropped axis, so desktop can only choose a horizontal band: slightly above
+// centre keeps the coastline void in frame at the top, which is the thing that
+// reads as a real place, and leaves the denser fabric across the module row.
+// Portrait crops the other axis instead, so there the knob is x, set east of
+// centre where the core sits.
+const DESKTOP_FOCUS = { x: 0.5, y: 0.44 };
+const COMPACT_FOCUS = { x: 0.6, y: 0.5 };
+
 // The display/wordmark face. Falls back through the modern stack, so the brand
 // never lands in a default serif on an app that loads no display font.
 const brandFont = S.cssVar('font-display', S.cssVar('font-modern', 'system-ui, sans-serif'));
@@ -373,8 +405,12 @@ function SuitePanel(props) {
     const icons = props.icons || {};
     const activeKeys = props.active || [];
     const compact = !!props.compact;
-    const tileSize = compact ? 40 : 56;
-    const iconSize = compact ? 16 : 20;
+    // Footer scale. The row is chrome that says which suite this is, not a
+    // launcher: at 56px (the first pass) it read as a set of buttons waiting to
+    // be clicked, and it now sits in the footer under the status line, where it
+    // has to weigh about as much as a line of 12px type.
+    const tileSize = compact ? 24 : 26;
+    const iconSize = compact ? 12 : 13;
 
     const hoverState = React.useState(null);
     const hovered = hoverState[0];
@@ -399,8 +435,11 @@ function SuitePanel(props) {
         {
             style: Object.assign({
                 display: 'flex', flexWrap: 'nowrap', justifyContent: 'center',
-                gap: compact ? 8 : 10, overflowX: 'auto', overflowY: 'hidden',
-                paddingTop: compact ? 34 : 40, paddingBottom: 6, maxWidth: '100%',
+                gap: compact ? 5 : 6, overflowX: 'auto', overflowY: 'hidden',
+                // The old top padding was headroom for the hover tooltip, which
+                // is gone; without it the row floated a tile's height clear of
+                // the line it belongs to.
+                paddingTop: 6, paddingBottom: 2, maxWidth: '100%',
                 fontFamily: bodyFont,
             }, props.style),
         },
@@ -429,26 +468,11 @@ function SuitePanel(props) {
                     onMouseLeave: function () { setHovered(null); },
                     style: { flexShrink: 0 },
                 },
-                // Hover name. A tooltip rather than a printed label: ten labelled
-                // tiles is a nav bar, and this row is not navigable.
-                React.createElement(
-                    'div',
-                    {
-                        style: {
-                            position: 'absolute', bottom: '115%', left: '50%',
-                            transform: 'translateX(-50%) translateY(' + (isHovered ? 0 : 4) + 'px)',
-                            opacity: isHovered ? 1 : 0,
-                            transition: 'opacity 0.15s ease, transform 0.15s ease',
-                            pointerEvents: 'none', whiteSpace: 'nowrap',
-                            fontSize: compact ? 10 : 11, fontWeight: 600,
-                            color: S.cssVar('login-text', '#ffffff'),
-                            background: S.cssVar('login-tip-bg', 'rgba(10, 20, 60, 0.92)'),
-                            border: '1px solid ' + S.cssVar('login-tip-border', 'rgba(166, 202, 240, 0.4)'),
-                            borderRadius: 4, padding: '3px 8px',
-                        },
-                    },
-                    m.title,
-                ),
+                // No hover label. The lift and the opacity step already answer
+                // the only thing this row claims - which module this app is - and
+                // the name stays on the tile's `title`, so it is still reachable
+                // without a pointer. A panel floating over the footer strip would
+                // have to clear its edge, at which point it reads as a menu.
                 React.createElement(
                     'div',
                     {
@@ -759,24 +783,9 @@ function LoginScreen(props) {
         props.tagline === undefined ? 'Integrated Business Suite' : props.tagline,
     );
 
-    const hint = React.createElement(
-        'div',
-        {
-            // Keyed on `step` so the copy re-mounts and fades in rather than
-            // swapping mid-sentence under the reader.
-            key: step,
-            className: 'terras-login-identity',
-            style: {
-                fontSize: compact ? 13 : vw(9, 1.2, 14),
-                color: S.cssVar('login-hint', '#b8ccf0'),
-                letterSpacing: compact ? undefined : 1,
-                textAlign: compact ? 'center' : undefined,
-            },
-        },
-        step === 'username'
-            ? (compact ? 'Enter your ' : 'Type your ') + (byEmail ? 'email address' : 'username') + ' to sign in'
-            : 'Enter your password to continue',
-    );
+    // No step hint. "Type your email address to sign in" over a labelled field
+    // and a Next button restates what the form already says, and it was the one
+    // line of copy that had to be kept in step with `identityType`.
 
     // ── The form, rendered ONCE for both layouts ────────────────────────────
     const renderForm = function (small) {
@@ -1035,6 +1044,10 @@ function LoginScreen(props) {
         ? React.createElement(CityMatrix, {
             data: matrixData,
             blink: props.cityMatrixBlink,
+            quietZones: compact ? COMPACT_QUIET_ZONES : undefined,
+            spanX: compact ? 1 : DESKTOP_SPAN_X,
+            fadeX: compact ? undefined : DESKTOP_FADE_X,
+            focus: compact ? COMPACT_FOCUS : DESKTOP_FOCUS,
             style: { zIndex: -1 },
         })
         : null;
@@ -1052,16 +1065,6 @@ function LoginScreen(props) {
             ),
             React.createElement(
                 'div',
-                { style: { padding: '0 28px 8px', display: 'flex', justifyContent: 'center' } },
-                React.createElement(SuitePanel, {
-                    compact: true,
-                    modules: props.suite,
-                    icons: props.suiteIcons,
-                    active: props.activeModules,
-                }),
-            ),
-            React.createElement(
-                'div',
                 {
                     style: {
                         flex: 1, display: 'flex', flexDirection: 'column',
@@ -1070,7 +1073,6 @@ function LoginScreen(props) {
                     },
                 },
                 badge(true),
-                hint,
                 renderForm(true),
             ),
             React.createElement(
@@ -1099,6 +1101,12 @@ function LoginScreen(props) {
                     props.lastUpdated
                         ? React.createElement('div', { style: { marginTop: 2, opacity: 0.6 } }, 'Last updated ' + props.lastUpdated)
                         : null,
+                    React.createElement(SuitePanel, {
+                        compact: true,
+                        modules: props.suite,
+                        icons: props.suiteIcons,
+                        active: props.activeModules,
+                    }),
                 ),
             ),
         );
@@ -1164,24 +1172,11 @@ function LoginScreen(props) {
             React.createElement(
                 'div',
                 {
-                    style: {
-                        flex: 1, display: 'flex', flexDirection: 'column',
-                        alignItems: 'center', gap: 16, padding: '0 4%',
-                    },
+                    // Nothing left in the left panel: the suite row moved to the
+                    // footer, so this column only holds the centre band's
+                    // proportions and lets the city through.
+                    style: { flex: 1, padding: '0 4%' },
                 },
-                React.createElement(SuitePanel, {
-                    modules: props.suite,
-                    icons: props.suiteIcons,
-                    active: props.activeModules,
-                }),
-                React.createElement('div', {
-                    style: {
-                        width: '60%', height: 1,
-                        background: 'linear-gradient(to right, transparent, ' +
-                            S.cssVar('login-divider', 'rgba(166, 202, 240, 0.35)') + ', transparent)',
-                    },
-                }),
-                hint,
             ),
             React.createElement('div', {
                 style: {
@@ -1224,6 +1219,14 @@ function LoginScreen(props) {
                 props.lastUpdated
                     ? React.createElement('div', { style: { opacity: 0.6 } }, 'Last updated ' + props.lastUpdated)
                     : null,
+                // Left-aligned rather than centred: it hangs off the status line
+                // it sits under, not in the middle of the strip.
+                React.createElement(SuitePanel, {
+                    modules: props.suite,
+                    icons: props.suiteIcons,
+                    active: props.activeModules,
+                    style: { justifyContent: 'flex-start' },
+                }),
             ),
             React.createElement(
                 'div',

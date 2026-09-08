@@ -9,6 +9,7 @@ import argparse
 import base64
 import json
 import os
+import pickle
 import sys
 import time
 
@@ -58,6 +59,19 @@ ROAD_WEIGHTS = {
 }
 DEFAULT_ROAD_WEIGHT = 0.5
 
+# Weight cuts that split ROAD_WEIGHTS into the three dot levels for --mode class.
+# Read off the weights above rather than re-listing the tags: >=4 is motorway /
+# trunk / primary (and motorway_link), >=1.6 adds their links plus secondary and
+# tertiary, everything else — residential, service, paths — is the fabric.
+CLASS_CUTS = (1.6, 4.0)
+# Class mode floor. Anything below this is footway, path, cycleway, track and
+# service — a third of OSM's ways in a dense metro, and they are not roads. Left
+# in, the level-1 fabric lit 69% of the grid and the background went from a road
+# map back to a wash. The poster's hairlines are residential streets; this is
+# where that line is drawn. (Density mode has no use for it: a footpath's weight
+# is 0.15, so it contributes almost nothing to a cell's score anyway.)
+CLASS_FLOOR = 0.5
+
 
 def _road_weight(tag):
     if isinstance(tag, list):
@@ -65,21 +79,91 @@ def _road_weight(tag):
     return ROAD_WEIGHTS.get(tag, DEFAULT_ROAD_WEIGHT)
 
 
-def road_density(lat, lon, dist, grid, crop):
-    """Importance-weighted road length per grid cell, as a (grid, grid) array."""
+EDGE_CACHE_VERSION = 1
+
+
+def _edge_cache_path(lat, lon, dist):
+    return os.path.join(CACHE_DIR, f"edges_{lat:.7f}_{lon:.7f}_{int(dist)}.pkl")
+
+
+def load_edges(lat, lon, dist):
+    """Projected edge geometry, lengths, weights, crs and centre — cached on disk.
+
+    osmnx's own cache holds the Overpass RESPONSE only, so a re-render at a
+    different --grid or --cuts still paid graph_from_point + project_graph +
+    graph_to_gdfs: about ten minutes and 4.4GB of RAM on a 48km all-roads bbox,
+    which is nearly the whole wall clock. This caches the far side of that step,
+    keyed on (point, radius) alone — the only inputs it depends on — so every
+    other knob re-renders in seconds. Same idea as maptoposter's
+    cache/graph_<lat>_<lon>_<dist>.pkl, one stage later.
+
+    Geometry is stored as WKB rather than pickling the GeoDataFrame: shapely
+    vectorises it back in a single call, and it does not pickle pandas/geopandas
+    internals into a file that a library upgrade can then refuse to read. Delete
+    the file to force a rebuild.
+    """
+    path = _edge_cache_path(lat, lon, dist)
+    if os.path.exists(path):
+        try:
+            with open(path, "rb") as fh:
+                blob = pickle.load(fh)
+            if blob.get("version") == EDGE_CACHE_VERSION:
+                print(f"  using cached edges ({len(blob['lengths'])} edges)")
+                return (
+                    shapely.from_wkb(blob["wkb"]),
+                    blob["lengths"],
+                    blob["weights"],
+                    blob["crs"],
+                    Point(blob["center"]),
+                )
+            print("  edge cache is an older version, rebuilding")
+        except Exception as exc:  # noqa: BLE001 - a stale cache must never be fatal
+            print(f"  edge cache unreadable ({exc}), rebuilding")
+
+    print("  building the road graph (slow; cached after this)")
     g = ox.graph_from_point(
         (lat, lon), dist=dist, dist_type="bbox", network_type="all", truncate_by_edge=True
     )
     g = ox.project_graph(g)
     edges = ox.graph_to_gdfs(g, nodes=False)
-    center = ox.projection.project_geometry(
-        Point(lon, lat), crs="EPSG:4326", to_crs=g.graph["crs"]
-    )[0]
+    crs = g.graph["crs"]
+    center = ox.projection.project_geometry(Point(lon, lat), crs="EPSG:4326", to_crs=crs)[0]
 
     geoms = edges.geometry.values
     lengths = shapely.length(geoms)
     weights = np.array([_road_weight(t) for t in edges["highway"]], dtype=float)
 
+    # Written via a temp file and renamed: a run interrupted mid-dump would
+    # otherwise leave a truncated pickle that the next run has to diagnose.
+    tmp = path + ".tmp"
+    try:
+        with open(tmp, "wb") as fh:
+            pickle.dump(
+                {
+                    "version": EDGE_CACHE_VERSION,
+                    "wkb": shapely.to_wkb(geoms),
+                    "lengths": lengths,
+                    "weights": weights,
+                    "crs": crs,
+                    "center": (center.x, center.y),
+                },
+                fh,
+                protocol=pickle.HIGHEST_PROTOCOL,
+            )
+        os.replace(tmp, path)
+        print(f"  cached edges -> {os.path.basename(path)}")
+    except Exception as exc:  # noqa: BLE001 - the render must not fail over a cache write
+        print(f"  could not cache edges ({exc})")
+
+    return geoms, lengths, weights, crs, center
+
+
+def _sample_points(geoms, lengths, weights, dist, grid, crop, center):
+    """Densified sample points for every edge, plus the grid's bin edges.
+
+    Shared by both modes: whether a cell ends up scored by road length or by road
+    class, the sampling underneath is identical.
+    """
     half = dist * crop
     cell = (2 * half) / grid
     step = cell / 2.0
@@ -97,12 +181,66 @@ def road_density(lat, lon, dist, grid, crop):
 
     x_edges = np.linspace(center.x - half, center.x + half, grid + 1)
     y_edges = np.linspace(center.y - half, center.y + half, grid + 1)
+    return xy, spacing, weights[idx], x_edges, y_edges
+
+
+def road_density(lat, lon, dist, grid, crop):
+    """Importance-weighted road length per grid cell, as a (grid, grid) array."""
+    geoms, lengths, weights, crs, center = load_edges(lat, lon, dist)
+    xy, spacing, w, x_edges, y_edges = _sample_points(
+        geoms, lengths, weights, dist, grid, crop, center
+    )
     dens, _, _ = np.histogram2d(
-        xy[:, 0], xy[:, 1], bins=[x_edges, y_edges], weights=spacing * weights[idx]
+        xy[:, 0], xy[:, 1], bins=[x_edges, y_edges], weights=spacing * w
     )
 
     # histogram2d is [x][y] with y ascending; we want row-major top-down.
-    return np.flipud(dens.T), g.graph["crs"], center
+    return np.flipud(dens.T), crs, center
+
+
+def road_classes(lat, lon, dist, grid, crop, class_cuts=None):
+    """Highest road CLASS crossing each cell, as levels 0..3.
+
+    This is the poster's hierarchy rather than a heatmap: maptoposter draws each
+    highway class as a line of its own width, so an arterial reads as an arterial
+    wherever it runs. Density quantized by percentile cannot do that — a trunk
+    road through a sparse fringe scores lower than a knot of residential streets,
+    so the network dissolves into texture and the background stops reading as a
+    map. Taking the max class per cell paints the same skeleton in dots: every
+    primary road is level 3 for its whole length, and the residential fabric
+    fills in at level 1 underneath.
+
+    Nothing here needs a refetch — ROAD_WEIGHTS is already a monotone stand-in
+    for the class, and the cached edges carry it. `class_cuts` moves the two
+    boundaries: at the default 1.6/4.0 level 3 is motorway, trunk and primary;
+    at 1.6/5.0 it is motorway and trunk alone and primary drops to level 2,
+    which reads as a sparser, harder skeleton.
+    """
+    cuts = CLASS_CUTS if class_cuts is None else tuple(class_cuts)
+    geoms, lengths, weights, crs, center = load_edges(lat, lon, dist)
+    xy, _, w, x_edges, y_edges = _sample_points(
+        geoms, lengths, weights, dist, grid, crop, center
+    )
+
+    # histogram2d silently drops out-of-range points; maximum.at would fold them
+    # onto the edge rows instead, so the crop has to be applied by hand.
+    keep = (
+        (w >= CLASS_FLOOR)
+        & (xy[:, 0] >= x_edges[0])
+        & (xy[:, 0] <= x_edges[-1])
+        & (xy[:, 1] >= y_edges[0])
+        & (xy[:, 1] <= y_edges[-1])
+    )
+    xy = xy[keep]
+    lvl = (np.digitize(w[keep], cuts) + 1).astype(np.uint8)
+
+    ix = np.clip(np.searchsorted(x_edges, xy[:, 0], side="right") - 1, 0, grid - 1)
+    iy = np.clip(np.searchsorted(y_edges, xy[:, 1], side="right") - 1, 0, grid - 1)
+    out = np.zeros((grid, grid), dtype=np.uint8)
+    np.maximum.at(out, (iy, ix), lvl)
+
+    # y bins ascend north; the grid is row-major top-down.
+    return np.flipud(out), crs, center
 
 
 def water_mask(lat, lon, dist, grid, crop, crs, center):
@@ -163,13 +301,13 @@ def pack(levels):
     return base64.b64encode(packed.tobytes()).decode("ascii")
 
 
-def write_module(path, city, lat, lon, dist, levels, cells):
+def write_module(path, city, lat, lon, dist, levels, cells, mode):
     grid = levels.shape[0]
     lit = int((levels > 0).sum())
     with open(path, "w", encoding="utf-8", newline="\n") as fh:
         fh.write(
             "// Generated by tools/city-matrix/generate.py — do not hand-edit.\n"
-            f"// {city} @ {lat:.4f},{lon:.4f}, {dist}m radius, "
+            f"// {city} @ {lat:.4f},{lon:.4f}, {dist}m radius, {mode} mode, "
             f"{grid}x{grid} grid, {lit} lit cells.\n"
             "// Road-length density per cell, quantized to 4 levels, 2 bits per cell,\n"
             "// row-major, base64. Decoded by src/components/CityMatrix.js.\n"
@@ -192,7 +330,12 @@ def write_preview(path, levels, pitch=4, dot=2):
     size = grid * pitch
     img = Image.new("RGB", (size, size), (13, 31, 92))
     draw = ImageDraw.Draw(img)
-    alphas = {1: 0.35, 2: 0.65, 3: 1.0}
+    # The component's shipped values: --terras-login-dot-opacity (0.5) times
+    # CityMatrix's LEVEL_ALPHA (0.16/0.4/1). Keep these in step by hand, same
+    # rule as tokens.json <-> tokens.css — a preview painted at its own
+    # brightness is what let a 61%-lit fabric look acceptable here and wash out
+    # the sign-in screen, and this PNG is meant to be the go/no-go.
+    alphas = {1: 0.08, 2: 0.20, 3: 0.50}
     for row in range(grid):
         for col in range(grid):
             lvl = int(levels[row, col])
@@ -226,6 +369,19 @@ def main():
         default="70,88,96",
         help="percentiles of nonzero density for levels 1/2/3",
     )
+    ap.add_argument(
+        "--mode",
+        choices=("class", "density"),
+        default="class",
+        help="class: level = highest road class in the cell (reads as a road map). "
+        "density: percentile-quantized weighted road length (reads as a heatmap)",
+    )
+    ap.add_argument(
+        "--class-cuts",
+        default="1.6,4.0",
+        help="class mode: the two ROAD_WEIGHTS boundaries for levels 2 and 3 "
+        "(1.6,4.0 puts primary in level 3; 1.6,5.0 leaves motorway and trunk alone there)",
+    )
     ap.add_argument("--no-water", action="store_true", help="skip the water void mask")
     ap.add_argument("--preview", action="store_true", help="also write a PNG next to the module")
     ap.add_argument("--out", help="output .js path (default src/assets/cityMatrix.<city>.js)")
@@ -234,27 +390,46 @@ def main():
     os.makedirs(CACHE_DIR, exist_ok=True)
     ox.settings.use_cache = True
     ox.settings.cache_folder = CACHE_DIR
+    # Do NOT raise settings.requests_timeout to nurse a slow Overpass call: the
+    # value is interpolated into the query text ([timeout:180]) and the cache key
+    # is a hash of that query, so changing it silently invalidates every response
+    # already on disk and refetches a 176MB body. Retry instead.
 
     cuts = [float(x) for x in args.cuts.split(",")]
     if len(cuts) != 3:
         sys.exit("--cuts needs exactly three percentiles")
 
+    class_cuts = [float(x) for x in args.class_cuts.split(",")]
+    if len(class_cuts) != 2:
+        sys.exit("--class-cuts needs exactly two weight boundaries")
+
     lat, lon = geocode(args.city, args.country)
     print(f"{args.city}, {args.country} -> {lat:.6f},{lon:.6f}")
 
-    dens, crs, center = road_density(lat, lon, args.distance, args.grid, args.crop)
-    dens *= radial_falloff(args.grid, args.inner, args.outer)
-    levels = quantize(dens, cuts)
+    fade = radial_falloff(args.grid, args.inner, args.outer)
+    if args.mode == "density":
+        dens, crs, center = road_density(lat, lon, args.distance, args.grid, args.crop)
+        levels = quantize(dens * fade, cuts)
+    else:
+        levels, crs, center = road_classes(
+            lat, lon, args.distance, args.grid, args.crop, class_cuts
+        )
+        # In density mode the falloff scales a score and the quantizer does the
+        # rest. A class level has no magnitude to scale, so the corner trim is
+        # applied as a cut: only where the mask has gone to zero, which is the
+        # corners it exists for.
+        levels[fade <= 0.0] = 0
 
     if not args.no_water:
         wet = water_mask(lat, lon, args.distance, args.grid, args.crop, crs, center)
         levels[wet] = 0
         print(f"  water voided {int(wet.sum())} cells")
 
+    print(f"  mode: {args.mode}")
     slug = args.city.lower().replace(" ", "-")
     out = args.out or os.path.join(ASSETS_DIR, f"cityMatrix.{slug}.js")
     cells = pack(levels)
-    write_module(out, args.city, lat, lon, args.distance, levels, cells)
+    write_module(out, args.city, lat, lon, args.distance, levels, cells, args.mode)
 
     lit = int((levels > 0).sum())
     total = levels.size
