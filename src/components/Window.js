@@ -14,7 +14,7 @@
 //     <Window.TitleBar title="Movements" right={<span>0 lines</span>} />
 //     <Window.Toolbar>…filters…</Window.Toolbar>
 //     <Window.Body>…table…</Window.Body>
-//     <Window.StatusBar right={<Pager/>}>1-50 of 411</Window.StatusBar>
+//     <Pager page={page} total={total} pageSize={50} onPageChange={setPage} />
 //   </Window>
 
 const React = require('react');
@@ -111,6 +111,7 @@ function StatusBar(props) {
     return React.createElement(
         'div',
         {
+            className: props.className,
             style: Object.assign({
                 borderTop: '1px solid ' + S.cssVar('win-border-dark', '#808080'),
                 background: S.cssVar('win-face-alt', '#ece9df'),

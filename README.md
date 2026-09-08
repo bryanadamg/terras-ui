@@ -20,6 +20,7 @@ Plain `React.createElement` (no JSX) so no build step is required to consume the
 | `components/Modal` | Same chrome one layer up: backdrop, title bar with close box, footer actions. `modeless` drops the backdrop and makes the panel draggable |
 | `components/FormSection` | Field group under a solid blue header bar |
 | `components/Table` | Ruled classic table (`.EmptyRow` for the empty/loading state, `stickyCols` to freeze leading columns) |
+| `components/Pager` | Prev/next paginator footer — the row window on the left, `Prev` / `Page x / y` / `Next` on the right. Is a `Window.StatusBar`; `inline` fits it into one you already render |
 | `components/Tabs` | Tab strip seated in the pane below it — renders the row only |
 | `components/Button` | Raised bevel button, tones `default` / `primary` / `success` / `danger` |
 | `components/Field` | `Input`, `Select`, `Label`, `SearchField` — recessed field chrome |
@@ -46,6 +47,29 @@ scrolling half no longer has. Offsets are measured from the laid-out cells, so
 the frozen columns may be content-sized; a row whose cell spans across the
 boundary, such as a `colSpan` group header, stays unfrozen rather than being
 pinned wider than the frozen region.
+
+`Pager` is that table's footer, and it *is* a `Window.StatusBar` — the strip is
+the same sunken floor, so put it where the status bar would go rather than under
+one. Paging state stays with the app (`page` / `total` / `pageSize` /
+`onPageChange`, server-side in teras-erp); the component owns only the
+arithmetic every hand-rolled pager re-derived — the page count, the `1-25 of 411`
+window, and which end disables which button. `hideWhenEmpty` drops the strip
+when `total` is 0, and `leftContent` replaces the row window with something else
+(a selection count, say). When the bar must also carry the app's own status,
+render the bar yourself and pass `inline`:
+
+```jsx
+<Window.StatusBar right={<span>{selected.length} selected</span>}>
+  <Pager inline page={page} total={total} pageSize={25} onPageChange={setPage} />
+</Window.StatusBar>
+```
+
+There is no rows-per-page picker, because teras-erp has none — each view fixes
+its own `PAGE_SIZE`. `Prev` / `Next` are plain `Button`s so the pager reads as
+the same button family as the toolbar above it; `prevLabel` / `nextLabel` take a
+node if you want your own icon set in them. Printing is the app's call: pass its
+own `no-print` class through `className` — this package ships no print utility
+class.
 
 `Chip` and `ToggleChip` are different jobs and keep different faces on purpose: a
 `Chip` is a tinted pill that **reports** state over the five status families and
@@ -129,7 +153,7 @@ import Window from '@bryanadamg/terras-ui/components/Window'
   <Window.TitleBar title="Movements" right={`${total} lines`} />
   <Window.Toolbar>{/* SearchField, Selects, actions */}</Window.Toolbar>
   <Window.Body><Table>{/* … */}</Table></Window.Body>
-  <Window.StatusBar right={<Pager />}>1-25 of 411</Window.StatusBar>
+  <Pager page={page} total={total} pageSize={25} onPageChange={setPage} />
 </Window>
 ```
 

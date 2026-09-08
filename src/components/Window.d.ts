@@ -32,6 +32,7 @@ export interface StatusBarProps {
   children?: ReactNode;
   right?: ReactNode;
   style?: CSSProperties;
+  className?: string;
 }
 
 declare function TitleBar(props: TitleBarProps): JSX.Element;
