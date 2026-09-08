@@ -36,7 +36,7 @@ const DEFAULT_OPACITY = 0.5;
 // of the shipped grid's lit cells, so it can carry the full alpha without
 // lifting the field's overall brightness: the arterials are what make the
 // background legible as a map rather than as texture.
-const LEVEL_ALPHA = [0, 0.16, 0.4, 1];
+const LEVEL_ALPHA = [0, 0.2, 0.4, 1];
 // Extra px on the arterial dot. One step is enough to read as a line rather
 // than a brighter speck, and it is the same colour, not a second hue — the
 // field has exactly one dot colour and three alphas.
@@ -48,6 +48,14 @@ const BLINK_FRACTION = 0.004;
 // Below this a dot is erased far enough that lighting it up would only reveal
 // the mask. Blinks skip those cells rather than blinking invisibly.
 const QUIET_BLINK_FLOOR = 0.25;
+// Levels at or below this are dithered onto a checkerboard: every other dot is
+// dropped. Class-mode grids light ~60% of their cells, nearly all of it level-1
+// residential fabric, and a field that dense stops being a halftone screen and
+// becomes a wash — the dots merge into tone at arm's length. Dropping half of
+// them restores the gaps that make it read as print, and buys back the contrast
+// the form sits on. Levels 2-3 are never dithered: they are lines, and half a
+// line is a dashed line.
+const DITHER_MAX_LEVEL = 1;
 const MIN_BLINKS = 6;
 
 // Mirror --terras-login-dot / --terras-login-dot-blink. Only reached when
@@ -232,6 +240,10 @@ function CityMatrix(props) {
                         }
                     }
                     if (!lvl) continue;
+                    // Checkerboard in SCREEN space, not grid space: it has to
+                    // align to the dot lattice to read as a halftone, and the
+                    // grid's cells do not map one-to-one onto dots.
+                    if (lvl <= DITHER_MAX_LEVEL && ((c + r) & 1)) continue;
                     // Snapped to the device-pixel grid for the same reason as
                     // the sizes: pitch x ratio is not an integer for every
                     // combination, and a half-pixel origin blurs both edges.
