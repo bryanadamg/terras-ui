@@ -56,6 +56,17 @@ const QUIET_BLINK_FLOOR = 0.25;
 // the form sits on. Levels 2-3 are never dithered: they are lines, and half a
 // line is a dashed line.
 const DITHER_MAX_LEVEL = 1;
+// Cursor halo. Dots near the pointer grow; their alpha is untouched. A halftone
+// screen encodes tone as dot SIZE, so growth is the medium's own gesture — and
+// unlike a brightness glow it cannot eat into the contrast the form depends on,
+// which matters because the pointer crosses the form on its way to the field.
+const HALO_RADIUS = 110;
+const HALO_GROW = 2.5;
+// Blinks are chosen by picking this many arterial candidates and keeping the one
+// nearest the pointer. Sampling rather than a spatial index: the bias only has
+// to be felt, and k=3 pulls the distribution toward the cursor without ever
+// starving the rest of the field.
+const BLINK_BIAS_SAMPLES = 3;
 const MIN_BLINKS = 6;
 
 // Mirror --terras-login-dot / --terras-login-dot-blink. Only reached when
@@ -105,6 +116,7 @@ function readVar(el, name, fallback) {
  *   color?: string,        // overrides --terras-login-dot
  *   blinkColor?: string,   // overrides --terras-login-dot-blink
  *   blink?: boolean,       // default true; forced off under reduced-motion
+ *   hover?: boolean,       // default true; forced off under reduced-motion and on coarse pointers
  *   quietZones?: Array<{x: number, y: number, rx: number, ry: number, inner?: number, strength?: number}>,
  *   focus?: {x?: number, y?: number},   // 0..1, which part of the grid the crop keeps (default centred)
  *   spanX?: number,        // 0..1 of the canvas width the field covers, anchored left (default 1)
@@ -119,6 +131,7 @@ function CityMatrix(props) {
     const dot = props.dotSize || DEFAULT_DOT;
     const opacityProp = props.opacity;
     const blink = props.blink !== false;
+    const hover = props.hover !== false;
     const color = props.color;
     const blinkColor = props.blinkColor;
     // Ellipses, in fractions of the canvas, where the field is faded out so the
@@ -160,6 +173,11 @@ function CityMatrix(props) {
         const reduced = typeof matchMedia === 'function'
             && matchMedia('(prefers-reduced-motion: reduce)').matches;
         const animate = blink && !reduced;
+        // A coarse pointer has no hover: a touch would light a halo under the
+        // finger mid-scroll and leave it there. Reduced motion opts out too.
+        const coarse = typeof matchMedia === 'function'
+            && matchMedia('(pointer: coarse)').matches;
+        const tracking = hover && !reduced && !coarse;
 
         // Screen-space lit dots, rebuilt on every resize. Parallel arrays rather
         // than objects: this is the array the blink loop indexes into 60x/sec.
@@ -185,6 +203,30 @@ function CityMatrix(props) {
         // stray sparkle. On the arterials the same motion reads as traffic.
         let bright = null;
         let brightCount = 0;
+        // Cell -> dot index (-1 for an unlit cell). The halo has to find the dots
+        // around a pixel position, and the dots sit on a lattice, so this is a
+        // lookup rather than a search: iterate the cell rectangle the radius
+        // covers and read straight off it.
+        let cellAt = null;
+        let gridCols = 0;
+        let gridRows = 0;
+        // Growth currently APPLIED to each dot, in CSS px. Kept per dot so a
+        // move only repaints what actually changed, and so the blink loop draws a
+        // dot at whatever size the halo has given it.
+        let grow = null;
+        let pointerX = 0;
+        let pointerY = 0;
+        let pointerOn = false;
+        // Where the halo was last painted, so a move can repaint the union of the
+        // old and new neighbourhoods and nothing else.
+        let paintedX = 0;
+        let paintedY = 0;
+        let paintedOn = false;
+        let haloFrame = 0;
+        // HALO_GROW, clamped so an enlarged dot can never reach its neighbour.
+        // A blink clears its own rect, and a rect wider than the pitch would
+        // clip the dot next door and leave a notch behind.
+        let haloGrow = 0;
         let frame = 0;
         let active = null;
 
@@ -202,6 +244,7 @@ function CityMatrix(props) {
             for (let lvl = 1; lvl <= 3; lvl++) {
                 sizes[lvl] = Math.max(1, Math.round((dot + LEVEL_DOT_BONUS[lvl]) * ratio)) / ratio;
             }
+            haloGrow = Math.max(0, Math.min(HALO_GROW, pitch - 1 - sizes[3]));
             ctx.clearRect(0, 0, w, h);
 
             const fieldW = w * spanX;
@@ -218,8 +261,13 @@ function CityMatrix(props) {
             lvls = new Uint8Array(cols * rows);
             fades = new Float32Array(cols * rows);
             bright = new Int32Array(cols * rows);
+            grow = new Float32Array(cols * rows);
+            cellAt = new Int32Array(cols * rows).fill(-1);
+            gridCols = cols;
+            gridRows = rows;
             lit = 0;
             brightCount = 0;
+            paintedOn = false;
 
             // MAX over the grid cells a dot covers, not the centre cell's value.
             // Point-sampling at scale > 1 drops whichever cells fall between dot
@@ -266,6 +314,7 @@ function CityMatrix(props) {
                     lvls[lit] = lvl;
                     fades[lit] = maskFactor(px, py, w, h);
                     if (lvl >= 2) bright[brightCount++] = lit;
+                    cellAt[r * cols + c] = lit;
                     lit++;
                 }
             }
@@ -279,6 +328,8 @@ function CityMatrix(props) {
                 for (let i = 0; i < lit; i++) {
                     if (lvls[i] === lvl) ctx.fillRect(xs[i], ys[i], size, size);
                 }
+                // `grow` was just reallocated, so the field and the halo agree
+                // that nothing is enlarged until the next pointer frame.
             }
             ctx.globalAlpha = 1;
             eraseQuietZones(w, h);
@@ -392,7 +443,22 @@ function CityMatrix(props) {
         function pick() {
             // A city with no classified roads in frame still has to blink.
             if (!brightCount) return (Math.random() * lit) | 0;
-            return bright[(Math.random() * brightCount) | 0];
+            let best = bright[(Math.random() * brightCount) | 0];
+            if (!pointerOn) return best;
+            // Nearest of k random arterials, so activity drifts toward wherever
+            // the cursor is without the far side of the city going quiet.
+            let bestD = Infinity;
+            for (let k = 0; k < BLINK_BIAS_SAMPLES; k++) {
+                const cand = k === 0 ? best : bright[(Math.random() * brightCount) | 0];
+                const dx = xs[cand] - pointerX;
+                const dy = ys[cand] - pointerY;
+                const d = dx * dx + dy * dy;
+                if (d < bestD) {
+                    bestD = d;
+                    best = cand;
+                }
+            }
+            return best;
         }
 
         function spawn(now) {
@@ -407,14 +473,103 @@ function CityMatrix(props) {
             return { i: i, start: now + Math.random() * BLINK_MS };
         }
 
+        // A dot's current footprint: its level's size plus whatever the halo has
+        // added, grown about its centre so the lattice stays centred on its pitch
+        // rather than drifting down and right.
+        function footprint(i, g) {
+            const size = sizes[lvls[i]] + g;
+            const off = g / 2;
+            return { x: xs[i] - off, y: ys[i] - off, size: size };
+        }
+
+        function restAlpha(i) {
+            return opacity * LEVEL_ALPHA[lvls[i]] * fades[i];
+        }
+
         function drawDot(i, alpha, fill) {
             // Its own size, or a blinking arterial would clear 4px and repaint 3.
-            const size = sizes[lvls[i]];
-            ctx.clearRect(xs[i], ys[i], size, size);
+            const f = footprint(i, grow[i]);
+            ctx.clearRect(f.x, f.y, f.size, f.size);
             ctx.globalAlpha = alpha * fades[i];
             ctx.fillStyle = fill;
-            ctx.fillRect(xs[i], ys[i], size, size);
+            ctx.fillRect(f.x, f.y, f.size, f.size);
             ctx.globalAlpha = 1;
+        }
+
+        // Growth for one dot at the current pointer, snapped to whole device
+        // pixels for the same reason the base sizes are.
+        function growFor(i) {
+            if (!pointerOn) return 0;
+            const half = sizes[lvls[i]] / 2;
+            const dx = (xs[i] + half - pointerX) / HALO_RADIUS;
+            const dy = (ys[i] + half - pointerY) / HALO_RADIUS;
+            const d = Math.sqrt(dx * dx + dy * dy);
+            if (d >= 1) return 0;
+            const t = 1 - d;
+            return Math.round(haloGrow * t * t * (3 - 2 * t) * ratio) / ratio;
+        }
+
+        // Repaint only the dots whose growth changed, over the union of the old
+        // and new neighbourhoods. A mousemove must never repaint the field: that
+        // is twenty thousand rects for a effect that touched a few hundred.
+        function updateHalo() {
+            haloFrame = 0;
+            if (!lit || !cellAt) return;
+            const reach = Math.ceil(HALO_RADIUS / pitch) + 1;
+            const spans = [];
+            if (pointerOn) spans.push([pointerX, pointerY]);
+            if (paintedOn && (!pointerOn || paintedX !== pointerX || paintedY !== pointerY)) {
+                spans.push([paintedX, paintedY]);
+            }
+            for (let sp = 0; sp < spans.length; sp++) {
+                const cx = Math.round(spans[sp][0] / pitch);
+                const cy = Math.round(spans[sp][1] / pitch);
+                const c0 = Math.max(0, cx - reach);
+                const c1 = Math.min(gridCols - 1, cx + reach);
+                const r0 = Math.max(0, cy - reach);
+                const r1 = Math.min(gridRows - 1, cy + reach);
+                for (let r = r0; r <= r1; r++) {
+                    const rowBase = r * gridCols;
+                    for (let c = c0; c <= c1; c++) {
+                        const i = cellAt[rowBase + c];
+                        if (i < 0) continue;
+                        const next = growFor(i);
+                        if (next === grow[i]) continue;
+                        // Clear at whichever footprint is larger, then draw the
+                        // new one: shrinking a dot otherwise leaves its old edge.
+                        const wide = footprint(i, Math.max(next, grow[i]));
+                        ctx.clearRect(wide.x, wide.y, wide.size, wide.size);
+                        grow[i] = next;
+                        const f = footprint(i, next);
+                        ctx.globalAlpha = restAlpha(i);
+                        ctx.fillStyle = base;
+                        ctx.fillRect(f.x, f.y, f.size, f.size);
+                        ctx.globalAlpha = 1;
+                    }
+                }
+            }
+            paintedX = pointerX;
+            paintedY = pointerY;
+            paintedOn = pointerOn;
+        }
+
+        function scheduleHalo() {
+            if (!haloFrame) haloFrame = requestAnimationFrame(updateHalo);
+        }
+
+        function onPointerMove(e) {
+            // The canvas is pointer-events:none under a negative z-index, so the
+            // events arrive on the parent and have to be mapped into canvas space.
+            const rect = canvas.getBoundingClientRect();
+            pointerX = e.clientX - rect.left;
+            pointerY = e.clientY - rect.top;
+            pointerOn = true;
+            scheduleHalo();
+        }
+
+        function onPointerLeave() {
+            pointerOn = false;
+            scheduleHalo();
         }
 
         function tick(now) {
@@ -424,6 +579,8 @@ function CityMatrix(props) {
                 const t = (now - b.start) / BLINK_MS;
                 if (t >= 1) {
                     drawDot(b.i, opacity * LEVEL_ALPHA[lvls[b.i]], base);
+                    // fades[] is applied inside drawDot, so this stays the level's
+                    // unmasked rest alpha.
                     active[k] = spawn(now);
                     continue;
                 }
@@ -472,13 +629,23 @@ function CityMatrix(props) {
         }
         document.addEventListener('visibilitychange', onVisibility);
 
+        if (tracking) {
+            parent.addEventListener('pointermove', onPointerMove);
+            parent.addEventListener('pointerleave', onPointerLeave);
+        }
+
         return function () {
             stop();
+            if (haloFrame) cancelAnimationFrame(haloFrame);
+            if (tracking) {
+                parent.removeEventListener('pointermove', onPointerMove);
+                parent.removeEventListener('pointerleave', onPointerLeave);
+            }
             if (ro) ro.disconnect();
             else window.removeEventListener('resize', onResize);
             document.removeEventListener('visibilitychange', onVisibility);
         };
-    }, [data, pitch, dot, opacityProp, blink, color, blinkColor, zones, focusX, focusY, spanX, fadeX]);
+    }, [data, pitch, dot, opacityProp, blink, hover, color, blinkColor, zones, focusX, focusY, spanX, fadeX]);
 
     if (!data || !data.cells) return null;
 

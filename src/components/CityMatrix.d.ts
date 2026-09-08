@@ -40,6 +40,14 @@ export interface CityMatrixProps {
   /** Default true. Forced off under `prefers-reduced-motion`. */
   blink?: boolean;
   /**
+   * Cursor halo: dots near the pointer grow (size, never brightness — a halftone
+   * encodes tone as dot size, and growth cannot eat the contrast the UI on top
+   * needs), and blinks drift toward the pointer. Default true; forced off under
+   * `prefers-reduced-motion` and on coarse pointers, which have no hover. The
+   * listener goes on the canvas's parent, since the canvas is pointer-events:none.
+   */
+  hover?: boolean;
+  /**
    * Ellipses where the field fades out so UI on top of it stays readable — a
    * form column, typically. All four values are fractions of the canvas (`x`/`rx`
    * of its width, `y`/`ry` of its height); `strength` is how much is removed at
