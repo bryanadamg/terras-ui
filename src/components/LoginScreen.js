@@ -405,8 +405,11 @@ function SuitePanel(props) {
     const icons = props.icons || {};
     const activeKeys = props.active || [];
     const compact = !!props.compact;
-    const tileSize = compact ? 40 : 56;
-    const iconSize = compact ? 16 : 20;
+    // Smaller than the first pass (56/40): the row is chrome that says which
+    // suite this is, not a launcher, and at 56px it read as a set of buttons
+    // waiting to be clicked. The hover tooltip is what carries the detail.
+    const tileSize = compact ? 34 : 44;
+    const iconSize = compact ? 14 : 17;
 
     const hoverState = React.useState(null);
     const hovered = hoverState[0];
@@ -431,7 +434,7 @@ function SuitePanel(props) {
         {
             style: Object.assign({
                 display: 'flex', flexWrap: 'nowrap', justifyContent: 'center',
-                gap: compact ? 8 : 10, overflowX: 'auto', overflowY: 'hidden',
+                gap: compact ? 7 : 8, overflowX: 'auto', overflowY: 'hidden',
                 paddingTop: compact ? 34 : 40, paddingBottom: 6, maxWidth: '100%',
                 fontFamily: bodyFont,
             }, props.style),
@@ -791,24 +794,9 @@ function LoginScreen(props) {
         props.tagline === undefined ? 'Integrated Business Suite' : props.tagline,
     );
 
-    const hint = React.createElement(
-        'div',
-        {
-            // Keyed on `step` so the copy re-mounts and fades in rather than
-            // swapping mid-sentence under the reader.
-            key: step,
-            className: 'terras-login-identity',
-            style: {
-                fontSize: compact ? 13 : vw(9, 1.2, 14),
-                color: S.cssVar('login-hint', '#b8ccf0'),
-                letterSpacing: compact ? undefined : 1,
-                textAlign: compact ? 'center' : undefined,
-            },
-        },
-        step === 'username'
-            ? (compact ? 'Enter your ' : 'Type your ') + (byEmail ? 'email address' : 'username') + ' to sign in'
-            : 'Enter your password to continue',
-    );
+    // No step hint. "Type your email address to sign in" over a labelled field
+    // and a Next button restates what the form already says, and it was the one
+    // line of copy that had to be kept in step with `identityType`.
 
     // ── The form, rendered ONCE for both layouts ────────────────────────────
     const renderForm = function (small) {
@@ -1106,7 +1094,6 @@ function LoginScreen(props) {
                     },
                 },
                 badge(true),
-                hint,
                 renderForm(true),
             ),
             React.createElement(
@@ -1200,16 +1187,18 @@ function LoginScreen(props) {
             React.createElement(
                 'div',
                 {
+                    // Stretched and bottom-aligned: the suite row sits on the
+                    // floor of the left panel, which leaves the panel's whole
+                    // upper half as open city rather than as padding around a
+                    // centred cluster. `alignSelf` is what lets it stretch —
+                    // the band centres its children.
                     style: {
-                        flex: 1, display: 'flex', flexDirection: 'column',
-                        alignItems: 'center', gap: 16, padding: '0 4%',
+                        flex: 1, alignSelf: 'stretch',
+                        display: 'flex', flexDirection: 'column',
+                        alignItems: 'center', justifyContent: 'flex-end',
+                        gap: 12, padding: '0 4% 4px',
                     },
                 },
-                React.createElement(SuitePanel, {
-                    modules: props.suite,
-                    icons: props.suiteIcons,
-                    active: props.activeModules,
-                }),
                 React.createElement('div', {
                     style: {
                         width: '60%', height: 1,
@@ -1217,7 +1206,11 @@ function LoginScreen(props) {
                             S.cssVar('login-divider', 'rgba(166, 202, 240, 0.35)') + ', transparent)',
                     },
                 }),
-                hint,
+                React.createElement(SuitePanel, {
+                    modules: props.suite,
+                    icons: props.suiteIcons,
+                    active: props.activeModules,
+                }),
             ),
             React.createElement('div', {
                 style: {
