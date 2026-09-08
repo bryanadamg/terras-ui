@@ -26,8 +26,10 @@
 
 const React = require('react');
 
-const DEFAULT_PITCH = 8;
-const DEFAULT_DOT = 3;
+// 5/2 rather than 8/3: the 67%-zoom look the field was tuned against, kept as
+// the default rather than a browser zoom nobody would think to set.
+const DEFAULT_PITCH = 5;
+const DEFAULT_DOT = 2;
 const DEFAULT_OPACITY = 0.45;
 // Level 0 is off. Relative weights of the three lit levels; level 3 is the
 // arterial network, level 1 the residential fringe. The spread is wide on
