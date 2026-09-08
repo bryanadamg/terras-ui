@@ -40,9 +40,12 @@ export interface CityMatrixProps {
   /** Default true. Forced off under `prefers-reduced-motion`. */
   blink?: boolean;
   /**
-   * Cursor halo: dots near the pointer grow (size, never brightness — a halftone
-   * encodes tone as dot size, and growth cannot eat the contrast the UI on top
-   * needs), and blinks drift toward the pointer. Default true; forced off under
+   * Cursor trails: the pointer IGNITES the dots it sweeps over and each one
+   * decays on its own clock, so the cursor leaves a wake rather than dragging a
+   * halo. Dots grow (size, never brightness alone — a halftone encodes tone as
+   * dot size, and growth cannot eat the contrast the UI on top needs) with a
+   * small alpha lift that is masked like everything else, and blinks drift
+   * toward the pointer. Default true; forced off under
    * `prefers-reduced-motion` and on coarse pointers, which have no hover. The
    * listener goes on the canvas's parent, since the canvas is pointer-events:none.
    */
