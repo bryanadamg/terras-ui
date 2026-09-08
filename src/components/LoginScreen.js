@@ -59,6 +59,15 @@ const DESKTOP_QUIET_ZONES = [{ x: 0.79, y: 0.53, rx: 0.19, ry: 0.32, strength: 0
 // Compact: one centred column, so the zone is wide and shallow instead.
 const COMPACT_QUIET_ZONES = [{ x: 0.5, y: 0.54, rx: 0.6, ry: 0.28, strength: 0.9 }];
 
+// Which band of the city the crop keeps. Cover-fit spends all the slack on the
+// cropped axis, so desktop can only choose a horizontal band: slightly above
+// centre keeps the coastline void in frame at the top, which is the thing that
+// reads as a real place, and leaves the denser fabric across the module row.
+// Portrait crops the other axis instead, so there the knob is x, set east of
+// centre where the core sits.
+const DESKTOP_FOCUS = { x: 0.5, y: 0.44 };
+const COMPACT_FOCUS = { x: 0.6, y: 0.5 };
+
 // The display/wordmark face. Falls back through the modern stack, so the brand
 // never lands in a default serif on an app that loads no display font.
 const brandFont = S.cssVar('font-display', S.cssVar('font-modern', 'system-ui, sans-serif'));
@@ -1047,6 +1056,7 @@ function LoginScreen(props) {
             data: matrixData,
             blink: props.cityMatrixBlink,
             quietZones: compact ? COMPACT_QUIET_ZONES : DESKTOP_QUIET_ZONES,
+            focus: compact ? COMPACT_FOCUS : DESKTOP_FOCUS,
             style: { zIndex: -1 },
         })
         : null;

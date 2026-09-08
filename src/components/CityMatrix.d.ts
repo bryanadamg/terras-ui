@@ -48,6 +48,14 @@ export interface CityMatrixProps {
    * memoized) — a fresh literal each render repaints the field.
    */
   quietZones?: Array<{ x: number; y: number; rx: number; ry: number; strength?: number }>;
+  /**
+   * Which part of the grid the crop keeps, 0..1 per axis, default centred
+   * (`{x: 0.5, y: 0.5}`). Cover-fit fills one axis exactly and crops the other,
+   * so only the cropped axis has slack to spend: a wide viewport picks the
+   * horizontal band, a portrait one picks the column. Values are clamped, so the
+   * crop can never expose the grid's edge.
+   */
+  focus?: { x?: number; y?: number };
   style?: CSSProperties;
 }
 

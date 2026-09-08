@@ -77,6 +77,11 @@ function decode(data) {
     return out;
 }
 
+function clamp01(v, fallback) {
+    if (typeof v !== 'number' || !isFinite(v)) return fallback;
+    return v < 0 ? 0 : v > 1 ? 1 : v;
+}
+
 function readVar(el, name, fallback) {
     if (typeof getComputedStyle !== 'function') return fallback;
     const v = getComputedStyle(el).getPropertyValue(name).trim();
@@ -93,6 +98,7 @@ function readVar(el, name, fallback) {
  *   blinkColor?: string,   // overrides --terras-login-dot-blink
  *   blink?: boolean,       // default true; forced off under reduced-motion
  *   quietZones?: Array<{x: number, y: number, rx: number, ry: number, strength?: number}>,
+ *   focus?: {x?: number, y?: number},   // 0..1, which part of the grid the crop keeps (default centred)
  *   style?: object,
  * }} props
  */
@@ -109,6 +115,14 @@ function CityMatrix(props) {
     // UI on top of it stays readable. The component does not know where a form
     // sits — the caller does — so this is a shape, not a layout rule.
     const zones = props.quietZones;
+    // Which part of the grid the cover-fit crop keeps, 0..1 per axis, centred by
+    // default. Only the cropped axis has any slack — cover-fit fills the other
+    // one exactly — so on a wide desktop this chooses the horizontal BAND of the
+    // city, and on a portrait phone it chooses the column. That is also why it
+    // cannot move the dense core out from under the form on desktop: there is no
+    // horizontal freedom left to spend.
+    const focusX = clamp01(props.focus && props.focus.x, 0.5);
+    const focusY = clamp01(props.focus && props.focus.y, 0.5);
 
     React.useEffect(function () {
         const canvas = ref.current;
@@ -176,8 +190,8 @@ function CityMatrix(props) {
             // Cover-fit: the smaller ratio consumes fewer grid cells per screen
             // cell, so the city scales up past the viewport and crops.
             const scale = Math.min(data.w / cols, data.h / rows);
-            const offX = (data.w - cols * scale) / 2;
-            const offY = (data.h - rows * scale) / 2;
+            const offX = (data.w - cols * scale) * focusX;
+            const offY = (data.h - rows * scale) * focusY;
 
             xs = new Float32Array(cols * rows);
             ys = new Float32Array(cols * rows);
@@ -395,7 +409,7 @@ function CityMatrix(props) {
             else window.removeEventListener('resize', onResize);
             document.removeEventListener('visibilitychange', onVisibility);
         };
-    }, [data, pitch, dot, opacityProp, blink, color, blinkColor, zones]);
+    }, [data, pitch, dot, opacityProp, blink, color, blinkColor, zones, focusX, focusY]);
 
     if (!data || !data.cells) return null;
 
