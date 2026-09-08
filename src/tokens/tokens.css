@@ -128,14 +128,14 @@
   /* "View Documentation" pill — an outline that glows on hover (chrome.css). */
   --terras-login-pill: #a8cef2;
   --terras-login-pill-border: rgba(122, 176, 232, 0.3);
-  /* Suite tiles. Active carries the accent fill + glow; the rest are near-empty
-     outlines that fade with distance from the active pair. */
-  --terras-login-accent: #4a90d9;
+  /* Suite tiles. Flat filled squares, same language as the CityMatrix field
+     behind them (fill brightness only, no border, no glow) — active is the
+     brightest fill, idle fades by distance from the active pair. */
   --terras-login-tile-bg: rgba(255, 255, 255, 0.05);
-  --terras-login-tile-border: rgba(166, 202, 240, 0.2);
+  --terras-login-tile-hover-bg: rgba(166, 202, 240, 0.18);
   --terras-login-tile-icon: #5f7aa8;
-  --terras-login-tile-active-bg: rgba(74, 144, 217, 0.28);
-  --terras-login-tile-glow: rgba(74, 144, 217, 0.6);
+  --terras-login-tile-active-bg: rgba(74, 144, 217, 0.45);
+  /* Still used by the input focus ring in chrome.css. */
   --terras-login-tile-hover-glow: rgba(166, 202, 240, 0.4);
   /* Server-status dot. Its own four colours, NOT the status families: those are
      tuned to read on beige and would sit dull on the deep blue. */

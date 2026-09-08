@@ -480,22 +480,21 @@ function SuitePanel(props) {
                         style: {
                             width: tileSize, height: tileSize,
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            borderRadius: S.cssVar('radius-section', '6px'),
+                            // Square, no border, no glow — the field behind this
+                            // panel is flat filled squares at three alpha levels
+                            // and nothing else, so a rounded bordered/glowing box
+                            // read as a foreign UI control dropped onto a halftone
+                            // print. Active vs. idle is the same language the
+                            // field already uses: a brighter fill, not a ring.
                             opacity: isHovered ? 1 : opacity,
                             transform: 'scale(' + (isHovered ? baseScale * 1.15 : baseScale) + ')',
                             transformOrigin: 'center bottom',
-                            transition: 'transform 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease',
+                            transition: 'transform 0.15s ease, opacity 0.15s ease, background-color 0.15s ease',
                             background: isActive
-                                ? S.cssVar('login-tile-active-bg', 'rgba(74, 144, 217, 0.28)')
-                                : S.cssVar('login-tile-bg', 'rgba(255, 255, 255, 0.05)'),
-                            border: isActive
-                                ? '2px solid ' + S.cssVar('login-accent', '#4a90d9')
-                                : '1px solid ' + S.cssVar('login-tile-border', 'rgba(166, 202, 240, 0.2)'),
-                            boxShadow: isActive
-                                ? '0 0 8px ' + S.cssVar('login-tile-glow', 'rgba(74, 144, 217, 0.6)')
+                                ? S.cssVar('login-tile-active-bg', 'rgba(74, 144, 217, 0.45)')
                                 : isHovered
-                                    ? '0 0 8px ' + S.cssVar('login-tile-hover-glow', 'rgba(166, 202, 240, 0.4)')
-                                    : 'none',
+                                    ? S.cssVar('login-tile-hover-bg', 'rgba(166, 202, 240, 0.18)')
+                                    : S.cssVar('login-tile-bg', 'rgba(255, 255, 255, 0.05)'),
                             // Not a control: the row is a roadmap teaser, not a
                             // module switcher, so it never offers a pointer.
                             cursor: 'default',
