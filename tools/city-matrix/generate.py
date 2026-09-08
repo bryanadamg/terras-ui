@@ -198,7 +198,7 @@ def road_density(lat, lon, dist, grid, crop):
     return np.flipud(dens.T), crs, center
 
 
-def road_classes(lat, lon, dist, grid, crop):
+def road_classes(lat, lon, dist, grid, crop, class_cuts=None):
     """Highest road CLASS crossing each cell, as levels 0..3.
 
     This is the poster's hierarchy rather than a heatmap: maptoposter draws each
@@ -211,8 +211,12 @@ def road_classes(lat, lon, dist, grid, crop):
     fills in at level 1 underneath.
 
     Nothing here needs a refetch — ROAD_WEIGHTS is already a monotone stand-in
-    for the class, and the cached edges carry it.
+    for the class, and the cached edges carry it. `class_cuts` moves the two
+    boundaries: at the default 1.6/4.0 level 3 is motorway, trunk and primary;
+    at 1.6/5.0 it is motorway and trunk alone and primary drops to level 2,
+    which reads as a sparser, harder skeleton.
     """
+    cuts = CLASS_CUTS if class_cuts is None else tuple(class_cuts)
     geoms, lengths, weights, crs, center = load_edges(lat, lon, dist)
     xy, _, w, x_edges, y_edges = _sample_points(
         geoms, lengths, weights, dist, grid, crop, center
@@ -228,7 +232,7 @@ def road_classes(lat, lon, dist, grid, crop):
         & (xy[:, 1] <= y_edges[-1])
     )
     xy = xy[keep]
-    lvl = (np.digitize(w[keep], CLASS_CUTS) + 1).astype(np.uint8)
+    lvl = (np.digitize(w[keep], cuts) + 1).astype(np.uint8)
 
     ix = np.clip(np.searchsorted(x_edges, xy[:, 0], side="right") - 1, 0, grid - 1)
     iy = np.clip(np.searchsorted(y_edges, xy[:, 1], side="right") - 1, 0, grid - 1)
@@ -372,6 +376,12 @@ def main():
         help="class: level = highest road class in the cell (reads as a road map). "
         "density: percentile-quantized weighted road length (reads as a heatmap)",
     )
+    ap.add_argument(
+        "--class-cuts",
+        default="1.6,4.0",
+        help="class mode: the two ROAD_WEIGHTS boundaries for levels 2 and 3 "
+        "(1.6,4.0 puts primary in level 3; 1.6,5.0 leaves motorway and trunk alone there)",
+    )
     ap.add_argument("--no-water", action="store_true", help="skip the water void mask")
     ap.add_argument("--preview", action="store_true", help="also write a PNG next to the module")
     ap.add_argument("--out", help="output .js path (default src/assets/cityMatrix.<city>.js)")
@@ -389,6 +399,10 @@ def main():
     if len(cuts) != 3:
         sys.exit("--cuts needs exactly three percentiles")
 
+    class_cuts = [float(x) for x in args.class_cuts.split(",")]
+    if len(class_cuts) != 2:
+        sys.exit("--class-cuts needs exactly two weight boundaries")
+
     lat, lon = geocode(args.city, args.country)
     print(f"{args.city}, {args.country} -> {lat:.6f},{lon:.6f}")
 
@@ -397,7 +411,9 @@ def main():
         dens, crs, center = road_density(lat, lon, args.distance, args.grid, args.crop)
         levels = quantize(dens * fade, cuts)
     else:
-        levels, crs, center = road_classes(lat, lon, args.distance, args.grid, args.crop)
+        levels, crs, center = road_classes(
+            lat, lon, args.distance, args.grid, args.crop, class_cuts
+        )
         # In density mode the falloff scales a score and the quantizer does the
         # rest. A class level has no magnitude to scale, so the corner trim is
         # applied as a cut: only where the mask has gone to zero, which is the

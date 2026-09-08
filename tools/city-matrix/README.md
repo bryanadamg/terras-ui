@@ -32,6 +32,14 @@ heatmap. It renders the *shape* of a city well but not its network — a trunk
 road through a sparse fringe scores below a knot of residential streets, so the
 skeleton dissolves into texture.
 
+`--class-cuts` moves the two boundaries. The default `1.6,4.0` puts primary in
+level 3 alongside motorway and trunk; `1.6,5.0` reserves level 3 for motorway and
+trunk and drops primary to level 2. Tried on Tangerang, the harder cut left 2411
+level-3 cells against 5712 and read as a few isolated toll threads over mush —
+the primaries are what make a metro's network legible, so they belong in the
+bright class. Worth re-testing per city: a place whose motorway ring IS the
+identity may want the other cut.
+
 `CLASS_FLOOR` (0.5) drops footway, path, cycleway, track and service from class
 mode. With them in, the fabric lit 69% of a 320 grid and the background went
 back to a wash; the poster's hairlines are residential streets, not footpaths.
