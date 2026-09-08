@@ -6,21 +6,28 @@
 // pre-auth and must paint immediately, so there is no fetch here and never
 // should be (same rule as the rest of LoginScreen: no auth, no router, no fetch).
 //
-// Canvas, not DOM. A full-bleed 7px grid is ~25k dots on a desktop viewport;
-// as elements that is a dead page, and as an SVG it is 25k nodes on the one
-// screen that must paint fastest. On a canvas the base layer is drawn once and
-// a blink repaints only its own 3px rect.
+// Canvas, not DOM. A full-bleed grid is ~16k dots on a desktop viewport; as
+// elements that is a dead page, and as an SVG it is 16k nodes on the one screen
+// that must paint fastest. On a canvas the base layer is drawn once and a blink
+// repaints only its own 3px rect.
 //
 // The dot pitch is a CONSTANT, not a fraction of the viewport — a halftone
 // screen doesn't resize with the page it's printed on. The city is cover-fit
 // into whatever cell count fits, so a wide viewport crops it vertically and a
 // tall one crops it horizontally, and no viewport ever shows the grid's edge.
+//
+// The pitch is also what sets the SAMPLING ratio against the grid's own cell
+// count, and that is the part that shows: at pitch 7 a 160-cell grid cover-fits
+// a 1080p viewport at scale 0.58, so every grid cell paints as a ~2x2 clump of
+// dots and the city reads as a blown-up blob rather than a screen. 11 keeps
+// screen cells at roughly one grid cell across desktop widths. Lower it only
+// alongside a finer grid (`generate.py --grid`), never on its own.
 
 const React = require('react');
 
-const DEFAULT_PITCH = 7;
+const DEFAULT_PITCH = 11;
 const DEFAULT_DOT = 3;
-const DEFAULT_OPACITY = 0.72;
+const DEFAULT_OPACITY = 0.42;
 // Level 0 is off. Relative weights of the three lit levels; level 3 is the
 // arterial network, level 1 the residential fringe. The spread is wide on
 // purpose — evenly spaced alphas over the sign-in blue read as noise rather
@@ -64,9 +71,9 @@ function readVar(el, name, fallback) {
 /**
  * @param {{
  *   data: {city?: string, w: number, h: number, cells: string},
- *   pitch?: number,        // px between dot centres (default 7)
+ *   pitch?: number,        // px between dot centres (default 11)
  *   dotSize?: number,      // px square (default 3)
- *   opacity?: number,      // peak alpha of the brightest level (default 0.45)
+ *   opacity?: number,      // peak alpha of the brightest level (default 0.42)
  *   color?: string,        // overrides --terras-login-dot
  *   blinkColor?: string,   // overrides --terras-login-dot-blink
  *   blink?: boolean,       // default true; forced off under reduced-motion

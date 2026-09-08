@@ -20,14 +20,16 @@ export interface CityMatrixProps {
   /**
    * Px between dot centres. A constant by design — the city is cover-fit into
    * however many cells fit, so this is the halftone screen's gauge and not a
-   * fraction of the viewport. Default 7.
+   * fraction of the viewport. It also sets how many dots one grid cell paints
+   * as: below ~11 a 160-cell grid oversamples into 2x2 clumps and reads as
+   * zoomed in, so lower it only alongside a finer grid. Default 11.
    */
   pitch?: number;
   /** Px square per dot. Default 3. */
   dotSize?: number;
   /**
    * Peak alpha of the brightest level; the two dimmer levels scale off it.
-   * Defaults to `--terras-login-dot-opacity`, then 0.72.
+   * Defaults to `--terras-login-dot-opacity`, then 0.42.
    */
   opacity?: number;
   /** Overrides `--terras-login-dot`. */

@@ -96,9 +96,9 @@
      handed to a canvas fillStyle, so these two MUST stay plain colours — a
      gradient or a var() chain resolves to a string canvas silently ignores.
      Opacity is the peak alpha of the brightest level, not a CSS opacity. */
-  --terras-login-dot: #cfe0ff;
-  --terras-login-dot-blink: #dbe9ff;
-  --terras-login-dot-opacity: 0.72;
+  --terras-login-dot: #bcd2f2;
+  --terras-login-dot-blink: #d3e4ff;
+  --terras-login-dot-opacity: 0.42;
   --terras-login-text: #ffffff;
   /* Three muted tiers, all cool blue-greys against the deep blue: the footer
      clock/status line, then version + last-updated one step back, then the
