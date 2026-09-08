@@ -405,11 +405,12 @@ function SuitePanel(props) {
     const icons = props.icons || {};
     const activeKeys = props.active || [];
     const compact = !!props.compact;
-    // Smaller than the first pass (56/40): the row is chrome that says which
-    // suite this is, not a launcher, and at 56px it read as a set of buttons
-    // waiting to be clicked. The hover tooltip is what carries the detail.
-    const tileSize = compact ? 34 : 44;
-    const iconSize = compact ? 14 : 17;
+    // Footer scale. The row is chrome that says which suite this is, not a
+    // launcher: at 56px (the first pass) it read as a set of buttons waiting to
+    // be clicked, and it now sits in the footer under the status line, where it
+    // has to weigh about as much as a line of 12px type.
+    const tileSize = compact ? 24 : 26;
+    const iconSize = compact ? 12 : 13;
 
     const hoverState = React.useState(null);
     const hovered = hoverState[0];
@@ -434,8 +435,11 @@ function SuitePanel(props) {
         {
             style: Object.assign({
                 display: 'flex', flexWrap: 'nowrap', justifyContent: 'center',
-                gap: compact ? 7 : 8, overflowX: 'auto', overflowY: 'hidden',
-                paddingTop: compact ? 34 : 40, paddingBottom: 6, maxWidth: '100%',
+                gap: compact ? 5 : 6, overflowX: 'auto', overflowY: 'hidden',
+                // The old top padding was headroom for the hover tooltip, which
+                // is gone; without it the row floated a tile's height clear of
+                // the line it belongs to.
+                paddingTop: 6, paddingBottom: 2, maxWidth: '100%',
                 fontFamily: bodyFont,
             }, props.style),
         },
@@ -464,26 +468,11 @@ function SuitePanel(props) {
                     onMouseLeave: function () { setHovered(null); },
                     style: { flexShrink: 0 },
                 },
-                // Hover name. A tooltip rather than a printed label: ten labelled
-                // tiles is a nav bar, and this row is not navigable.
-                React.createElement(
-                    'div',
-                    {
-                        style: {
-                            position: 'absolute', bottom: '115%', left: '50%',
-                            transform: 'translateX(-50%) translateY(' + (isHovered ? 0 : 4) + 'px)',
-                            opacity: isHovered ? 1 : 0,
-                            transition: 'opacity 0.15s ease, transform 0.15s ease',
-                            pointerEvents: 'none', whiteSpace: 'nowrap',
-                            fontSize: compact ? 10 : 11, fontWeight: 600,
-                            color: S.cssVar('login-text', '#ffffff'),
-                            background: S.cssVar('login-tip-bg', 'rgba(10, 20, 60, 0.92)'),
-                            border: '1px solid ' + S.cssVar('login-tip-border', 'rgba(166, 202, 240, 0.4)'),
-                            borderRadius: 4, padding: '3px 8px',
-                        },
-                    },
-                    m.title,
-                ),
+                // No hover label. The lift and the opacity step already answer
+                // the only thing this row claims - which module this app is - and
+                // the name stays on the tile's `title`, so it is still reachable
+                // without a pointer. A panel floating over the footer strip would
+                // have to clear its edge, at which point it reads as a menu.
                 React.createElement(
                     'div',
                     {
@@ -1076,16 +1065,6 @@ function LoginScreen(props) {
             ),
             React.createElement(
                 'div',
-                { style: { padding: '0 28px 8px', display: 'flex', justifyContent: 'center' } },
-                React.createElement(SuitePanel, {
-                    compact: true,
-                    modules: props.suite,
-                    icons: props.suiteIcons,
-                    active: props.activeModules,
-                }),
-            ),
-            React.createElement(
-                'div',
                 {
                     style: {
                         flex: 1, display: 'flex', flexDirection: 'column',
@@ -1122,6 +1101,12 @@ function LoginScreen(props) {
                     props.lastUpdated
                         ? React.createElement('div', { style: { marginTop: 2, opacity: 0.6 } }, 'Last updated ' + props.lastUpdated)
                         : null,
+                    React.createElement(SuitePanel, {
+                        compact: true,
+                        modules: props.suite,
+                        icons: props.suiteIcons,
+                        active: props.activeModules,
+                    }),
                 ),
             ),
         );
@@ -1187,30 +1172,11 @@ function LoginScreen(props) {
             React.createElement(
                 'div',
                 {
-                    // Stretched and bottom-aligned: the suite row sits on the
-                    // floor of the left panel, which leaves the panel's whole
-                    // upper half as open city rather than as padding around a
-                    // centred cluster. `alignSelf` is what lets it stretch —
-                    // the band centres its children.
-                    style: {
-                        flex: 1, alignSelf: 'stretch',
-                        display: 'flex', flexDirection: 'column',
-                        alignItems: 'center', justifyContent: 'flex-end',
-                        gap: 12, padding: '0 4% 4px',
-                    },
+                    // Nothing left in the left panel: the suite row moved to the
+                    // footer, so this column only holds the centre band's
+                    // proportions and lets the city through.
+                    style: { flex: 1, padding: '0 4%' },
                 },
-                React.createElement('div', {
-                    style: {
-                        width: '60%', height: 1,
-                        background: 'linear-gradient(to right, transparent, ' +
-                            S.cssVar('login-divider', 'rgba(166, 202, 240, 0.35)') + ', transparent)',
-                    },
-                }),
-                React.createElement(SuitePanel, {
-                    modules: props.suite,
-                    icons: props.suiteIcons,
-                    active: props.activeModules,
-                }),
             ),
             React.createElement('div', {
                 style: {
@@ -1253,6 +1219,14 @@ function LoginScreen(props) {
                 props.lastUpdated
                     ? React.createElement('div', { style: { opacity: 0.6 } }, 'Last updated ' + props.lastUpdated)
                     : null,
+                // Left-aligned rather than centred: it hangs off the status line
+                // it sits under, not in the middle of the strip.
+                React.createElement(SuitePanel, {
+                    modules: props.suite,
+                    icons: props.suiteIcons,
+                    active: props.activeModules,
+                    style: { justifyContent: 'flex-start' },
+                }),
             ),
             React.createElement(
                 'div',
