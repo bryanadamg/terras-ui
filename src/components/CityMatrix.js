@@ -107,6 +107,8 @@ function readVar(el, name, fallback) {
  *   blink?: boolean,       // default true; forced off under reduced-motion
  *   quietZones?: Array<{x: number, y: number, rx: number, ry: number, inner?: number, strength?: number}>,
  *   focus?: {x?: number, y?: number},   // 0..1, which part of the grid the crop keeps (default centred)
+ *   spanX?: number,        // 0..1 of the canvas width the field covers, anchored left (default 1)
+ *   fadeX?: {start?: number, end?: number, strength?: number},  // horizontal taper, fractions of width
  *   style?: object,
  * }} props
  */
@@ -131,6 +133,15 @@ function CityMatrix(props) {
     // horizontal freedom left to spend.
     const focusX = clamp01(props.focus && props.focus.x, 0.5);
     const focusY = clamp01(props.focus && props.focus.y, 0.5);
+    // How much of the canvas the field covers, anchored at the left edge. Under
+    // 1 this is the only way to move the city sideways: cover-fit fills the
+    // width exactly, so panning has no slack to spend (see `focus`), but fitting
+    // into a narrower box does move it — and it crops less vertically as a
+    // bonus, because a narrower box needs less scale to cover.
+    const spanX = props.spanX > 0 ? Math.min(1, props.spanX) : 1;
+    // Horizontal taper. Pair it with spanX so the field's own right edge lands
+    // inside the fully-faded part: a lattice that just stops is a visible seam.
+    const fadeX = props.fadeX;
 
     React.useEffect(function () {
         const canvas = ref.current;
@@ -193,7 +204,8 @@ function CityMatrix(props) {
             }
             ctx.clearRect(0, 0, w, h);
 
-            const cols = Math.ceil(w / pitch);
+            const fieldW = w * spanX;
+            const cols = Math.ceil(fieldW / pitch);
             const rows = Math.ceil(h / pitch);
             // Cover-fit: the smaller ratio consumes fewer grid cells per screen
             // cell, so the city scales up past the viewport and crops.
@@ -252,7 +264,7 @@ function CityMatrix(props) {
                     xs[lit] = px;
                     ys[lit] = py;
                     lvls[lit] = lvl;
-                    fades[lit] = zoneFactor(px, py, w, h);
+                    fades[lit] = maskFactor(px, py, w, h);
                     if (lvl >= 2) bright[brightCount++] = lit;
                     lit++;
                 }
@@ -270,6 +282,7 @@ function CityMatrix(props) {
             }
             ctx.globalAlpha = 1;
             eraseQuietZones(w, h);
+            eraseFadeX(w, h);
 
             if (animate) {
                 const n = Math.max(MIN_BLINKS, Math.round(lit * BLINK_FRACTION));
@@ -281,8 +294,23 @@ function CityMatrix(props) {
             }
         }
 
-        // Same smoothstep the gradient below is sampled from, so a blinking dot
-        // inside a zone lands on exactly the brightness the base field has there.
+        // Same smoothstep the gradients below are sampled from, so a blinking dot
+        // under a mask lands on exactly the brightness the base field has there.
+        function maskFactor(x, y, w, h) {
+            return Math.min(zoneFactor(x, y, w, h), fadeFactor(x, w));
+        }
+
+        function fadeFactor(x, w) {
+            if (!fadeX) return 1;
+            const strength = typeof fadeX.strength === 'number' ? fadeX.strength : 1;
+            const start = clamp01(fadeX.start, 0.5) * w;
+            const end = clamp01(fadeX.end, 1) * w;
+            if (x <= start) return 1;
+            if (x >= end || !(end > start)) return 1 - strength;
+            const u = (x - start) / (end - start);
+            return 1 - strength * (u * u * (3 - 2 * u));
+        }
+
         function zoneFactor(x, y, w, h) {
             if (!zones || !zones.length) return 1;
             let f = 1;
@@ -312,6 +340,26 @@ function CityMatrix(props) {
         // dots, and fading it per dot would put a globalAlpha write on each one.
         // `destination-out` subtracts from what is already painted, so the dots
         // thin out instead of a translucent panel sitting over them.
+        function eraseFadeX(w, h) {
+            if (!fadeX) return;
+            const strength = typeof fadeX.strength === 'number' ? fadeX.strength : 1;
+            const start = clamp01(fadeX.start, 0.5) * w;
+            const end = clamp01(fadeX.end, 1) * w;
+            if (!(end > start)) return;
+            ctx.save();
+            ctx.globalCompositeOperation = 'destination-out';
+            const g = ctx.createLinearGradient(start, 0, end, 0);
+            for (let i = 0; i <= 4; i++) {
+                const u = i / 4;
+                g.addColorStop(u, 'rgba(0,0,0,' + strength * (u * u * (3 - 2 * u)) + ')');
+            }
+            ctx.fillStyle = g;
+            // The whole canvas: a linear gradient clamps to its end stops, so
+            // left of `start` nothing is removed and right of `end` all of it is.
+            ctx.fillRect(0, 0, w, h);
+            ctx.restore();
+        }
+
         function eraseQuietZones(w, h) {
             if (!zones || !zones.length) return;
             for (let z = 0; z < zones.length; z++) {
@@ -430,7 +478,7 @@ function CityMatrix(props) {
             else window.removeEventListener('resize', onResize);
             document.removeEventListener('visibilitychange', onVisibility);
         };
-    }, [data, pitch, dot, opacityProp, blink, color, blinkColor, zones, focusX, focusY]);
+    }, [data, pitch, dot, opacityProp, blink, color, blinkColor, zones, focusX, focusY, spanX, fadeX]);
 
     if (!data || !data.cells) return null;
 

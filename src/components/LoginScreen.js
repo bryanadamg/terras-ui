@@ -55,13 +55,18 @@ const DEFAULT_CITY_MATRIX = require('../assets/cityMatrix.tangerang');
 // win. Module constants, not literals in render — CityMatrix repaints its whole
 // field when this array's identity changes.
 // Desktop: the right-hand column (minWidth 38%, maxWidth 420) plus its badge.
-// `inner` is what makes it read as clear rather than merely dimmer: the badge,
-// label, field and button span most of the column's height, so the erase has to
-// be flat across that whole span and only then feather out.
-const DESKTOP_QUIET_ZONES = [
-    { x: 0.79, y: 0.52, rx: 0.27, ry: 0.42, inner: 0.45, strength: 1 },
-];
-// Compact: one centred column, so the zone is wide and shallow instead.
+// Desktop keeps the city in the left two thirds and tapers it out before the
+// form column starts, rather than punching a hole where the form sits. A hole
+// has two edges to get wrong and still leaves dots either side of the field; a
+// taper has one direction and ends in clean ground. `spanX` is what actually
+// moves the map left — panning cannot, because cover-fit already fills the
+// width exactly — and it lands the field's own right edge inside the faded part
+// where no seam can show.
+const DESKTOP_SPAN_X = 0.75;
+const DESKTOP_FADE_X = { start: 0.4, end: 0.7, strength: 1 };
+// Compact stacks brand, form and footer in one centred column, so there is no
+// empty side to move the city into: it keeps the full width and an ellipse
+// behind the form instead.
 const COMPACT_QUIET_ZONES = [
     { x: 0.5, y: 0.54, rx: 0.62, ry: 0.34, inner: 0.4, strength: 1 },
 ];
@@ -1062,7 +1067,9 @@ function LoginScreen(props) {
         ? React.createElement(CityMatrix, {
             data: matrixData,
             blink: props.cityMatrixBlink,
-            quietZones: compact ? COMPACT_QUIET_ZONES : DESKTOP_QUIET_ZONES,
+            quietZones: compact ? COMPACT_QUIET_ZONES : undefined,
+            spanX: compact ? 1 : DESKTOP_SPAN_X,
+            fadeX: compact ? undefined : DESKTOP_FADE_X,
             focus: compact ? COMPACT_FOCUS : DESKTOP_FOCUS,
             style: { zIndex: -1 },
         })

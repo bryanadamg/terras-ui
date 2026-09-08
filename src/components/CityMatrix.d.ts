@@ -64,6 +64,21 @@ export interface CityMatrixProps {
    * crop can never expose the grid's edge.
    */
   focus?: { x?: number; y?: number };
+  /**
+   * Fraction of the canvas width the dot field covers, anchored at the left
+   * edge. Default 1. Under 1 this is the only way to move the city sideways —
+   * cover-fit fills the width exactly, so `focus.x` has no slack to spend on a
+   * wide viewport — and it crops less off the top and bottom as a side effect,
+   * since a narrower box needs less scale to cover.
+   */
+  spanX?: number;
+  /**
+   * Horizontal taper, as fractions of the canvas width: untouched at `start`,
+   * fully removed at `end` (`strength` 0..1 sets how much is removed, default
+   * 1). Pair it with `spanX` so the lattice's own right edge sits inside the
+   * faded part — a field that just stops is a visible seam.
+   */
+  fadeX?: { start?: number; end?: number; strength?: number };
   style?: CSSProperties;
 }
 
