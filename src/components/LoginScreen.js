@@ -55,9 +55,16 @@ const DEFAULT_CITY_MATRIX = require('../assets/cityMatrix.tangerang');
 // win. Module constants, not literals in render — CityMatrix repaints its whole
 // field when this array's identity changes.
 // Desktop: the right-hand column (minWidth 38%, maxWidth 420) plus its badge.
-const DESKTOP_QUIET_ZONES = [{ x: 0.79, y: 0.53, rx: 0.19, ry: 0.32, strength: 0.9 }];
+// `inner` is what makes it read as clear rather than merely dimmer: the badge,
+// label, field and button span most of the column's height, so the erase has to
+// be flat across that whole span and only then feather out.
+const DESKTOP_QUIET_ZONES = [
+    { x: 0.79, y: 0.52, rx: 0.27, ry: 0.42, inner: 0.45, strength: 1 },
+];
 // Compact: one centred column, so the zone is wide and shallow instead.
-const COMPACT_QUIET_ZONES = [{ x: 0.5, y: 0.54, rx: 0.6, ry: 0.28, strength: 0.9 }];
+const COMPACT_QUIET_ZONES = [
+    { x: 0.5, y: 0.54, rx: 0.62, ry: 0.34, inner: 0.4, strength: 1 },
+];
 
 // Which band of the city the crop keeps. Cover-fit spends all the slack on the
 // cropped axis, so desktop can only choose a horizontal band: slightly above

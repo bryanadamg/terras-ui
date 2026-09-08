@@ -30,7 +30,7 @@ export interface CityMatrixProps {
   dotSize?: number;
   /**
    * Peak alpha of the brightest level; the two dimmer levels scale off it.
-   * Defaults to `--terras-login-dot-opacity`, then 0.5.
+   * Defaults to `--terras-login-dot-opacity`, then 0.45.
    */
   opacity?: number;
   /** Overrides `--terras-login-dot`. */
@@ -47,7 +47,15 @@ export interface CityMatrixProps {
    * the caller supplies the shape. Pass a stable array (module constant or
    * memoized) — a fresh literal each render repaints the field.
    */
-  quietZones?: Array<{ x: number; y: number; rx: number; ry: number; strength?: number }>;
+  quietZones?: Array<{
+    x: number;
+    y: number;
+    rx: number;
+    ry: number;
+    /** Fraction of the radius erased flat at full strength before the feather starts, 0..1. Default 0. */
+    inner?: number;
+    strength?: number;
+  }>;
   /**
    * Which part of the grid the crop keeps, 0..1 per axis, default centred
    * (`{x: 0.5, y: 0.5}`). Cover-fit fills one axis exactly and crops the other,

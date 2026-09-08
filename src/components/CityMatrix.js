@@ -28,7 +28,7 @@ const React = require('react');
 
 const DEFAULT_PITCH = 8;
 const DEFAULT_DOT = 3;
-const DEFAULT_OPACITY = 0.5;
+const DEFAULT_OPACITY = 0.45;
 // Level 0 is off. Relative weights of the three lit levels; level 3 is the
 // arterial network, level 1 the residential fringe. The spread is wide on
 // purpose — evenly spaced alphas over the sign-in blue read as noise rather
@@ -101,11 +101,11 @@ function readVar(el, name, fallback) {
  *   data: {city?: string, w: number, h: number, cells: string},
  *   pitch?: number,        // px between dot centres (default 8)
  *   dotSize?: number,      // px square (default 3)
- *   opacity?: number,      // peak alpha of the brightest level (default 0.5)
+ *   opacity?: number,      // peak alpha of the brightest level (default 0.45)
  *   color?: string,        // overrides --terras-login-dot
  *   blinkColor?: string,   // overrides --terras-login-dot-blink
  *   blink?: boolean,       // default true; forced off under reduced-motion
- *   quietZones?: Array<{x: number, y: number, rx: number, ry: number, strength?: number}>,
+ *   quietZones?: Array<{x: number, y: number, rx: number, ry: number, inner?: number, strength?: number}>,
  *   focus?: {x?: number, y?: number},   // 0..1, which part of the grid the crop keeps (default centred)
  *   style?: object,
  * }} props
@@ -296,7 +296,12 @@ function CityMatrix(props) {
                 const t = Math.sqrt(dx * dx + dy * dy);
                 if (t >= 1) continue;
                 const strength = typeof zone.strength === 'number' ? zone.strength : 1;
-                const factor = 1 - strength * (1 - t * t * (3 - 2 * t));
+                const inner = clamp01(zone.inner, 0);
+                // Inside `inner` the erase is flat at full strength; a bare
+                // smoothstep from the centre only reaches full strength at one
+                // point, so a form the size of a real form still sits over dots.
+                const u = t <= inner ? 0 : (t - inner) / (1 - inner);
+                const factor = 1 - strength * (1 - u * u * (3 - 2 * u));
                 if (factor < f) f = factor;
             }
             return f;
@@ -315,13 +320,17 @@ function CityMatrix(props) {
                 const ry = zone.ry * h;
                 if (!(rx > 0) || !(ry > 0)) continue;
                 const strength = typeof zone.strength === 'number' ? zone.strength : 1;
+                const inner = clamp01(zone.inner, 0);
                 ctx.save();
                 ctx.globalCompositeOperation = 'destination-out';
                 // Drawn as a circle of radius ry in a horizontally scaled space:
                 // createRadialGradient has no elliptical form.
                 ctx.translate(zone.x * w, zone.y * h);
                 ctx.scale(rx / ry, 1);
-                const g = ctx.createRadialGradient(0, 0, 0, 0, 0, ry);
+                // The inner radius is the plateau: a radial gradient paints its
+                // start colour solid inside r0, which is exactly the flat
+                // full-strength core zoneFactor computes.
+                const g = ctx.createRadialGradient(0, 0, inner * ry, 0, 0, ry);
                 for (let i = 0; i <= 4; i++) {
                     const t = i / 4;
                     g.addColorStop(t, 'rgba(0,0,0,' + strength * (1 - t * t * (3 - 2 * t)) + ')');
