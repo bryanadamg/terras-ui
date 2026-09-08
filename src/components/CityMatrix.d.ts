@@ -20,9 +20,10 @@ export interface CityMatrixProps {
   /**
    * Px between dot centres. A constant by design — the city is cover-fit into
    * however many cells fit, so this is the halftone screen's gauge and not a
-   * fraction of the viewport. It also sets how many dots one grid cell paints
-   * as: below ~11 a 160-cell grid oversamples into 2x2 clumps and reads as
-   * zoomed in, so lower it only alongside a finer grid. Default 11.
+   * fraction of the viewport. It sets dot density, NOT zoom — cover-fit shows
+   * the same slice of the city at any pitch. Keep it near one grid cell per
+   * dot (8 against the shipped 320-cell grid); zoom out by regenerating the
+   * grid with a larger `--distance`. Default 8.
    */
   pitch?: number;
   /** Px square per dot. Default 3. */

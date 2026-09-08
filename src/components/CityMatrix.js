@@ -16,16 +16,17 @@
 // into whatever cell count fits, so a wide viewport crops it vertically and a
 // tall one crops it horizontally, and no viewport ever shows the grid's edge.
 //
-// The pitch is also what sets the SAMPLING ratio against the grid's own cell
-// count, and that is the part that shows: at pitch 7 a 160-cell grid cover-fits
-// a 1080p viewport at scale 0.58, so every grid cell paints as a ~2x2 clump of
-// dots and the city reads as a blown-up blob rather than a screen. 11 keeps
-// screen cells at roughly one grid cell across desktop widths. Lower it only
-// alongside a finer grid (`generate.py --grid`), never on its own.
+// Pitch is NOT a zoom control. Cover-fit shows the grid's full width and an
+// aspect-locked band of its height whatever the pitch, so changing it only
+// changes dot density: at pitch 7 against a 160-cell grid every grid cell
+// painted as a ~2x2 clump of dots (scale 0.58 on a 1080p viewport) and the city
+// read as a blown-up blob. Zooming OUT is a property of the grid, not this
+// component — regenerate with a larger `--distance`. Keep pitch near the ratio
+// that samples about one grid cell per dot: 8 against the shipped 320-cell grid.
 
 const React = require('react');
 
-const DEFAULT_PITCH = 11;
+const DEFAULT_PITCH = 8;
 const DEFAULT_DOT = 3;
 const DEFAULT_OPACITY = 0.42;
 // Level 0 is off. Relative weights of the three lit levels; level 3 is the
@@ -39,8 +40,12 @@ const BLINK_MS = 900;
 const BLINK_FRACTION = 0.004;
 const MIN_BLINKS = 6;
 
-const FALLBACK_DOT = '#cfe0ff';
-const FALLBACK_BLINK = '#dbe9ff';
+// Mirror --terras-login-dot / --terras-login-dot-blink. Only reached when
+// tokens.css isn't loaded, which is why drift here is invisible in every app
+// that loads it — keep them in step with the tokens anyway, same rule as
+// tokens.json ↔ tokens.css.
+const FALLBACK_DOT = '#bcd2f2';
+const FALLBACK_BLINK = '#d3e4ff';
 
 const decoded = typeof WeakMap === 'function' ? new WeakMap() : null;
 
@@ -71,7 +76,7 @@ function readVar(el, name, fallback) {
 /**
  * @param {{
  *   data: {city?: string, w: number, h: number, cells: string},
- *   pitch?: number,        // px between dot centres (default 11)
+ *   pitch?: number,        // px between dot centres (default 8)
  *   dotSize?: number,      // px square (default 3)
  *   opacity?: number,      // peak alpha of the brightest level (default 0.42)
  *   color?: string,        // overrides --terras-login-dot
