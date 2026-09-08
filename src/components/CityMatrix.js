@@ -26,8 +26,10 @@
 
 const React = require('react');
 
-const DEFAULT_PITCH = 8;
-const DEFAULT_DOT = 3;
+// 5/2 rather than 8/3: the 67%-zoom look the field was tuned against, kept as
+// the default rather than a browser zoom nobody would think to set.
+const DEFAULT_PITCH = 5;
+const DEFAULT_DOT = 2;
 const DEFAULT_OPACITY = 0.45;
 // Level 0 is off. Relative weights of the three lit levels; level 3 is the
 // arterial network, level 1 the residential fringe. The spread is wide on
@@ -56,29 +58,13 @@ const QUIET_BLINK_FLOOR = 0.25;
 // the form sits on. Levels 2-3 are never dithered: they are lines, and half a
 // line is a dashed line.
 const DITHER_MAX_LEVEL = 1;
-// Cursor halo. Dots near the pointer grow; their alpha is untouched. A halftone
-// screen encodes tone as dot SIZE, so growth is the medium's own gesture — and
-// unlike a brightness glow it cannot eat into the contrast the form depends on,
-// which matters because the pointer crosses the form on its way to the field.
-const HALO_RADIUS = 110;
-const HALO_GROW = 2.5;
-// A dot does not track the pointer, it is IGNITED by it and then decays on its
-// own clock. That is what turns a halo into a trail: the cursor leaves swollen
-// dots behind it that settle back over about a third of a second, so the gesture
-// has a direction and a wake instead of being a lamp glued to the cursor.
-const TRAIL_HALF_LIFE = 240;
-// Energy below this is a sub-pixel difference; zero it and let the dot leave the
-// active set rather than decaying forever.
-const TRAIL_EPSILON = 0.02;
-// Peak alpha added at full energy, on top of the dot's rest alpha. Small on
-// purpose, and multiplied by the mask like everything else, so a trail crossing
-// the form cannot brighten anything the form needs.
-const TRAIL_ALPHA_LIFT = 0.18;
-// Blinks are chosen by picking this many arterial candidates and keeping the one
-// nearest the pointer. Sampling rather than a spatial index: the bias only has
-// to be felt, and k=3 pulls the distribution toward the cursor without ever
-// starving the rest of the field.
-const BLINK_BIAS_SAMPLES = 3;
+// Cursor gesture: no halo, no trail — the pointer's only effect is on WHICH
+// dots blink. `pick()` biases every spawn toward the pointer (nearest of k
+// arterial candidates, sampling rather than a spatial index since the bias
+// only has to be felt), and this many extra concurrent blinks ride on top of
+// the ambient pool so the pulled area actually reads busier, not just moved.
+const BLINK_BIAS_SAMPLES = 5;
+const CURSOR_EXTRA_BLINKS = 12;
 const MIN_BLINKS = 6;
 
 // Mirror --terras-login-dot / --terras-login-dot-blink. Only reached when
@@ -215,35 +201,11 @@ function CityMatrix(props) {
         // stray sparkle. On the arterials the same motion reads as traffic.
         let bright = null;
         let brightCount = 0;
-        // Cell -> dot index (-1 for an unlit cell). The halo has to find the dots
-        // around a pixel position, and the dots sit on a lattice, so this is a
-        // lookup rather than a search: iterate the cell rectangle the radius
-        // covers and read straight off it.
-        let cellAt = null;
-        let gridCols = 0;
-        let gridRows = 0;
-        // Growth currently APPLIED to each dot, in CSS px. Kept per dot so a
-        // move only repaints what actually changed, and so the blink loop draws a
-        // dot at whatever size the halo has given it.
-        let grow = null;
         let pointerX = 0;
         let pointerY = 0;
         let pointerOn = false;
-        // Per-dot trail energy, 0..1, and the set of dots that currently carry
-        // any. The frame loop walks the active set, not the field: a trail is a
-        // few hundred dots and the field is twenty thousand.
-        let energy = null;
-        let activeIdx = null;
-        let activeFlag = null;
-        let activeCount = 0;
-        let haloFrame = 0;
-        // HALO_GROW, clamped so an enlarged dot can never reach its neighbour.
-        // A blink clears its own rect, and a rect wider than the pitch would
-        // clip the dot next door and leave a notch behind.
-        let haloGrow = 0;
         let frame = 0;
         let active = null;
-        let lastFrame = 0;
 
         function paintAll() {
             const w = canvas.clientWidth;
@@ -259,7 +221,6 @@ function CityMatrix(props) {
             for (let lvl = 1; lvl <= 3; lvl++) {
                 sizes[lvl] = Math.max(1, Math.round((dot + LEVEL_DOT_BONUS[lvl]) * ratio)) / ratio;
             }
-            haloGrow = Math.max(0, Math.min(HALO_GROW, pitch - 1 - sizes[3]));
             ctx.clearRect(0, 0, w, h);
 
             const fieldW = w * spanX;
@@ -276,14 +237,6 @@ function CityMatrix(props) {
             lvls = new Uint8Array(cols * rows);
             fades = new Float32Array(cols * rows);
             bright = new Int32Array(cols * rows);
-            grow = new Float32Array(cols * rows);
-            energy = new Float32Array(cols * rows);
-            activeIdx = new Int32Array(cols * rows);
-            activeFlag = new Uint8Array(cols * rows);
-            activeCount = 0;
-            cellAt = new Int32Array(cols * rows).fill(-1);
-            gridCols = cols;
-            gridRows = rows;
             lit = 0;
             brightCount = 0;
 
@@ -332,7 +285,6 @@ function CityMatrix(props) {
                     lvls[lit] = lvl;
                     fades[lit] = maskFactor(px, py, w, h);
                     if (lvl >= 2) bright[brightCount++] = lit;
-                    cellAt[r * cols + c] = lit;
                     lit++;
                 }
             }
@@ -346,15 +298,16 @@ function CityMatrix(props) {
                 for (let i = 0; i < lit; i++) {
                     if (lvls[i] === lvl) ctx.fillRect(xs[i], ys[i], size, size);
                 }
-                // `grow` was just reallocated, so the field and the halo agree
-                // that nothing is enlarged until the next pointer frame.
             }
             ctx.globalAlpha = 1;
             eraseQuietZones(w, h);
             eraseFadeX(w, h);
 
             if (animate) {
-                const n = Math.max(MIN_BLINKS, Math.round(lit * BLINK_FRACTION));
+                const base = Math.max(MIN_BLINKS, Math.round(lit * BLINK_FRACTION));
+                // Extra capacity only when hover bias can apply — on a device
+                // with no hover it would just be a bigger ambient pool.
+                const n = tracking ? base + CURSOR_EXTRA_BLINKS : base;
                 active = new Array(Math.min(n, lit || 1));
                 // Seed off the same clock rAF hands us, so the first frame sees
                 // staggered blinks rather than a whole batch already expired.
@@ -491,101 +444,13 @@ function CityMatrix(props) {
             return { i: i, start: now + Math.random() * BLINK_MS };
         }
 
-        // A dot's current footprint: its level's size plus whatever the halo has
-        // added, grown about its centre so the lattice stays centred on its pitch
-        // rather than drifting down and right.
-        function footprint(i, g) {
-            const size = sizes[lvls[i]] + g;
-            const off = g / 2;
-            return { x: xs[i] - off, y: ys[i] - off, size: size };
-        }
-
-        function restAlpha(i) {
-            return opacity * LEVEL_ALPHA[lvls[i]] * fades[i];
-        }
-
         function drawDot(i, alpha, fill) {
-            // Its own size, or a blinking arterial would clear 4px and repaint 3.
-            const f = footprint(i, grow[i]);
-            ctx.clearRect(f.x, f.y, f.size, f.size);
+            const size = sizes[lvls[i]];
+            ctx.clearRect(xs[i], ys[i], size, size);
             ctx.globalAlpha = alpha * fades[i];
             ctx.fillStyle = fill;
-            ctx.fillRect(f.x, f.y, f.size, f.size);
+            ctx.fillRect(xs[i], ys[i], size, size);
             ctx.globalAlpha = 1;
-        }
-
-        function joinActive(i) {
-            if (activeFlag[i]) return;
-            activeFlag[i] = 1;
-            activeIdx[activeCount++] = i;
-        }
-
-        // Light the dots the pointer just swept over. Energy is taken as a MAX,
-        // never added: a slow drag over one dot would otherwise pump it far past
-        // every other dot in the trail and read as a stuck highlight.
-        function igniteTrail() {
-            haloFrame = 0;
-            if (!lit || !cellAt || !pointerOn) return;
-            const reach = Math.ceil(HALO_RADIUS / pitch) + 1;
-            const cx = Math.round(pointerX / pitch);
-            const cy = Math.round(pointerY / pitch);
-            const c0 = Math.max(0, cx - reach);
-            const c1 = Math.min(gridCols - 1, cx + reach);
-            const r0 = Math.max(0, cy - reach);
-            const r1 = Math.min(gridRows - 1, cy + reach);
-            for (let r = r0; r <= r1; r++) {
-                const rowBase = r * gridCols;
-                for (let c = c0; c <= c1; c++) {
-                    const i = cellAt[rowBase + c];
-                    if (i < 0) continue;
-                    const half = sizes[lvls[i]] / 2;
-                    const dx = (xs[i] + half - pointerX) / HALO_RADIUS;
-                    const dy = (ys[i] + half - pointerY) / HALO_RADIUS;
-                    const d = Math.sqrt(dx * dx + dy * dy);
-                    if (d >= 1) continue;
-                    const t = 1 - d;
-                    const e = t * t * (3 - 2 * t);
-                    if (e <= energy[i]) continue;
-                    energy[i] = e;
-                    joinActive(i);
-                }
-            }
-        }
-
-        // One pass over the active set per frame: decay, resize, repaint, and
-        // drop whatever has burnt out. Every active dot is repainted rather than
-        // only those whose snapped size changed, because the alpha lift moves
-        // continuously even when the size holds for a few frames.
-        function decayTrails(dt) {
-            if (!activeCount) return;
-            const k = Math.pow(0.5, dt / TRAIL_HALF_LIFE);
-            let keep = 0;
-            for (let a = 0; a < activeCount; a++) {
-                const i = activeIdx[a];
-                let e = energy[i] * k;
-                if (e < TRAIL_EPSILON) e = 0;
-                energy[i] = e;
-                const next = Math.round(haloGrow * e * ratio) / ratio;
-                // Clear at whichever footprint is larger, then draw the new one:
-                // a shrinking dot otherwise leaves its old edge behind.
-                const wide = footprint(i, next > grow[i] ? next : grow[i]);
-                ctx.clearRect(wide.x, wide.y, wide.size, wide.size);
-                grow[i] = next;
-                const f = footprint(i, next);
-                const lift = TRAIL_ALPHA_LIFT * e * fades[i];
-                const alpha = restAlpha(i) + lift;
-                ctx.globalAlpha = alpha > 1 ? 1 : alpha;
-                ctx.fillStyle = base;
-                ctx.fillRect(f.x, f.y, f.size, f.size);
-                ctx.globalAlpha = 1;
-                if (e > 0) activeIdx[keep++] = i;
-                else activeFlag[i] = 0;
-            }
-            activeCount = keep;
-        }
-
-        function scheduleHalo() {
-            if (!haloFrame) haloFrame = requestAnimationFrame(igniteTrail);
         }
 
         function onPointerMove(e) {
@@ -595,28 +460,13 @@ function CityMatrix(props) {
             pointerX = e.clientX - rect.left;
             pointerY = e.clientY - rect.top;
             pointerOn = true;
-            scheduleHalo();
         }
 
         function onPointerLeave() {
-            // Nothing to unwind: the trail already decays on its own, so leaving
-            // the screen just stops feeding it.
             pointerOn = false;
         }
 
         function tick(now) {
-            // Trails first: a dot that is both trailing and mid-blink must take
-            // the blink's alpha, and the blink pass runs after this one.
-            const dt = lastFrame ? now - lastFrame : 16;
-            lastFrame = now;
-            // Capped: a backgrounded tab resumes with a huge delta, and one frame
-            // that decays every trail to nothing is better than one that skips
-            // the repaint and leaves swollen dots stranded.
-            decayTrails(dt > 100 ? 100 : dt);
-            if (!active) {
-                frame = requestAnimationFrame(tick);
-                return;
-            }
             for (let k = 0; k < active.length; k++) {
                 const b = active[k];
                 if (now < b.start) continue;
@@ -640,9 +490,7 @@ function CityMatrix(props) {
         }
 
         function start() {
-            // Runs for tracking too, not just blinks: the decay needs a clock.
-            if ((!animate && !tracking) || frame || !lit) return;
-            lastFrame = 0;
+            if (!animate || frame || !lit) return;
             frame = requestAnimationFrame(tick);
         }
 
@@ -682,7 +530,6 @@ function CityMatrix(props) {
 
         return function () {
             stop();
-            if (haloFrame) cancelAnimationFrame(haloFrame);
             if (tracking) {
                 parent.removeEventListener('pointermove', onPointerMove);
                 parent.removeEventListener('pointerleave', onPointerLeave);
