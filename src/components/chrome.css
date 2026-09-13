@@ -69,6 +69,49 @@
   box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.2) !important;
 }
 
+/* -- Toast ------------------------------------------------------------------
+   The panel face is the shared `panel()` inline; only what an inline style
+   object cannot express lives here — a `var()` in z-index, and a keyframe.
+
+   Above `--terras-z-modal-3`, and deliberately not part of that stack: a toast
+   reporting the outcome of something done inside a dialog has to clear the
+   dialog. */
+.terras-toast-viewport {
+  position: fixed;
+  right: 12px;
+  bottom: 12px;
+  z-index: var(--terras-z-overlay, 99999);
+  display: flex;
+  /* Newest nearest the corner the eye is already in; older ones ride up. */
+  flex-direction: column-reverse;
+  gap: 6px;
+  /* --terras-app-vw, never a raw --app-vw: calc() over an UNDEFINED custom
+     property invalidates the whole declaration rather than falling back, so an
+     app that doesn't publish the scale's divided-out width would lose the cap
+     outright. The token always resolves (tokens.css defaults it to 100vw). */
+  max-width: min(340px, calc(var(--terras-app-vw, 100vw) - 24px));
+  /* The stack is a gap in the page, not a pane over it — only the panels
+     themselves take the pointer. */
+  pointer-events: none;
+}
+
+.terras-toast {
+  animation: terras-toast-in 120ms ease-out;
+}
+
+@keyframes terras-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .terras-toast {
+    animation: none;
+  }
+}
+
 /* ── Tabs ────────────────────────────────────────────────────────────────────
    Deliberately NOT `.terras-btn`: that hover lifts the control off the surface,
    which is wrong for a tab seated in its strip with an open bottom seam. A tab

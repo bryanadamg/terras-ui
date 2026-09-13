@@ -40,6 +40,11 @@ export type ChipFamily = 'gray' | 'amber' | 'blue' | 'green' | 'red';
  *  "pressed", not "what state is this row in" (that is `ChipFamily`). */
 export type ToggleTone = 'blue' | 'green' | 'red' | 'amber';
 
+/** Toast colour. The same four words as `ToggleTone` on purpose — the named
+ *  methods (`success`/`error`/`warn`/`info`) carry the semantics, so the tone
+ *  stays a colour and this package keeps one tone vocabulary. */
+export type ToastTone = 'green' | 'red' | 'amber' | 'blue';
+
 /** Position inside a segmented (flush) group. */
 export type ChipSeg = 'first' | 'mid' | 'last' | 'only';
 

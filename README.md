@@ -23,6 +23,7 @@ Plain `React.createElement` (no JSX) so no build step is required to consume the
 | `components/Pager` | Prev/next paginator footer — the row window on the left, `Prev` / `Page x / y` / `Next` on the right. Is a `Window.StatusBar`; `inline` fits it into one you already render |
 | `components/Tabs` | Tab strip seated in the pane below it — renders the row only |
 | `components/ProgressBar` | Recessed progress track — up to three stacked segments, a threshold marker, `outside`/`inside` percent label |
+| `components/Toast` | `ToastProvider` + `useToast` — transient feedback stack, bottom-right, with a progress-toast handle for long jobs |
 | `components/Button` | Raised bevel button, tones `default` / `primary` / `success` / `danger` |
 | `components/LogoutButton` | The header's logout control — erp's flat red, deliberately not the `danger` tone (see below) |
 | `components/Field` | `Input`, `Select`, `Label`, `SearchField` — recessed field chrome |
@@ -73,6 +74,36 @@ the same button family as the toolbar above it; `prevLabel` / `nextLabel` take a
 node if you want your own icon set in them. Printing is the app's call: pass its
 own `no-print` class through `className` — this package ships no print utility
 class.
+
+`Toast` is the channel between an inline error (which belongs in the form that
+caused it) and a `Modal` (which demands an answer). Wrap the app once, then call
+it by name:
+
+```jsx
+<ToastProvider icons={{ green: <Check size={12} />, red: <XCircle size={12} /> }}>
+  <App />
+</ToastProvider>
+
+const toast = useToast()
+toast.success('Pick sheet saved')
+toast.error('Server rejected the move')
+
+// One toast for a long job, mutated in place rather than one per unit of work.
+const job = toast.progress('Rebuilding BOMs', '1 of 7')
+job.update(43, '3 of 7 · WIP CBG 9698/22')
+job.finish('Rebuilt 7 BOMs')
+```
+
+Tones are the colour words (`green` / `red` / `amber` / `blue`, the same four as
+`ToggleChip`); the named methods carry the semantics, so the package keeps one
+tone vocabulary. An error is read rather than glanced at, so it holds ~7s against
+a success's 4s and is the only tone that takes `role="alert"` — the rest wait
+their turn on a screen reader as they do visually. Four are visible at once and
+the oldest drops past that, **except** a running progress toast, which is sticky
+until it finishes or fails. Icons are a slot: erp draws them with bootstrap-icons
+and sku with lucide, so an unset tone falls back to a text mark rather than a
+bundled SVG set. Not for anything the user must act on — a toast that asks a
+question is a `Modal` wearing the wrong chrome.
 
 `ProgressBar`'s tooltip is a **slot**, not a dependency. teras-erp wraps the
 track and the threshold marker in its own `Tooltip` — ~300 lines over a portal
