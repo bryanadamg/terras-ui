@@ -23,6 +23,7 @@ Plain `React.createElement` (no JSX) so no build step is required to consume the
 | `components/Pager` | Prev/next paginator footer — the row window on the left, `Prev` / `Page x / y` / `Next` on the right. Is a `Window.StatusBar`; `inline` fits it into one you already render |
 | `components/Tabs` | Tab strip seated in the pane below it — renders the row only |
 | `components/Button` | Raised bevel button, tones `default` / `primary` / `success` / `danger` |
+| `components/LogoutButton` | The header's logout control — erp's flat red, deliberately not the `danger` tone (see below) |
 | `components/Field` | `Input`, `Select`, `Label`, `SearchField` — recessed field chrome |
 | `components/Combobox` | Type-to-search single select — trigger with a ▼ well, portaled popup with its own search box |
 | `components/Chip` | Status chip over the five shared status families |
@@ -77,6 +78,23 @@ class.
 never takes a click; a `ToggleChip` is a control that says **pressed**, over four
 tones. Reach for `FilterChipBar` / `SegmentedBar` rather than a hand-spaced row of
 `ToggleChip` — they own the flush segment geometry.
+
+`LogoutButton` is flat red (`#ff4d4d`, one `#800000` border) where `Button`'s
+`danger` tone is the XP gradient over a two-tone bevel. That is not drift — it is
+where the control lives. A destructive button inside a window wears the bevel;
+logout sits in the title band, which is flat chrome, and teras-erp paints it flat
+there. Don't unify them by flattening `--terras-btn-danger-face`: that would drag
+every modal's Delete in all three apps off `xpTheme.tsx` to settle one header
+control. It defaults `title` and `data-testid` — erp and sku already hand-typed
+both identically, and the third app shouldn't get to invent its own wording. The
+icon is a slot and the label is `children`, so an app collapses it on a narrow
+header with its own class:
+
+```jsx
+<LogoutButton onClick={logout} icon={<LogOut size={12} />}>
+  <span className="hidden sm:inline">LOGOUT</span>
+</LogoutButton>
+```
 
 `LoginScreen` is the one component here that is **not** classic chrome: sign-in
 sits outside the app, so it is a deep blue field in the modern face and looks the

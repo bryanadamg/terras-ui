@@ -43,6 +43,32 @@
   cursor: not-allowed;
 }
 
+/* ── Logout button ───────────────────────────────────────────────────────────
+   The one button in the set whose hover is a COLOUR change rather than a
+   brightness bump: erp goes #ff4d4d -> #cc0000, i.e. darker, while
+   `.terras-btn:hover` brightens. Both would apply, and they cancel.
+
+   `!important` is load-bearing and is the exception to Button.js's note that a
+   colour-based hover "silently does nothing". That note is about specificity:
+   the resting face is an inline style, so a plain stylesheet rule loses to it no
+   matter how specific. `!important` is what outranks an inline declaration — the
+   only reason the other tones don't need it is that they animate filter and
+   transform, which the inline style never sets.
+
+   The lift is kept. Logout sits beside plain `.terras-btn` controls in the same
+   header row, and one button that stays put while its neighbour rises reads as
+   a broken control, not as fidelity. */
+.terras-logout-btn:not(:disabled):hover {
+  background: var(--terras-logout-face-hover, #cc0000) !important;
+  filter: none;
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.16) !important;
+}
+.terras-logout-btn:not(:disabled):active {
+  background: var(--terras-logout-face-hover, #cc0000) !important;
+  filter: none;
+  box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.2) !important;
+}
+
 /* ── Tabs ────────────────────────────────────────────────────────────────────
    Deliberately NOT `.terras-btn`: that hover lifts the control off the surface,
    which is wrong for a tab seated in its strip with an open bottom seam. A tab

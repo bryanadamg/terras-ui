@@ -46,6 +46,19 @@
      (erp xpTheme.tsx FormSection header). */
   --terras-tracking-caps: 0.5px;
 
+  /* Logout button. Deliberately NOT the `danger` tone: that one is the XP
+     gradient + two-tone bevel every destructive button in a window wears
+     (xpTheme.tsx BTN_TONES.danger), and logout does not sit in a window — it
+     sits in the title band. erp paints it flat there (globals.css
+     `.classic-header .btn-outline-danger`) and this mirrors those exact three
+     values. Theme-independent, same reasoning as the radii above: the header is
+     chrome in every theme, so a `classic ? a : b` red would be the start of the
+     same drift. Flattening `--terras-btn-danger-face` to match this instead
+     would drag every modal's Delete off xpTheme in all three apps. */
+  --terras-logout-face: #ff4d4d;
+  --terras-logout-face-hover: #cc0000;
+  --terras-logout-border: #800000;
+
   --terras-z-modal-1: 20000;
   --terras-z-modal-2: 20100;
   --terras-z-modal-3: 20200;

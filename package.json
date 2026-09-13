@@ -31,6 +31,7 @@
     "./components/FilterChipBar": { "types": "./src/components/FilterChipBar.d.ts", "default": "./src/components/FilterChipBar.js" },
     "./components/FormSection": { "types": "./src/components/FormSection.d.ts", "default": "./src/components/FormSection.js" },
     "./components/LoginScreen": { "types": "./src/components/LoginScreen.d.ts", "default": "./src/components/LoginScreen.js" },
+    "./components/LogoutButton": { "types": "./src/components/LogoutButton.d.ts", "default": "./src/components/LogoutButton.js" },
     "./components/Modal": { "types": "./src/components/Modal.d.ts", "default": "./src/components/Modal.js" },
     "./components/Pager": { "types": "./src/components/Pager.d.ts", "default": "./src/components/Pager.js" },
     "./components/SegmentedBar": { "types": "./src/components/SegmentedBar.d.ts", "default": "./src/components/SegmentedBar.js" },
