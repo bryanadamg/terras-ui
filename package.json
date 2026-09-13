@@ -16,6 +16,8 @@
     ".": { "types": "./src/index.d.ts", "default": "./src/index.js" },
     "./css": "./src/tokens/tokens.css",
     "./chrome": "./src/components/chrome.css",
+    "./scale.css": "./src/tokens/scale.css",
+    "./scale": { "types": "./src/scale.d.ts", "default": "./src/scale.js" },
     "./tokens.json": "./src/tokens/tokens.json",
     "./assets/*": "./src/assets/*",
     "./styles": { "types": "./src/components/styles.d.ts", "default": "./src/components/styles.js" },

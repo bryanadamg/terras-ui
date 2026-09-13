@@ -21,6 +21,7 @@
 
 const React = require('react');
 const S = require('./styles');
+const scale = require('../scale');
 
 const LAYER_Z = {
     1: S.cssVar('z-modal-1', '20000'),
@@ -139,8 +140,10 @@ function Modal(props) {
         return 'translate(calc(-50% + ' + dragOffset.current.x + 'px), ' + dragOffset.current.y + 'px)';
     };
 
-    // Unlike erp there is no screen-px → layout-px conversion here: erp has a
-    // UI-scale system, this package does not, so the two are the same unit.
+    // Pointer deltas arrive in SCREEN px; `transform: translate()` is written in
+    // LAYOUT px. Under an interface scale those differ by the zoom factor, and
+    // the panel would outrun the cursor by 1/zoom (25% at 80%). Convert once,
+    // on the delta — see ../scale.js.
     const startDrag = function (e) {
         if (!floating || !panelRef.current) return;
         if (e.target && e.target.closest && e.target.closest('button')) return;
@@ -150,7 +153,10 @@ function Modal(props) {
         const base = { x: dragOffset.current.x, y: dragOffset.current.y };
         const el = panelRef.current;
         const onMove = function (ev) {
-            dragOffset.current = { x: base.x + (ev.clientX - startX), y: base.y + (ev.clientY - startY) };
+            dragOffset.current = {
+                x: base.x + scale.toLayoutPx(ev.clientX - startX),
+                y: base.y + scale.toLayoutPx(ev.clientY - startY),
+            };
             el.style.transform = transform();
             window.dispatchEvent(new Event(REPOSITION_EVENT));
         };
@@ -173,7 +179,12 @@ function Modal(props) {
             // a live page rather than a dimmed one, so it needs the lift to read
             // as being in front rather than part of the layout.
             boxShadow: '4px 4px 14px rgba(0,0,0,0.4)',
-            maxHeight: 'calc(100vh - 80px)',
+            // --terras-app-vh, not a raw 100vh: a root zoom does NOT rescale
+            // viewport units, so a bare 100vh is the window height in layout px
+            // and the dialog would cap at (zoom x window). Same hook LoginScreen
+            // sizes against; falls back to the real unit in an app that doesn't
+            // scale. See ../scale.js.
+            maxHeight: 'calc(' + S.cssVar('app-vh', '100vh') + ' - 80px)',
             margin: 0,
         }
         : null;
@@ -189,7 +200,7 @@ function Modal(props) {
             style: S.bevel(Object.assign({
                 width: props.width || 460,
                 maxWidth: '100%',
-                maxHeight: '90vh',
+                maxHeight: 'calc(' + S.cssVar('app-vh', '100vh') + ' * 90 / 100)',
                 display: 'flex',
                 flexDirection: 'column',
                 fontFamily: S.font,

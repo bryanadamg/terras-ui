@@ -20,6 +20,7 @@
 
 const React = require('react');
 const S = require('./styles');
+const scale = require('../scale');
 
 const STICKY = 'terras-sticky-col';
 const STICKY_LAST = 'terras-sticky-col-last';
@@ -66,6 +67,12 @@ const STICKY_LAST = 'terras-sticky-col-last';
  * beneath it do not.
  */
 function pinLeadingCells(table, count) {
+    // Rects are SCREEN px, `style.left` is LAYOUT px — the same unit only at
+    // zoom 1, so every pin would sit short by the interface scale. Measured raw
+    // and divided once here rather than through scale.layoutRectOf() per cell:
+    // that would re-probe the zoom inside the loop, and the ratio cannot change
+    // mid-measure. See ../scale.js.
+    const z = scale.uiZoom();
     const origin = table.getBoundingClientRect().left;
     const groups = table.querySelectorAll('thead, tbody, tfoot');
     const pins = [];
@@ -88,7 +95,7 @@ function pinLeadingCells(table, count) {
                 // table's own geometry exactly, seams included.
                 pins.push({
                     cell: cell,
-                    left: cell.getBoundingClientRect().left - origin,
+                    left: (cell.getBoundingClientRect().left - origin) / z,
                     last: column + span === count,
                 });
                 // `rowSpan` 0 means "to the end of the row group" — never ends.

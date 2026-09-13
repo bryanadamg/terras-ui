@@ -206,7 +206,7 @@ groups of glyphs never run together. `section.right` is dropped rather than shru
 **Give every section an `icon`** unless you want that stripe. `top` and `footer` each
 accept a `({ collapsed }) => node` function for content that can't survive 44px.
 
-**Both stylesheets are required.** `terras-ui/css` is the custom properties; `terras-ui/chrome` carries the rules an inline style object cannot express (`:hover` / `:focus` / `::placeholder`, scrollbars, and the table `th`/`td` descendant selectors). Without the second one, buttons lose their press motion and tables render unruled.
+**Both stylesheets are required.** `terras-ui/css` is the custom properties; `terras-ui/chrome` carries the rules an inline style object cannot express (`:hover` / `:focus` / `::placeholder`, scrollbars, and the table `th`/`td` descendant selectors). Without the second one, buttons lose their press motion and tables render unruled. A third, `terras-ui/scale.css`, is optional — see **Interface scale** below.
 
 ## Usage (consuming app)
 
@@ -235,6 +235,56 @@ accept a `({ collapsed }) => node` function for content that can't survive 44px.
 import '@bryanadamg/terras-ui/css'     // custom properties
 import '@bryanadamg/terras-ui/chrome'  // :hover / :focus / table / scrollbar rules
 ```
+
+## Interface scale (optional)
+
+The apps are drawn dense enough that the browser's 100% looks oversized on a desktop
+monitor — 80% is what operators were reaching for with Ctrl+minus. `terras-ui/scale.css`
++ `terras-ui/scale` are that, packaged: a root `zoom` on `<html>`, driven by a
+`data-ui-scale` attribute. Opt-in — import the sheet and nothing changes until an app
+stamps the attribute.
+
+```ts
+import '@bryanadamg/terras-ui/css'
+import '@bryanadamg/terras-ui/chrome'
+import '@bryanadamg/terras-ui/scale.css'            // third
+import { applyUiScale, readUiScale } from '@bryanadamg/terras-ui/scale'
+
+applyUiScale(readUiScale())   // top of the entry module, before anything renders
+```
+
+An SSR app paints one frame of server markup before that runs, which would flash at
+full size and snap down. Inline `bootScript` in `<head>` instead (Next: a `<script>`
+with `dangerouslySetInnerHTML`, and `suppressHydrationWarning` on `<html>` — the
+server markup can't know about the attribute):
+
+```tsx
+import { bootScript } from '@bryanadamg/terras-ui/scale'
+<script dangerouslySetInnerHTML={{ __html: bootScript }} />
+```
+
+Scales are `[70, 75, 80, 90, 100, 110]` (`UI_SCALES`), default 80, persisted under
+`localStorage['ui_scale']`. The picker UI is the app's — map `UI_SCALES` into a select
+and call `applyUiScale`. Phones and print are pinned back to 1 by the sheet: 44px touch
+targets are the point on one, A4 measurements on the other.
+
+Two things an app that opts in has to respect:
+
+- **No raw `vh` / `vw`.** A root zoom does not rescale viewport units, so a bare `100vh`
+  renders at 80% of the window. Size against `var(--app-vh)` / `--app-dvh` / `--app-vw`,
+  which divide the zoom back out: `calc(var(--app-vh) * 70 / 100)`.
+- **Screen px and layout px stop being the same unit.** `getBoundingClientRect()`,
+  `clientX/Y`, `innerWidth/Height`, `scrollX/Y` and `movementX/Y` come back divided by the
+  zoom; every CSS length you write (`style.top`, a React style prop) is multiplied by it.
+  Convert with `toLayoutPx` / `layoutRectOf` / `layoutViewport` / `layoutScroll` from
+  `terras-ui/scale` before a measured value becomes a length. Every component in this
+  package that measures already does. `uiZoom()` reads the ratio off a fixed-width probe
+  rather than `getComputedStyle().zoom`, which older Chromium serializes as `"80%"`.
+
+`.ui-scale-exempt` on a subtree cancels the zoom back to 1:1 — for a WYSIWYG paper
+surface, or a widget that measures its own box (a camera viewfinder). A `rectOf` /
+`viewportHeight` prop on a component inside one should be passed the raw APIs, so the
+correction isn't applied twice.
 
 Or read raw values in JS/TS:
 
