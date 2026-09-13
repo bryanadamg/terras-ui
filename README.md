@@ -22,6 +22,7 @@ Plain `React.createElement` (no JSX) so no build step is required to consume the
 | `components/Table` | Ruled classic table (`.EmptyRow` for the empty/loading state, `stickyCols` to freeze leading columns) |
 | `components/Pager` | Prev/next paginator footer — the row window on the left, `Prev` / `Page x / y` / `Next` on the right. Is a `Window.StatusBar`; `inline` fits it into one you already render |
 | `components/Tabs` | Tab strip seated in the pane below it — renders the row only |
+| `components/ProgressBar` | Recessed progress track — up to three stacked segments, a threshold marker, `outside`/`inside` percent label |
 | `components/Button` | Raised bevel button, tones `default` / `primary` / `success` / `danger` |
 | `components/LogoutButton` | The header's logout control — erp's flat red, deliberately not the `danger` tone (see below) |
 | `components/Field` | `Input`, `Select`, `Label`, `SearchField` — recessed field chrome |
@@ -72,6 +73,17 @@ the same button family as the toolbar above it; `prevLabel` / `nextLabel` take a
 node if you want your own icon set in them. Printing is the app's call: pass its
 own `no-print` class through `className` — this package ships no print utility
 class.
+
+`ProgressBar`'s tooltip is a **slot**, not a dependency. teras-erp wraps the
+track and the threshold marker in its own `Tooltip` — ~300 lines over a portal
+layer, a theme context and the clipped-chip popout, none of which this package
+ships. Pass `tooltip={(node, content) => <YourTip content={content}>{node}</YourTip>}`
+to use your own; the default puts `content` in a native `title=` attribute. Leave
+`tone` unset and the bar reads the number (>=100 green, >0 amber, else gray); set
+it when the bar means something other than completion, like blue for "in progress"
+or red for a shortfall. `secondaryPct` / `tertiaryPct` stack after the primary fill
+and are each clamped against what the earlier segments already took, so three
+optimistic numbers can't overflow the track.
 
 `Chip` and `ToggleChip` are different jobs and keep different faces on purpose: a
 `Chip` is a tinted pill that **reports** state over the five status families and

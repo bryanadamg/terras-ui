@@ -34,6 +34,7 @@
     "./components/LogoutButton": { "types": "./src/components/LogoutButton.d.ts", "default": "./src/components/LogoutButton.js" },
     "./components/Modal": { "types": "./src/components/Modal.d.ts", "default": "./src/components/Modal.js" },
     "./components/Pager": { "types": "./src/components/Pager.d.ts", "default": "./src/components/Pager.js" },
+    "./components/ProgressBar": { "types": "./src/components/ProgressBar.d.ts", "default": "./src/components/ProgressBar.js" },
     "./components/SegmentedBar": { "types": "./src/components/SegmentedBar.d.ts", "default": "./src/components/SegmentedBar.js" },
     "./components/Sidebar": { "types": "./src/components/Sidebar.d.ts", "default": "./src/components/Sidebar.js" },
     "./components/Table": { "types": "./src/components/Table.d.ts", "default": "./src/components/Table.js" },
