@@ -18,19 +18,34 @@
 const React = require('react');
 const S = require('./styles');
 
+// Per-tone fallbacks, not one shared hex: `var(--x, fallback)` resolves the
+// fallback whenever the sheet is missing, so a single default would paint every
+// tone grey in exactly the situation the fallback exists for.
+const FALLBACK = {
+    gray: ['#c8c3b6', '#e2ddd0'],
+    amber: ['#c77800', '#f5d060'],
+    blue: ['#0058e6', '#4a8fe8'],
+    green: ['#2d7a2d', '#6fce6f'],
+    red: ['#c00000', '#e88a8a'],
+};
+
 // Dark is the segment's own colour; light is ONLY the second stripe of the
 // hatched fill. A bar is never painted in the light half alone.
 const fill = (tone, hatched) => {
-    const dk = S.cssVar('progress-' + tone, '#c8c3b6');
+    const fb = FALLBACK[tone] || FALLBACK.gray;
+    const dk = S.cssVar('progress-' + tone, fb[0]);
     if (!hatched) return dk;
-    const lt = S.cssVar('progress-' + tone + '-light', '#e2ddd0');
+    const lt = S.cssVar('progress-' + tone + '-light', fb[1]);
     return 'repeating-linear-gradient(45deg,' + dk + ',' + dk + ' 3px,' + lt + ' 3px,' + lt + ' 6px)';
 };
 
 /** The solid colour a segment paints, for a legend sitting beside the bar.
  *  Exported so a caller names the bar's own colour instead of hand-copying a hex
  *  that then drifts when the palette moves. */
-const progressToneColor = (tone) => S.cssVar('progress-' + (tone || 'gray'), '#c8c3b6');
+const progressToneColor = (tone) => {
+    const t = tone || 'gray';
+    return S.cssVar('progress-' + t, (FALLBACK[t] || FALLBACK.gray)[0]);
+};
 
 const clamp = (n) => Math.max(0, Math.min(100, n));
 
@@ -75,7 +90,10 @@ function ProgressBar(props) {
         ? Math.max(0, Math.min(100 - primary - secondary, props.tertiaryPct)) : 0;
     const pctLabel = Math.round(primary);
 
-    const segment = (left, width, segTone) => React.createElement('div', {
+    // Keyed: the segments and the marker go into one array, and React warns on
+    // an unkeyed list even though this one never reorders.
+    const segment = (key, left, width, segTone) => React.createElement('div', {
+        key: key,
         style: {
             position: 'absolute', top: 0, left: left + '%', height: '100%',
             width: width + '%', background: fill(segTone, hatched),
@@ -84,28 +102,37 @@ function ProgressBar(props) {
     });
 
     const children = [
-        segment(0, primary, tone),
-        props.secondaryPct != null ? segment(primary, secondary, props.secondaryTone || 'gray') : null,
-        props.tertiaryPct != null ? segment(primary + secondary, tertiary, props.tertiaryTone || 'gray') : null,
+        segment('primary', 0, primary, tone),
+        props.secondaryPct != null ? segment('secondary', primary, secondary, props.secondaryTone || 'gray') : null,
+        props.tertiaryPct != null ? segment('tertiary', primary + secondary, tertiary, props.tertiaryTone || 'gray') : null,
     ];
 
     if (props.markerPct != null) {
         // A line, not a fill: it marks a threshold the bar is measured against
         // (a target efficiency), so it paints OVER whatever segment it lands in.
         const mark = React.createElement('div', {
+            key: 'marker',
             style: {
                 position: 'absolute', top: 0, bottom: 0,
                 left: clamp(props.markerPct) + '%', width: 2,
                 background: S.cssVar('win-text', '#000000'),
             },
         });
-        children.push(props.markerTitle ? tip(mark, props.markerTitle) : mark);
+        // Keyed on a Fragment rather than on `mark`: a custom `tooltip` slot
+        // returns its OWN wrapper element, which would then be the unkeyed one
+        // in the list. `nativeTip` keeps the key through cloneElement, a slot
+        // cannot be relied on to.
+        children.push(React.createElement(
+            React.Fragment,
+            { key: 'marker' },
+            props.markerTitle ? tip(mark, props.markerTitle) : mark,
+        ));
     }
 
     if (label === 'inside') {
         children.push(React.createElement(
             'span',
-            { style: { position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' } },
+            { key: 'label', style: { position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' } },
             React.createElement('span', {
                 style: {
                     // Tracks this thin leave no room for the shared scale, and the

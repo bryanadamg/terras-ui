@@ -1,6 +1,10 @@
 import type { Context, ReactNode } from 'react';
 import type { ToastTone } from './types';
 
+// Re-exported: the tone is part of this component's public surface, and
+// `types.d.ts` has no export path of its own.
+export type { ToastTone };
+
 /** Handle for one long-running operation's toast. The toast is created up front
  *  and mutated in place, instead of a toast per completed unit of work. It is
  *  sticky until it settles, so neither the dismiss timer nor the visible cap can
