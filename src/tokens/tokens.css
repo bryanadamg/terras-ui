@@ -46,6 +46,19 @@
      (erp xpTheme.tsx FormSection header). */
   --terras-tracking-caps: 0.5px;
 
+  /* Logout button. Deliberately NOT the `danger` tone: that one is the XP
+     gradient + two-tone bevel every destructive button in a window wears
+     (xpTheme.tsx BTN_TONES.danger), and logout does not sit in a window — it
+     sits in the title band. erp paints it flat there (globals.css
+     `.classic-header .btn-outline-danger`) and this mirrors those exact three
+     values. Theme-independent, same reasoning as the radii above: the header is
+     chrome in every theme, so a `classic ? a : b` red would be the start of the
+     same drift. Flattening `--terras-btn-danger-face` to match this instead
+     would drag every modal's Delete off xpTheme in all three apps. */
+  --terras-logout-face: #ff4d4d;
+  --terras-logout-face-hover: #cc0000;
+  --terras-logout-border: #800000;
+
   --terras-z-modal-1: 20000;
   --terras-z-modal-2: 20100;
   --terras-z-modal-3: 20200;
@@ -64,6 +77,23 @@
   --terras-chip-blue-bg: #dce4f5;    --terras-chip-blue-border: #3a5faa;    --terras-chip-blue-text: #0d2a6e;
   --terras-chip-green-bg: #d4edda;   --terras-chip-green-border: #27713a;   --terras-chip-green-text: #0c3a1a;
   --terras-chip-red-bg: #f8d7da;     --terras-chip-red-border: #a01a1a;     --terras-chip-red-text: #4a0000;
+
+  /* Progress-bar fills, one pair per status family (erp xpTheme.tsx
+     PROGRESS_FILL_DK / _LT). The light half is ONLY the second stripe of the
+     hatched fill — a bar is never painted in it alone, which is why these are
+     not the chip backgrounds: a chip's tint sits under text and has to stay
+     readable, a stripe sits under nothing. `gray` is the one family whose dark
+     value is a warm neutral rather than the `--terras-status-gray` text grey;
+     it reads as "no progress yet" against the track, not as a label. */
+  --terras-progress-gray: #c8c3b6;   --terras-progress-gray-light: #e2ddd0;
+  --terras-progress-amber: #c77800;  --terras-progress-amber-light: #f5d060;
+  --terras-progress-blue: #0058e6;   --terras-progress-blue-light: #4a8fe8;
+  --terras-progress-green: #2d7a2d;  --terras-progress-green-light: #6fce6f;
+  --terras-progress-red: #c00000;    --terras-progress-red-light: #e88a8a;
+  /* The well the fill runs in — a field's recessed edge, since that is what it
+     is: a readout, not a raised control. */
+  --terras-progress-track: #e9e9e9;
+  --terras-progress-track-border: #7f9db9;
 
   /* Display/wordmark face for the sign-in screen. erp loads Sora as
      `--font-display` in layout.tsx; falls back to the modern stack so the brand

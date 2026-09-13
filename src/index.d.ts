@@ -18,6 +18,8 @@ declare const tokens: Tokens & {
   cssPath: string;
   /** Resolved path to chrome.css — the :hover/:focus/table rules the components need. */
   chromeCssPath: string;
+  /** Resolved path to scale.css — the opt-in interface scale (root zoom). Inert until an app stamps `data-ui-scale`; drive it from `terras-ui/scale`. */
+  scaleCssPath: string;
 };
 
 export default tokens;

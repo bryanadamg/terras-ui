@@ -25,6 +25,7 @@
 // that samples about one grid cell per dot: 8 against the shipped 320-cell grid.
 
 const React = require('react');
+const scale = require('../scale');
 
 // 5/2 rather than 8/3: the 67%-zoom look the field was tuned against, kept as
 // the default rather than a browser zoom nobody would think to set.
@@ -456,9 +457,13 @@ function CityMatrix(props) {
         function onPointerMove(e) {
             // The canvas is pointer-events:none under a negative z-index, so the
             // events arrive on the parent and have to be mapped into canvas space.
+            // The rect and clientX/Y are SCREEN px; xs/ys are the canvas's own CSS
+            // px, which is LAYOUT px (the ctx transform only carries the device
+            // pixel ratio). Under an interface scale the cursor would pull the
+            // blinks toward the top-left by the zoom factor. See ../scale.js.
             const rect = canvas.getBoundingClientRect();
-            pointerX = e.clientX - rect.left;
-            pointerY = e.clientY - rect.top;
+            pointerX = scale.toLayoutPx(e.clientX - rect.left);
+            pointerY = scale.toLayoutPx(e.clientY - rect.top);
             pointerOn = true;
         }
 

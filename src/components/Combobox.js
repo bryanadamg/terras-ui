@@ -18,6 +18,7 @@ const React = require('react');
 const ReactDOM = require('react-dom');
 const S = require('./styles');
 const REPOSITION_EVENT = require('./Modal').REPOSITION_EVENT;
+const scale = require('../scale');
 
 const MAX_HEIGHT = 280;
 
@@ -31,8 +32,12 @@ const norm = (s) => (s || '').trim().toLowerCase();
 // A code shown beside the name it duplicates is noise, not information.
 const subIsRedundant = (o) => !o.subLabel || !o.label || norm(o.subLabel) === norm(o.label);
 
-const defaultRectOf = (el) => el.getBoundingClientRect();
-const defaultViewportHeight = () => window.innerHeight;
+// Screen px -> layout px, so the portaled popup lands on its trigger under an
+// interface scale (see ../scale.js). The props stay as an override for a caller
+// inside a `.ui-scale-exempt` subtree, which is back at 1:1 and must not be
+// corrected twice.
+const defaultRectOf = (el) => scale.layoutRectOf(el);
+const defaultViewportHeight = () => scale.layoutViewport().height;
 
 /**
  * @param {{

@@ -22,7 +22,10 @@ Plain `React.createElement` (no JSX) so no build step is required to consume the
 | `components/Table` | Ruled classic table (`.EmptyRow` for the empty/loading state, `stickyCols` to freeze leading columns) |
 | `components/Pager` | Prev/next paginator footer — the row window on the left, `Prev` / `Page x / y` / `Next` on the right. Is a `Window.StatusBar`; `inline` fits it into one you already render |
 | `components/Tabs` | Tab strip seated in the pane below it — renders the row only |
+| `components/ProgressBar` | Recessed progress track — up to three stacked segments, a threshold marker, `outside`/`inside` percent label |
+| `components/Toast` | `ToastProvider` + `useToast` — transient feedback stack, bottom-right, with a progress-toast handle for long jobs |
 | `components/Button` | Raised bevel button, tones `default` / `primary` / `success` / `danger` |
+| `components/LogoutButton` | The header's logout control — erp's flat red, deliberately not the `danger` tone (see below) |
 | `components/Field` | `Input`, `Select`, `Label`, `SearchField` — recessed field chrome |
 | `components/Combobox` | Type-to-search single select — trigger with a ▼ well, portaled popup with its own search box |
 | `components/Chip` | Status chip over the five shared status families |
@@ -72,11 +75,69 @@ node if you want your own icon set in them. Printing is the app's call: pass its
 own `no-print` class through `className` — this package ships no print utility
 class.
 
+`Toast` is the channel between an inline error (which belongs in the form that
+caused it) and a `Modal` (which demands an answer). Wrap the app once, then call
+it by name:
+
+```jsx
+<ToastProvider icons={{ green: <Check size={12} />, red: <XCircle size={12} /> }}>
+  <App />
+</ToastProvider>
+
+const toast = useToast()
+toast.success('Pick sheet saved')
+toast.error('Server rejected the move')
+
+// One toast for a long job, mutated in place rather than one per unit of work.
+const job = toast.progress('Rebuilding BOMs', '1 of 7')
+job.update(43, '3 of 7 · WIP CBG 9698/22')
+job.finish('Rebuilt 7 BOMs')
+```
+
+Tones are the colour words (`green` / `red` / `amber` / `blue`, the same four as
+`ToggleChip`); the named methods carry the semantics, so the package keeps one
+tone vocabulary. An error is read rather than glanced at, so it holds ~7s against
+a success's 4s and is the only tone that takes `role="alert"` — the rest wait
+their turn on a screen reader as they do visually. Four are visible at once and
+the oldest drops past that, **except** a running progress toast, which is sticky
+until it finishes or fails. Icons are a slot: erp draws them with bootstrap-icons
+and sku with lucide, so an unset tone falls back to a text mark rather than a
+bundled SVG set. Not for anything the user must act on — a toast that asks a
+question is a `Modal` wearing the wrong chrome.
+
+`ProgressBar`'s tooltip is a **slot**, not a dependency. teras-erp wraps the
+track and the threshold marker in its own `Tooltip` — ~300 lines over a portal
+layer, a theme context and the clipped-chip popout, none of which this package
+ships. Pass `tooltip={(node, content) => <YourTip content={content}>{node}</YourTip>}`
+to use your own; the default puts `content` in a native `title=` attribute. Leave
+`tone` unset and the bar reads the number (>=100 green, >0 amber, else gray); set
+it when the bar means something other than completion, like blue for "in progress"
+or red for a shortfall. `secondaryPct` / `tertiaryPct` stack after the primary fill
+and are each clamped against what the earlier segments already took, so three
+optimistic numbers can't overflow the track.
+
 `Chip` and `ToggleChip` are different jobs and keep different faces on purpose: a
 `Chip` is a tinted pill that **reports** state over the five status families and
 never takes a click; a `ToggleChip` is a control that says **pressed**, over four
 tones. Reach for `FilterChipBar` / `SegmentedBar` rather than a hand-spaced row of
 `ToggleChip` — they own the flush segment geometry.
+
+`LogoutButton` is flat red (`#ff4d4d`, one `#800000` border) where `Button`'s
+`danger` tone is the XP gradient over a two-tone bevel. That is not drift — it is
+where the control lives. A destructive button inside a window wears the bevel;
+logout sits in the title band, which is flat chrome, and teras-erp paints it flat
+there. Don't unify them by flattening `--terras-btn-danger-face`: that would drag
+every modal's Delete in all three apps off `xpTheme.tsx` to settle one header
+control. It defaults `title` and `data-testid` — erp and sku already hand-typed
+both identically, and the third app shouldn't get to invent its own wording. The
+icon is a slot and the label is `children`, so an app collapses it on a narrow
+header with its own class:
+
+```jsx
+<LogoutButton onClick={logout} icon={<LogOut size={12} />}>
+  <span className="hidden sm:inline">LOGOUT</span>
+</LogoutButton>
+```
 
 `LoginScreen` is the one component here that is **not** classic chrome: sign-in
 sits outside the app, so it is a deep blue field in the modern face and looks the
@@ -206,7 +267,7 @@ groups of glyphs never run together. `section.right` is dropped rather than shru
 **Give every section an `icon`** unless you want that stripe. `top` and `footer` each
 accept a `({ collapsed }) => node` function for content that can't survive 44px.
 
-**Both stylesheets are required.** `terras-ui/css` is the custom properties; `terras-ui/chrome` carries the rules an inline style object cannot express (`:hover` / `:focus` / `::placeholder`, scrollbars, and the table `th`/`td` descendant selectors). Without the second one, buttons lose their press motion and tables render unruled.
+**Both stylesheets are required.** `terras-ui/css` is the custom properties; `terras-ui/chrome` carries the rules an inline style object cannot express (`:hover` / `:focus` / `::placeholder`, scrollbars, and the table `th`/`td` descendant selectors). Without the second one, buttons lose their press motion and tables render unruled. A third, `terras-ui/scale.css`, is optional — see **Interface scale** below.
 
 ## Usage (consuming app)
 
@@ -235,6 +296,56 @@ accept a `({ collapsed }) => node` function for content that can't survive 44px.
 import '@bryanadamg/terras-ui/css'     // custom properties
 import '@bryanadamg/terras-ui/chrome'  // :hover / :focus / table / scrollbar rules
 ```
+
+## Interface scale (optional)
+
+The apps are drawn dense enough that the browser's 100% looks oversized on a desktop
+monitor — 80% is what operators were reaching for with Ctrl+minus. `terras-ui/scale.css`
++ `terras-ui/scale` are that, packaged: a root `zoom` on `<html>`, driven by a
+`data-ui-scale` attribute. Opt-in — import the sheet and nothing changes until an app
+stamps the attribute.
+
+```ts
+import '@bryanadamg/terras-ui/css'
+import '@bryanadamg/terras-ui/chrome'
+import '@bryanadamg/terras-ui/scale.css'            // third
+import { applyUiScale, readUiScale } from '@bryanadamg/terras-ui/scale'
+
+applyUiScale(readUiScale())   // top of the entry module, before anything renders
+```
+
+An SSR app paints one frame of server markup before that runs, which would flash at
+full size and snap down. Inline `bootScript` in `<head>` instead (Next: a `<script>`
+with `dangerouslySetInnerHTML`, and `suppressHydrationWarning` on `<html>` — the
+server markup can't know about the attribute):
+
+```tsx
+import { bootScript } from '@bryanadamg/terras-ui/scale'
+<script dangerouslySetInnerHTML={{ __html: bootScript }} />
+```
+
+Scales are `[70, 75, 80, 90, 100, 110]` (`UI_SCALES`), default 80, persisted under
+`localStorage['ui_scale']`. The picker UI is the app's — map `UI_SCALES` into a select
+and call `applyUiScale`. Phones and print are pinned back to 1 by the sheet: 44px touch
+targets are the point on one, A4 measurements on the other.
+
+Two things an app that opts in has to respect:
+
+- **No raw `vh` / `vw`.** A root zoom does not rescale viewport units, so a bare `100vh`
+  renders at 80% of the window. Size against `var(--app-vh)` / `--app-dvh` / `--app-vw`,
+  which divide the zoom back out: `calc(var(--app-vh) * 70 / 100)`.
+- **Screen px and layout px stop being the same unit.** `getBoundingClientRect()`,
+  `clientX/Y`, `innerWidth/Height`, `scrollX/Y` and `movementX/Y` come back divided by the
+  zoom; every CSS length you write (`style.top`, a React style prop) is multiplied by it.
+  Convert with `toLayoutPx` / `layoutRectOf` / `layoutViewport` / `layoutScroll` from
+  `terras-ui/scale` before a measured value becomes a length. Every component in this
+  package that measures already does. `uiZoom()` reads the ratio off a fixed-width probe
+  rather than `getComputedStyle().zoom`, which older Chromium serializes as `"80%"`.
+
+`.ui-scale-exempt` on a subtree cancels the zoom back to 1:1 — for a WYSIWYG paper
+surface, or a widget that measures its own box (a camera viewfinder). A `rectOf` /
+`viewportHeight` prop on a component inside one should be passed the raw APIs, so the
+correction isn't applied twice.
 
 Or read raw values in JS/TS:
 
