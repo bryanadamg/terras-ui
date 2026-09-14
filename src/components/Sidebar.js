@@ -225,13 +225,15 @@ function SidebarItem(props) {
  *   appName?: React.ReactNode,
  *   brandIcon?: React.ReactNode,
  *   top?: React.ReactNode | ((state: { collapsed: boolean }) => React.ReactNode),
- *   items?: Array<{ key: string, label: React.ReactNode, icon?: React.ReactNode, active?: boolean, sub?: boolean, onClick: () => void, title?: string }>,
- *   sections?: Array<{ key: string, label: React.ReactNode, icon?: React.ReactNode, right?: React.ReactNode, onClick?: () => void, items: Array<object> }>,
+ *   items?: Array<{ key: string, label: React.ReactNode, icon?: React.ReactNode, active?: boolean, sub?: boolean, onClick: () => void, onMouseEnter?: () => void, onMouseLeave?: () => void, title?: string }>,
+ *   sections?: Array<{ key: string, label: React.ReactNode, icon?: React.ReactNode, right?: React.ReactNode, active?: boolean, onClick?: () => void, items: Array<object> }>,
  *   footer?: React.ReactNode | ((state: { collapsed: boolean }) => React.ReactNode),
  *   collapsed?: boolean,
  *   onToggleCollapsed?: () => void,
  *   width?: string | number,
  *   collapsedWidth?: string | number,
+ *   navRef?: React.Ref<HTMLElement>,
+ *   onNavScroll?: (e: React.UIEvent) => void,
  *   style?: object,
  * }} props
  */
@@ -250,8 +252,19 @@ function Sidebar(props) {
             item: item,
             collapsed: collapsed,
             hovered: hoveredKey === item.key,
-            onHover: function () { setHoveredKey(item.key); },
-            onLeave: function () { setHoveredKey(null); },
+            // Two listeners fire on the same enter/leave: this component's own
+            // (style only) and the item's optional `onMouseEnter`/`onMouseLeave`
+            // (app-level, e.g. debounced route prefetch) — kept separate so the
+            // app callback never has to know this component also uses hover for
+            // paint, and vice versa.
+            onHover: function () {
+                setHoveredKey(item.key);
+                if (item.onMouseEnter) item.onMouseEnter();
+            },
+            onLeave: function () {
+                setHoveredKey(null);
+                if (item.onMouseLeave) item.onMouseLeave();
+            },
         });
     };
 
@@ -317,7 +330,7 @@ function Sidebar(props) {
             : null,
         React.createElement(
             'nav',
-            { className: 'terras-scroll', style: navStyle },
+            { className: 'terras-scroll', style: navStyle, ref: props.navRef, onScroll: props.onNavScroll },
             items.map(renderItem),
             sections.map(function (section) {
                 const childActive = (section.items || []).some(function (i) { return i.active; });
@@ -328,7 +341,10 @@ function Sidebar(props) {
                     React.createElement(
                         'div',
                         {
-                            style: sectionStyle(hoveredKey === section.key || childActive, collapsed, bare),
+                            // `section.active`: the section's OWN page is current (e.g. a
+                            // mini-dashboard route), distinct from `childActive` — a section
+                            // can be "where you are" with no child row selected at all.
+                            style: sectionStyle(hoveredKey === section.key || childActive || !!section.active, collapsed, bare),
                             onClick: section.onClick,
                             onMouseEnter: function () { setHoveredKey(section.key); },
                             onMouseLeave: function () { setHoveredKey(null); },
