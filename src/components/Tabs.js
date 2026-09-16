@@ -7,7 +7,7 @@
 // window title bar, some under a toolbar). It is normally the first child after
 // `<Window.TitleBar>`, with `<Window.Toolbar>` and `<Window.Body>` below.
 //
-// Two details carry the whole look and are easy to "clean up" by mistake:
+// Three details carry the whole look and are easy to "clean up" by mistake:
 //
 //  1. The active tab's bottom edge is OPEN into the pane below it — its bottom
 //     border is painted in the pane colour and it sits 1px lower (`marginBottom:
@@ -17,6 +17,13 @@
 //  2. The three faces are all the pane's tan, not three hues: strip (darkest) <
 //     inactive tab < active tab (`--terras-win-bg`, the pane itself). See the
 //     tab tokens in tokens.css for why this isn't the sidebar's blue.
+//  3. The strip is NOT a scroll container, and `overflow-x: auto` is the one
+//     thing that must never come back. CSS has no auto/visible pair, so it forces
+//     `overflow-y` to compute to `auto` too — and detail 1 hangs the active tab
+//     1px below the padding box on purpose, which is then vertical scrollable
+//     overflow. Every strip grew a stray scrollbar in its corner. `overflow-y:
+//     hidden` is not the escape either: it clips that 1px, i.e. the seam the
+//     strip exists to draw. A strip that outgrows its row should wrap.
 //
 // Hover/press motion comes from `.terras-tab` in chrome.css — a tab wipes an
 // underline in rather than lifting like `.terras-btn`, since a tab seated in its
@@ -36,7 +43,7 @@ const stripStyle = (style) => Object.assign({
     gap: 2,
     flexShrink: 0,
     fontFamily: S.font,
-    overflowX: 'auto',
+    // Deliberately NOT a scroll container — see detail 3 below.
 }, style);
 
 function tabStyle(active) {
