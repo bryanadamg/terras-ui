@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from 'react';
+import type { CSSProperties, ReactNode, Ref, UIEvent } from 'react';
 import type { SidebarItemSpec, SidebarSectionSpec } from './types';
 
 /** A slot that can adapt itself to the icon rail. Pass a plain node when the
@@ -24,6 +24,10 @@ export interface SidebarProps {
   width?: string | number;
   /** Defaults to `--terras-sidebar-width-collapsed` (44px classic). */
   collapsedWidth?: string | number;
+  /** Forwarded to the internal `<nav>` — for an app that persists scroll
+   *  position (e.g. `sessionStorage`) across navigations. */
+  navRef?: Ref<HTMLElement>;
+  onNavScroll?: (e: UIEvent<HTMLElement>) => void;
   style?: CSSProperties;
 }
 

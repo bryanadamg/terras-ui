@@ -15,6 +15,10 @@ export interface SidebarItemSpec {
   /** Indented, tinted nav row — a child of a section header. */
   sub?: boolean;
   onClick: () => void;
+  /** App-level hover hook (e.g. a debounced route/data prefetch) — separate
+   *  from the component's own hover state, which only drives paint. */
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
   title?: string;
 }
 
@@ -24,6 +28,10 @@ export interface SidebarSectionSpec {
   icon?: ReactNode;
   /** Trailing adornment in the section band, e.g. a chevron or a count. */
   right?: ReactNode;
+  /** The section's own page is current (e.g. its mini-dashboard route) —
+   *  distinct from a child item being active; a section can be "where you
+   *  are" with no child row selected. */
+  active?: boolean;
   onClick?: () => void;
   items: SidebarItemSpec[];
 }
