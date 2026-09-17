@@ -21,6 +21,7 @@
 
 const React = require('react');
 const S = require('./styles');
+const WindowCloseButton = require('./WindowCloseButton');
 const scale = require('../scale');
 
 const LAYER_Z = {
@@ -239,23 +240,11 @@ function Modal(props) {
                         : null,
                 ),
             ),
+            // The shared close box, not a local one: erp paints the SAME button in
+            // its dialogs and its print previews, and the one place that rolled
+            // its own is the drift that component exists to end.
             props.onClose
-                ? React.createElement(
-                    'button',
-                    {
-                        type: 'button',
-                        onClick: props.onClose,
-                        'aria-label': 'Close',
-                        className: 'terras-btn',
-                        // The XP close box: a small raised button in the bar, not a
-                        // bare glyph — it has to look pressable against the gradient.
-                        style: S.button({
-                            padding: 0, width: 16, height: 14, fontSize: S.fs.sm,
-                            lineHeight: 1, fontWeight: 'bold', flexShrink: 0,
-                        }),
-                    },
-                    '✕',
-                )
+                ? React.createElement(WindowCloseButton, { onClose: props.onClose })
                 : null,
         ),
         React.createElement(

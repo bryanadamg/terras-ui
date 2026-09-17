@@ -43,6 +43,26 @@
   cursor: not-allowed;
 }
 
+/* ── Window close box ─────────────────────────────────────────────
+   Grey at rest, red on hover (erp ModalWrapper.tsx WindowCloseButton, which
+   swaps the inline face off React hover state — here it is a stylesheet rule,
+   same as every other hover in this package).
+
+   `!important` for the same reason as logout below: the resting face is an
+   inline style object, and only `!important` outranks an inline declaration.
+   The `.terras-btn` lift and brightness are deliberately NOT cancelled — erp
+   tags this button `.xp-btn` too, so it lifts AND goes red. */
+.terras-win-close:not(:disabled):hover {
+  background: var(--terras-winclose-face-hover, linear-gradient(to bottom, #e8a0a0, #c84040)) !important;
+  border-color: var(--terras-winclose-border-hover-light, #8e0000)
+                var(--terras-winclose-border-hover-dark, #5e0000)
+                var(--terras-winclose-border-hover-dark, #5e0000)
+                var(--terras-winclose-border-hover-light, #8e0000) !important;
+}
+.terras-win-close:not(:disabled):active {
+  background: var(--terras-winclose-face-hover, linear-gradient(to bottom, #e8a0a0, #c84040)) !important;
+}
+
 /* ── Logout button ───────────────────────────────────────────────────────────
    The one button in the set whose hover is a COLOUR change rather than a
    brightness bump: erp goes #ff4d4d -> #cc0000, i.e. darker, while
