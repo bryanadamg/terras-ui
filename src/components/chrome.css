@@ -43,6 +43,26 @@
   cursor: not-allowed;
 }
 
+/* ── Window close box ─────────────────────────────────────────────
+   Grey at rest, red on hover (erp ModalWrapper.tsx WindowCloseButton, which
+   swaps the inline face off React hover state — here it is a stylesheet rule,
+   same as every other hover in this package).
+
+   `!important` for the same reason as logout below: the resting face is an
+   inline style object, and only `!important` outranks an inline declaration.
+   The `.terras-btn` lift and brightness are deliberately NOT cancelled — erp
+   tags this button `.xp-btn` too, so it lifts AND goes red. */
+.terras-win-close:not(:disabled):hover {
+  background: var(--terras-winclose-face-hover, linear-gradient(to bottom, #e8a0a0, #c84040)) !important;
+  border-color: var(--terras-winclose-border-hover-light, #8e0000)
+                var(--terras-winclose-border-hover-dark, #5e0000)
+                var(--terras-winclose-border-hover-dark, #5e0000)
+                var(--terras-winclose-border-hover-light, #8e0000) !important;
+}
+.terras-win-close:not(:disabled):active {
+  background: var(--terras-winclose-face-hover, linear-gradient(to bottom, #e8a0a0, #c84040)) !important;
+}
+
 /* ── Logout button ───────────────────────────────────────────────────────────
    The one button in the set whose hover is a COLOUR change rather than a
    brightness bump: erp goes #ff4d4d -> #cc0000, i.e. darker, while
@@ -298,8 +318,18 @@
 
 /* ── Scrollbars ──────────────────────────────────────────────────────────────
    Thin, chrome-colored, so a scrolling window body doesn't punch a bright
-   modern scrollbar through the beige. */
-.terras-scroll { scrollbar-width: thin; scrollbar-color: #b0a898 transparent; }
+   modern scrollbar through the beige.
+
+   The standard properties are behind @supports on purpose. Since Chrome 121 a
+   non-`auto` `scrollbar-width`/`scrollbar-color` makes Chromium ignore EVERY
+   ::-webkit-scrollbar rule on the element — so writing both flattened the
+   bevelled thumb below into a plain modern bar, and the classic look only
+   survived on browsers old enough to lack the standard properties. The query
+   is the discriminator: Firefox has no ::-webkit-scrollbar selector and takes
+   the two lines, Chromium/WebKit skip them and draw the block below. */
+@supports not selector(::-webkit-scrollbar) {
+  .terras-scroll { scrollbar-width: thin; scrollbar-color: #b0a898 transparent; }
+}
 .terras-scroll::-webkit-scrollbar { width: 12px; height: 12px; }
 .terras-scroll::-webkit-scrollbar-track { background: var(--terras-win-bg, #ece9d8); }
 .terras-scroll::-webkit-scrollbar-thumb {

@@ -292,6 +292,17 @@
   --terras-btn-face: linear-gradient(to bottom, #ffffff 0%, #d4d0c8 100%);
   --terras-btn-border-light: #dfdfdf;
   --terras-btn-border-dark: #808080;
+  /* The title bar's close box (erp ModalWrapper.tsx WindowCloseButton). A warm
+     grey gradient at rest over the plain button bevel, going red only on hover
+     — the colour swap is what says "this one closes", so the resting face must
+     NOT be the danger tone. The hover borders happen to equal
+     `--terras-btn-danger-border-*`; they stay separate names because this is one
+     control with a fixed face, not the danger intent (same split as logout). */
+  --terras-winclose-face: linear-gradient(to bottom, #d4c8c8, #a89898);
+  --terras-winclose-face-hover: linear-gradient(to bottom, #e8a0a0, #c84040);
+  --terras-winclose-border-hover-light: #8e0000;
+  --terras-winclose-border-hover-dark: #5e0000;
+
   --terras-btn-primary-face: linear-gradient(to bottom, #316ac5, #1a4a8a);
   --terras-btn-primary-border-light: #1a3a7a;
   --terras-btn-primary-border-dark: #0a1a4a;
