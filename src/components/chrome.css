@@ -318,8 +318,18 @@
 
 /* ── Scrollbars ──────────────────────────────────────────────────────────────
    Thin, chrome-colored, so a scrolling window body doesn't punch a bright
-   modern scrollbar through the beige. */
-.terras-scroll { scrollbar-width: thin; scrollbar-color: #b0a898 transparent; }
+   modern scrollbar through the beige.
+
+   The standard properties are behind @supports on purpose. Since Chrome 121 a
+   non-`auto` `scrollbar-width`/`scrollbar-color` makes Chromium ignore EVERY
+   ::-webkit-scrollbar rule on the element — so writing both flattened the
+   bevelled thumb below into a plain modern bar, and the classic look only
+   survived on browsers old enough to lack the standard properties. The query
+   is the discriminator: Firefox has no ::-webkit-scrollbar selector and takes
+   the two lines, Chromium/WebKit skip them and draw the block below. */
+@supports not selector(::-webkit-scrollbar) {
+  .terras-scroll { scrollbar-width: thin; scrollbar-color: #b0a898 transparent; }
+}
 .terras-scroll::-webkit-scrollbar { width: 12px; height: 12px; }
 .terras-scroll::-webkit-scrollbar-track { background: var(--terras-win-bg, #ece9d8); }
 .terras-scroll::-webkit-scrollbar-thumb {
