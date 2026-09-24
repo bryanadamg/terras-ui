@@ -26,6 +26,7 @@ Plain `React.createElement` (no JSX) so no build step is required to consume the
 | `components/Tabs` | Tab strip seated in the pane below it — renders the row only |
 | `components/ProgressBar` | Recessed progress track — up to three stacked segments, a threshold marker, `outside`/`inside` percent label |
 | `components/Toast` | `ToastProvider` + `useToast` — transient feedback stack, bottom-right, with a progress-toast handle for long jobs |
+| `components/Tooltip` | Styled hover bubble for one element (no wrapper), `GlobalTooltip` to park native `title`s app-wide and echo clipped text, and the `FloatingLayer` / `useHoverAnchor` base any popout sits on |
 | `components/Button` | Raised bevel button, tones `default` / `primary` / `success` / `danger` |
 | `components/WindowCloseButton` | The title bar's close box — grey at rest, red on hover. `Modal` renders it; use it directly in any window title bar you paint yourself |
 | `components/LogoutButton` | The header's logout control — erp's flat red, deliberately not the `danger` tone (see below) |
@@ -175,6 +176,31 @@ it when the bar means something other than completion, like blue for "in progres
 or red for a shortfall. `secondaryPct` / `tertiaryPct` stack after the primary fill
 and are each clamped against what the earlier segments already took, so three
 optimistic numbers can't overflow the track.
+
+`Tooltip` wraps **one** element and clones hover/focus handlers onto it — no
+wrapper node, so a `<th>` or a flex child keeps its layout. It is for text
+someone asked for: the dwell is 900ms, close to the native delay, so it doesn't
+fire on the mouse merely crossing a dense table. Icon-only buttons in an action
+column want `placement="side"`, since below them is the next row's button.
+
+```jsx
+<Tooltip content="Steps completed on the MOs behind this line"><th>MO Progress</th></Tooltip>
+```
+
+`GlobalTooltip` is opt-in and app-wide, so mount it once near the root. It
+moves every `title` onto `data-original-title` as it appears (mirroring it to
+`aria-label` when the element has no other name) so the OS never draws its grey
+box, and it echoes single-line text that is clipped by its column after a short
+260ms dwell. A plain `title` no longer opens anything once it's mounted — that is
+the point. Anything inside `[data-no-tip]` is left alone, and so are `<option>`,
+`<select>` and `<iframe>`. Components here that fall back to a native `title`
+(`ProgressBar`'s default tooltip, a collapsed `Sidebar`'s labels) go quiet under
+it, so pass them a `Tooltip` where the text matters.
+
+Every layer is a `document.body` portal on the tooltip z-layer (above modals),
+placed in layout px through `terras-ui/scale` and corrected against where it
+actually landed. `FloatingLayer` + `useHoverAnchor` are exported for any other
+popout; pass `interactive` to a layer that takes clicks.
 
 `Chip` and `ToggleChip` are different jobs and keep different faces on purpose: a
 `Chip` is a tinted pill that **reports** state over the five status families and
