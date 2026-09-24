@@ -20,6 +20,7 @@ Plain `React.createElement` (no JSX) so no build step is required to consume the
 | `components/Modal` | Same chrome one layer up: backdrop, title bar with close box, footer actions. `modeless` drops the backdrop and makes the panel draggable |
 | `components/FormSection` | Field group under a solid blue header bar |
 | `components/Table` | Ruled classic table (`.EmptyRow` for the empty/loading state, `stickyCols` to freeze leading columns, `.SortableTh` + `useSortable` / `useServerSort` for sortable headers, `useRowSelection` + `.SelectAllCell` / `.RowCheckboxCell` for bulk-select) |
+| `components/Skeleton` | Loading stand-ins that carry the shape of what's coming — `TableSkeleton` rows (+ `useTableSkeletonMetrics`), `ListSkeleton`, `PanelSkeleton`, `CardGridSkeleton`, `TableBlockSkeleton`, and the `Loading` marquee for a wait with no shape |
 | `components/Pager` | Prev/next paginator footer — the row window on the left, `Prev` / `Page x / y` / `Next` on the right. Is a `Window.StatusBar`; `inline` fits it into one you already render |
 | `components/Tabs` | Tab strip seated in the pane below it — renders the row only |
 | `components/ProgressBar` | Recessed progress track — up to three stacked segments, a threshold marker, `outside`/`inside` percent label |
@@ -85,6 +86,30 @@ const sel = useRowSelection(rows, r => r.id, { selectable: r => r.status !== 'LO
 <tr><Table.SelectAllCell allSelected={sel.allPageSelected} someSelected={sel.someSelected} onChange={sel.togglePage} />…</tr>
 <tr><Table.RowCheckboxCell checked={sel.isSelected(row)} onChange={() => sel.toggle(row)} label={row.code} />…</tr>
 ```
+
+Load a table with `TableSkeleton` rows, not a "Loading..." row: the bars sit in
+the table's own columns and ruling, so nothing jumps when the data lands. Feed it
+from `useTableSkeletonMetrics`, which counts the columns off the live `<thead>`
+(a hand-counted `cols` goes stale the day someone adds one), remembers the real
+row height once it has seen a row, and fills the scroll box's free height. Show
+the skeleton while the first fetch is in flight and `Table.EmptyRow` once it has
+resolved empty. The bars stay invisible for 250ms (chrome.css), so a fast
+response never flashes grey:
+
+```jsx
+const bodyRef = useRef(null)
+const skel = useTableSkeletonMetrics('sales-orders', bodyRef, rows.length > 0)
+
+<tbody ref={bodyRef}>
+  {rows.length === 0 && (loading
+    ? <TableSkeleton cols={skel.cols ?? 8} rowHeight={skel.rowHeight} fillHeight={skel.fillHeight} />
+    : <Table.EmptyRow colSpan={8}>No orders</Table.EmptyRow>)}
+```
+
+The measured row height is cached in memory only; erp also keeps it in
+`sessionStorage`, but storage keys belong to the app, so a reload's first paint
+uses a 26px estimate. `Loading` is for a wait with no shape to promise (a scan
+resolving to one of several screens) — anywhere else, a skeleton.
 
 `Pager` is that table's footer, and it *is* a `Window.StatusBar` — the strip is
 the same sunken floor, so put it where the status bar would go rather than under
