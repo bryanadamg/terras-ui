@@ -1,3 +1,4 @@
+'use client';
 'use strict';
 
 // Ruled classic table. Thin wrapper over a plain <table> that tags it

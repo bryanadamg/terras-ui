@@ -1,3 +1,4 @@
+'use client';
 'use strict';
 
 // Shared sidebar shell — layout + classic-theme palette only. Navigation itself

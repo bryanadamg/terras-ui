@@ -1,3 +1,4 @@
+'use client';
 'use strict';
 
 // Halftone dot-matrix render of a city, for the sign-in field's background.

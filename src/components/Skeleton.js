@@ -1,3 +1,4 @@
+'use client';
 'use strict';
 
 // Loading placeholders. Mirrors erp xpTheme.tsx (SkeletonBar / TableSkeleton /

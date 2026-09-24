@@ -1,3 +1,4 @@
+'use client';
 'use strict';
 
 // Transient feedback: the channel between an inline error (which belongs in the

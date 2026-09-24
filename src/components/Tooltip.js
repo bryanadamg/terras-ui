@@ -1,3 +1,4 @@
+'use client';
 'use strict';
 
 // Hover surfaces. Mirrors erp Tooltip.tsx (Tooltip / FloatingLayer /

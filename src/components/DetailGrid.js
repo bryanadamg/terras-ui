@@ -1,3 +1,4 @@
+'use client';
 'use strict';
 
 // Read-only record fields — "Default bin: A-03", "Unit: KG". erp grew this five
