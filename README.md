@@ -36,6 +36,7 @@ Plain `React.createElement` (no JSX) so no build step is required to consume the
 | `components/LoginScreen` | The sign-in screen — wordmark, suite panel, two-step form, ID badge (+ `.SuitePanel` / `.IdCard` / `.StatusDot`) |
 | `components/BootSplash` | Pre-chrome boot screen + `useBootIndicator`, the two guards that keep it from flashing |
 | `components/CityMatrix` | The dot-matrix city behind the sign-in field — a canvas of blinking dots over a generated grid |
+| `types` | Type-only: the shared prop vocabularies (`ShellTone`, `ButtonTone`, `ChipFamily`, `ToggleTone`, …) — `import type { ShellTone } from '@bryanadamg/terras-ui/types'` instead of restating the words locally |
 | `styles` | The style primitives the above are built from (`bevel`, `panel`, `titleBar`, `toolbar`, `field`, `button`, `toggleChip`, `cssVar`, `font`, `fs`, `trackingCaps`) — for a one-off surface that has no component yet |
 
 Reach for `Combobox` over a `Select` once a list runs past a hundred or so
