@@ -45,6 +45,7 @@
     "./components/SegmentedBar": { "types": "./src/components/SegmentedBar.d.ts", "default": "./src/components/SegmentedBar.js" },
     "./components/Sidebar": { "types": "./src/components/Sidebar.d.ts", "default": "./src/components/Sidebar.js" },
     "./components/Skeleton": { "types": "./src/components/Skeleton.d.ts", "default": "./src/components/Skeleton.js" },
+    "./components/Sparkline": { "types": "./src/components/Sparkline.d.ts", "default": "./src/components/Sparkline.js" },
     "./components/Table": { "types": "./src/components/Table.d.ts", "default": "./src/components/Table.js" },
     "./components/Toast": { "types": "./src/components/Toast.d.ts", "default": "./src/components/Toast.js" },
     "./components/Tabs": { "types": "./src/components/Tabs.d.ts", "default": "./src/components/Tabs.js" },

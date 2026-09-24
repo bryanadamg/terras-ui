@@ -25,6 +25,7 @@ Plain `React.createElement` (no JSX) so no build step is required to consume the
 | `components/Pager` | Prev/next paginator footer — the row window on the left, `Prev` / `Page x / y` / `Next` on the right. Is a `Window.StatusBar`; `inline` fits it into one you already render |
 | `components/Tabs` | Tab strip seated in the pane below it — renders the row only |
 | `components/ProgressBar` | Recessed progress track — up to three stacked segments, a threshold marker, `outside`/`inside` percent label |
+| `components/Sparkline` | Inline-SVG trend line coloured by status family, dot on the latest point. No stat tile beside it — see below |
 | `components/Toast` | `ToastProvider` + `useToast` — transient feedback stack, bottom-right, with a progress-toast handle for long jobs |
 | `components/Tooltip` | Styled hover bubble for one element (no wrapper), `GlobalTooltip` to park native `title`s app-wide and echo clipped text, and the `FloatingLayer` / `useHoverAnchor` base any popout sits on |
 | `components/Button` | Raised bevel button, tones `default` / `primary` / `success` / `danger` |
@@ -229,6 +230,12 @@ clears a modal. An item click runs the item and then closes the menu. Outside
 click, scroll, resize and Escape close it too. erp decided "outside" with a
 `.xp-menu-trigger` class the caller had to add; here any button that calls
 `toggle` counts as the trigger.
+
+`Sparkline` takes the status-family words (`family="amber"`), not a hex, so a
+trend reads the same as the chip beside it. The KPI tile around it is **not**
+shared. A tile's big figure needs a display font size, `tokens.css` has
+deliberately no display tier, and erp itself paints the same kind of tile at
+20px and 26px. Paint the tile in the app, from `panel()`.
 
 `Chip` and `ToggleChip` are different jobs and keep different faces on purpose: a
 `Chip` is a tinted pill that **reports** state over the five status families and
