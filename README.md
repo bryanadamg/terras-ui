@@ -16,7 +16,7 @@ Plain `React.createElement` (no JSX) so no build step is required to consume the
 | --- | --- |
 | `components/AppHeader` | Full-bleed blue top band — page name + global actions |
 | `components/Sidebar` | Nav rail: brand block, flat items and/or gradient sections, footer — collapses to an icon rail |
-| `components/Window` | The bevelled view frame + `.TitleBar` / `.Toolbar` / `.Separator` / `.Body` / `.StatusBar` |
+| `components/Window` | The bevelled view frame + `.TitleBar` / `.Toolbar` / `.Separator` / `.Count` / `.Body` / `.StatusBar` |
 | `components/Modal` | Same chrome one layer up: backdrop, title bar with close box, footer actions. `modeless` drops the backdrop and makes the panel draggable |
 | `components/FormSection` | Field group under a solid blue header bar |
 | `components/Table` | Ruled classic table (`.EmptyRow` for the empty state — with an optional `icon` slot, `stickyCols` to freeze leading columns, `.SortableTh` + `useSortable` / `useServerSort` for sortable headers, `useRowSelection` + `.SelectAllCell` / `.RowCheckboxCell` for bulk-select) |
@@ -365,6 +365,14 @@ import Window from '@bryanadamg/terras-ui/components/Window'
   <Pager page={page} total={total} pageSize={25} onPageChange={setPage} />
 </Window>
 ```
+
+A list toolbar ends with its tally and its actions: `<Window.Count right>412
+orders</Window.Count>` pushes the count to the far end, and the actions are
+plain `Button`s. erp's `ToolbarButton` is not a separate component here because
+its tones are `Button`'s: `create` is `success`, `neutral` is `default`, and
+`launch` / `danger` map to `primary` / `danger`. erp's own `launch` and `danger`
+gradients are a shade off `BTN_TONES`, which is drift, not a reason for a fifth
+and sixth tone.
 
 `Sidebar` only owns layout + the classic-theme palette (`--terras-sidebar-*` tokens) — routing/active-match stays with the consuming app (works the same under Next.js or react-router).
 
