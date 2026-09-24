@@ -20,15 +20,12 @@ function EmptyState(props) {
     return React.createElement(
         'div',
         {
-            style: Object.assign({
-                background: S.cssVar('table-bg', '#ffffff'),
-                // Recessed: dark top/left, light bottom/right — `raised` swapped.
-            }, S.raised(S.cssVar('win-border-dark', '#808080'), S.cssVar('win-border-light', '#ffffff')), {
+            style: S.recessed(Object.assign({
                 padding: '28px 16px',
                 textAlign: 'center',
                 fontFamily: S.font,
                 color: S.cssVar('win-text-3', '#666666'),
-            }, props.style),
+            }, props.style)),
         },
         hasIcon
             ? React.createElement('span', {

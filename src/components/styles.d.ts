@@ -28,6 +28,9 @@ export declare function bevel(extra?: CSSProperties): CSSProperties;
 /** Square raised panel — the inner surface a table or form sits on. */
 export declare function panel(extra?: CSSProperties): CSSProperties;
 
+/** Recessed white well (dark top/left edge) — an empty state, a loading track. */
+export declare function recessed(extra?: CSSProperties): CSSProperties;
+
 export declare function titleBar(extra?: CSSProperties, tone?: ShellTone): CSSProperties;
 export declare const TITLE_TONES: Record<ShellTone, { background: string; border: string }>;
 

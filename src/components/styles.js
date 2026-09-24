@@ -61,6 +61,13 @@ const panel = (extra) => Object.assign({
     borderRadius: 0,
 }, raised(v('win-border-light', '#ffffff'), v('win-border-dark', '#808080')), extra);
 
+// Recessed white well — `raised` with the edges swapped, dark on top/left. The
+// sunken surface an empty state or a progress/loading track sits in; one tier
+// the opposite way from `panel`.
+const recessed = (extra) => Object.assign({
+    background: v('table-bg', '#ffffff'),
+}, raised(v('win-border-dark', '#808080'), v('win-border-light', '#ffffff')), extra);
+
 // Title-bar tones. Blue is the default window chrome; the rest exist for panels
 // whose bar carries the severity of what it heads. Same five semantic families
 // as the status chips — don't add a sixth hue.
@@ -250,6 +257,7 @@ module.exports = {
     raised: raised,
     bevel: bevel,
     panel: panel,
+    recessed: recessed,
     titleBar: titleBar,
     TITLE_TONES: TITLE_TONES,
     toolbar: toolbar,
