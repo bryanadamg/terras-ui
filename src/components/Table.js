@@ -173,7 +173,9 @@ function Table(props) {
 /**
  * Full-width message row for the empty / loading state of a table body. Kept
  * here so "no rows" doesn't get re-invented per page with a different height
- * and colour each time.
+ * and colour each time. `icon` is an optional glyph slot above the message
+ * (erp listViewTheme.tsx TableEmpty's `icon`), for a list whose empty state
+ * carries one.
  */
 function EmptyRow(props) {
     return React.createElement(
@@ -191,6 +193,12 @@ function EmptyRow(props) {
                     fontFamily: S.font,
                 },
             },
+            props.icon !== undefined && props.icon !== null
+                ? React.createElement('span', {
+                    'aria-hidden': true,
+                    style: { display: 'block', fontSize: 18, lineHeight: 1, opacity: 0.45, marginBottom: 6 },
+                }, props.icon)
+                : null,
             props.children,
         ),
     );

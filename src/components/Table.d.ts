@@ -19,6 +19,8 @@ export interface TableProps {
 
 export interface EmptyRowProps {
   colSpan: number;
+  /** Optional muted glyph above the message — any node from your own icon set. */
+  icon?: ReactNode;
   children: ReactNode;
 }
 
