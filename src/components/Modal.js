@@ -1,3 +1,4 @@
+'use client';
 'use strict';
 
 // Classic dialog: dimmed backdrop + a floating bevelled window with a blue
@@ -41,6 +42,10 @@ const REPOSITION_EVENT = 'terras-modal-reposition';
 // there is no room to drag a floating panel around, and nothing useful behind
 // it to keep interactive.
 const MODELESS_MIN_WIDTH = '(max-width: 768px)';
+
+// What Tab can land on inside a blocking dialog.
+const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), '
+    + 'textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 // Where a modeless panel opens: clear of the app header rather than centred,
 // because the page behind it stays live and centring covers the row you just
@@ -137,6 +142,37 @@ function Modal(props) {
         };
     }, []);
 
+    // Focus moves into the dialog on open (unless a child already took it via
+    // autoFocus, which commits before this effect) and back to whatever opened
+    // it on close, so a keyboard user isn't left stranded behind the backdrop.
+    React.useEffect(function () {
+        const prev = document.activeElement;
+        const el = panelRef.current;
+        if (el && !el.contains(document.activeElement)) el.focus({ preventScroll: true });
+        return function () {
+            if (prev && prev.focus && document.contains(prev)) prev.focus({ preventScroll: true });
+        };
+    }, []);
+
+    // A blocking dialog keeps Tab inside itself; aria-modal promises as much.
+    const trapTab = function (e) {
+        if (e.key !== 'Tab' || !panelRef.current) return;
+        const nodes = panelRef.current.querySelectorAll(FOCUSABLE);
+        if (!nodes.length) { e.preventDefault(); return; }
+        const first = nodes[0];
+        const last = nodes[nodes.length - 1];
+        const active = document.activeElement;
+        if (e.shiftKey && (active === first || active === panelRef.current)) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && active === last) { e.preventDefault(); first.focus(); }
+    };
+
+    // A drag in flight when the dialog unmounts must not leave its window
+    // listeners behind.
+    const endDrag = React.useRef(null);
+    React.useEffect(function () {
+        return function () { if (endDrag.current) endDrag.current(); };
+    }, []);
+
     const transform = function () {
         return 'translate(calc(-50% + ' + dragOffset.current.x + 'px), ' + dragOffset.current.y + 'px)';
     };
@@ -164,9 +200,13 @@ function Modal(props) {
         const onUp = function () {
             window.removeEventListener('pointermove', onMove);
             window.removeEventListener('pointerup', onUp);
+            window.removeEventListener('pointercancel', onUp);
+            endDrag.current = null;
         };
+        endDrag.current = onUp;
         window.addEventListener('pointermove', onMove);
         window.addEventListener('pointerup', onUp);
+        window.addEventListener('pointercancel', onUp);
     };
 
     const floatingStyle = floating
@@ -198,7 +238,10 @@ function Modal(props) {
             // A modeless window does not trap the page behind it, so claiming
             // aria-modal would lie to a screen reader about what is reachable.
             'aria-modal': floating ? 'false' : 'true',
+            tabIndex: -1,
+            onKeyDown: floating ? undefined : trapTab,
             style: S.bevel(Object.assign({
+                outline: 'none',
                 width: props.width || 460,
                 maxWidth: '100%',
                 maxHeight: 'calc(' + S.cssVar('app-vh', '100vh') + ' * 90 / 100)',

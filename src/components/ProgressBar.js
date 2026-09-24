@@ -148,6 +148,11 @@ function ProgressBar(props) {
     }
 
     const track = React.createElement('div', {
+        role: 'progressbar',
+        'aria-valuenow': pctLabel,
+        'aria-valuemin': 0,
+        'aria-valuemax': 100,
+        'aria-label': props.title || undefined,
         style: Object.assign({
             // 'outside' puts the percent in a flex row beside the track, so the
             // track takes the remaining width instead of an explicit one.
