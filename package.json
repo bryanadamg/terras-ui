@@ -32,6 +32,7 @@
     "./components/CityMatrix": { "types": "./src/components/CityMatrix.d.ts", "default": "./src/components/CityMatrix.js" },
     "./components/Combobox": { "types": "./src/components/Combobox.d.ts", "default": "./src/components/Combobox.js" },
     "./components/ConfirmModal": { "types": "./src/components/ConfirmModal.d.ts", "default": "./src/components/ConfirmModal.js" },
+    "./components/DetailGrid": { "types": "./src/components/DetailGrid.d.ts", "default": "./src/components/DetailGrid.js" },
     "./components/EmptyState": { "types": "./src/components/EmptyState.d.ts", "default": "./src/components/EmptyState.js" },
     "./components/Field": { "types": "./src/components/Field.d.ts", "default": "./src/components/Field.js" },
     "./components/FilterChipBar": { "types": "./src/components/FilterChipBar.d.ts", "default": "./src/components/FilterChipBar.js" },

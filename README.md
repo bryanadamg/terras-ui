@@ -21,6 +21,7 @@ Plain `React.createElement` (no JSX) so no build step is required to consume the
 | `components/FormSection` | Field group under a solid blue header bar |
 | `components/Table` | Ruled classic table (`.EmptyRow` for the empty state — with an optional `icon` slot, `stickyCols` to freeze leading columns, `.SortableTh` + `useSortable` / `useServerSort` for sortable headers, `useRowSelection` + `.SelectAllCell` / `.RowCheckboxCell` for bulk-select) |
 | `components/Skeleton` | Loading stand-ins that carry the shape of what's coming — `TableSkeleton` rows (+ `useTableSkeletonMetrics`), `ListSkeleton`, `PanelSkeleton`, `CardGridSkeleton`, `TableBlockSkeleton`, and the `Loading` marquee for a wait with no shape |
+| `components/DetailGrid` | Read-only record fields as a `<dl>` — `.Detail` cells, stacked across `columns` or `inline` (label left, value right); empty values hold their place with a muted — |
 | `components/EmptyState` | "Nothing here" for a pane that isn't a table body — recessed well, optional glyph slot, italic message, room for an action under it |
 | `components/Pager` | Prev/next paginator footer — the row window on the left, `Prev` / `Page x / y` / `Next` on the right. Is a `Window.StatusBar`; `inline` fits it into one you already render |
 | `components/Tabs` | Tab strip seated in the pane below it — renders the row only |
