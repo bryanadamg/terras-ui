@@ -33,7 +33,7 @@ Plain `React.createElement` (no JSX) so no build step is required to consume the
 | `components/Menu` | Row "⋯" menu — `useFloatingMenu` (one open per table), `FloatingMenu`, `MenuTriggerButton` |
 | `components/WindowCloseButton` | The title bar's close box — grey at rest, red on hover. `Modal` renders it; use it directly in any window title bar you paint yourself |
 | `components/LogoutButton` | The header's logout control — erp's flat red, deliberately not the `danger` tone (see below) |
-| `components/Field` | `Input`, `Select`, `Label`, `SearchField` — recessed field chrome |
+| `components/Field` | `Input`, `Select`, `Label`, `SearchField` — recessed field chrome; `FieldLabel` (bold form label + optional hint) and `FormError` (the submit-rejected banner) |
 | `components/Combobox` | Type-to-search single select — trigger with a ▼ well, portaled popup with its own search box |
 | `components/Chip` | Status chip over the five shared status families |
 | `components/ToggleChip` | Pressed/unpressed chip, tones `blue` / `green` / `red` / `amber` |
@@ -236,6 +236,12 @@ trend reads the same as the chip beside it. The KPI tile around it is **not**
 shared. A tile's big figure needs a display font size, `tokens.css` has
 deliberately no display tier, and erp itself paints the same kind of tile at
 20px and 26px. Paint the tile in the app, from `panel()`.
+
+A form's rejection is `FormError` at the top of the body — `role="alert"`, and
+it renders nothing when the message is empty, so `<FormError>{error}</FormError>`
+needs no guard. It is not a status callout and not a toast. `FieldLabel` is the
+form label, bold where `Label` is plain. Its `hint` is a visible line, so give it
+only the rule a reader needs every time; the one-time *why* goes in `title`.
 
 `Chip` and `ToggleChip` are different jobs and keep different faces on purpose: a
 `Chip` is a tinted pill that **reports** state over the five status families and
