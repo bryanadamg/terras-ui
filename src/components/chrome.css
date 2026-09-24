@@ -316,6 +316,20 @@
   border-right-color: var(--terras-table-head-line, #808080);
 }
 
+/* Row / select-all checkboxes (Table.RowCheckbox / SelectAllCheckbox, erp
+   globals.css `.lv-check`). Hover ring only — the box never moves, so a dense
+   list doesn't reflow under the cursor. The radius matters: Chromium draws a
+   bare native checkbox with rounded corners whatever the CSS says, and
+   box-shadow follows the element's own border-radius, so without it the ring
+   boxes the rounded glyph in a sharp square. */
+.terras-check {
+  border-radius: 3px;
+  transition: box-shadow 0.12s ease;
+}
+.terras-check:hover:not(:disabled) {
+  box-shadow: 0 0 0 2px rgba(26, 61, 107, 0.30);
+}
+
 /* ── Scrollbars ──────────────────────────────────────────────────────────────
    Thin, chrome-colored, so a scrolling window body doesn't punch a bright
    modern scrollbar through the beige.
@@ -446,6 +460,7 @@
   .terras-btn,
   .terras-tab,
   .terras-toggle,
+  .terras-check,
   .terras-tab::after { transition: none; }
   .terras-btn:not(:disabled):hover,
   .terras-btn:not(:disabled):active { transform: none; }

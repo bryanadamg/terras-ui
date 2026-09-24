@@ -19,7 +19,7 @@ Plain `React.createElement` (no JSX) so no build step is required to consume the
 | `components/Window` | The bevelled view frame + `.TitleBar` / `.Toolbar` / `.Separator` / `.Body` / `.StatusBar` |
 | `components/Modal` | Same chrome one layer up: backdrop, title bar with close box, footer actions. `modeless` drops the backdrop and makes the panel draggable |
 | `components/FormSection` | Field group under a solid blue header bar |
-| `components/Table` | Ruled classic table (`.EmptyRow` for the empty/loading state, `stickyCols` to freeze leading columns, `.SortableTh` + `useSortable` / `useServerSort` for sortable headers) |
+| `components/Table` | Ruled classic table (`.EmptyRow` for the empty/loading state, `stickyCols` to freeze leading columns, `.SortableTh` + `useSortable` / `useServerSort` for sortable headers, `useRowSelection` + `.SelectAllCell` / `.RowCheckboxCell` for bulk-select) |
 | `components/Pager` | Prev/next paginator footer — the row window on the left, `Prev` / `Page x / y` / `Next` on the right. Is a `Window.StatusBar`; `inline` fits it into one you already render |
 | `components/Tabs` | Tab strip seated in the pane below it — renders the row only |
 | `components/ProgressBar` | Recessed progress track — up to three stacked segments, a threshold marker, `outside`/`inside` percent label |
@@ -68,6 +68,22 @@ plain header, so a config-driven column list keeps one call per column:
 const { sorted, sort, toggle } = useSortable(rows, { code: r => r.code, qty: r => r.qty })
 
 <Table.SortableTh sort={sort} colKey="code" onSort={toggle}>Code</Table.SortableTh>
+```
+
+Bulk selection keeps the **row objects**, keyed, so the selection survives
+paging and a bulk action never has to look a row up in a page that is no longer
+on screen. The header checkbox is page-scoped on purpose — it adds or clears the
+eligible rows you can see, and rows ticked on other pages stay ticked — and it
+owns the indeterminate state, which is a DOM property with no attribute form.
+`selectable` excludes rows that can't take the action. A row checkbox stops its
+click from reaching the row, so a clickable row doesn't also open. The checkbox
+column comes first, before any expander:
+
+```jsx
+const sel = useRowSelection(rows, r => r.id, { selectable: r => r.status !== 'LOCKED' })
+
+<tr><Table.SelectAllCell allSelected={sel.allPageSelected} someSelected={sel.someSelected} onChange={sel.togglePage} />…</tr>
+<tr><Table.RowCheckboxCell checked={sel.isSelected(row)} onChange={() => sel.toggle(row)} label={row.code} />…</tr>
 ```
 
 `Pager` is that table's footer, and it *is* a `Window.StatusBar` — the strip is

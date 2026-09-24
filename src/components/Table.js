@@ -301,7 +301,135 @@ function SortableTh(props) {
     );
 }
 
+// ── Row multi-select ────────────────────────────────────────────────────────
+// Mirrors erp listViewTheme.tsx (useRowSelection / RowCheckbox /
+// SelectAllCheckbox / *Cell). The selection keeps the ROW OBJECT, not just its
+// key: every bulk action downstream needs the row, and a selection that
+// survives paging can no longer look it up in the visible page. Select-all is
+// deliberately page-scoped — ticking 4000 filtered rows in one click is never
+// what the user meant — while rows ticked on other pages stay ticked.
+
+/** Width of the leading checkbox column. Checkbox first, then an expander. */
+const CHECK_COL_W = 28;
+
+function useRowSelection(rows, keyOf, opts) {
+    const selectable = opts && opts.selectable;
+    const state = React.useState({});
+    const selected = state[0];
+    const setSelected = state[1];
+    const eligible = selectable ? rows.filter(selectable) : rows;
+
+    const isSelectedKey = function (key) { return !!selected[key]; };
+    const isSelected = function (row) { return isSelectedKey(keyOf(row)); };
+    const setRow = function (row, on) {
+        setSelected(function (prev) {
+            const next = Object.assign({}, prev);
+            const k = keyOf(row);
+            if (on) next[k] = row; else delete next[k];
+            return next;
+        });
+    };
+
+    const allPageSelected = eligible.length > 0 && eligible.every(function (r) { return !!selected[keyOf(r)]; });
+    const anyPageSelected = eligible.some(function (r) { return !!selected[keyOf(r)]; });
+    const keys = Object.keys(selected);
+
+    return {
+        selected: selected,
+        keys: keys,
+        items: keys.map(function (k) { return selected[k]; }),
+        entries: keys.map(function (k) { return [k, selected[k]]; }),
+        count: keys.length,
+        isSelected: isSelected,
+        isSelectedKey: isSelectedKey,
+        toggle: function (row) { setRow(row, !isSelected(row)); },
+        toggleKey: function (key) {
+            const row = rows.find(function (r) { return keyOf(r) === key; });
+            if (row) setRow(row, !isSelectedKey(key));
+        },
+        deselectKey: function (key) {
+            setSelected(function (prev) { const n = Object.assign({}, prev); delete n[key]; return n; });
+        },
+        togglePage: function () {
+            setSelected(function (prev) {
+                const next = Object.assign({}, prev);
+                eligible.forEach(function (r) {
+                    if (allPageSelected) delete next[keyOf(r)]; else next[keyOf(r)] = r;
+                });
+                return next;
+            });
+        },
+        allPageSelected: allPageSelected,
+        someSelected: anyPageSelected && !allPageSelected,
+        pageEligibleCount: eligible.length,
+        clear: function () { setSelected({}); },
+    };
+}
+
+// Hover ring lives in chrome.css (`.terras-check`): an inline style can't say
+// `:hover`, and the box is a bare native input with no wrapper to hang one on.
+const checkStyle = function (enabled) {
+    return { margin: 0, cursor: enabled ? 'pointer' : 'not-allowed', verticalAlign: 'middle' };
+};
+
+function RowCheckbox(props) {
+    return React.createElement('input', {
+        type: 'checkbox',
+        className: 'terras-check',
+        style: checkStyle(!props.disabled),
+        checked: props.checked,
+        disabled: props.disabled,
+        title: props.title,
+        'aria-label': props.label ? 'Select ' + props.label : 'Select row',
+        onChange: props.onChange,
+        // The row around it is usually clickable (expand / open): a tick must
+        // never also fire that.
+        onClick: function (e) { e.stopPropagation(); },
+    });
+}
+
+/** Header checkbox. Owns the `indeterminate` ref-poke — a DOM property with no attribute form. */
+function SelectAllCheckbox(props) {
+    const label = props.allSelected ? 'Clear selection on this page' : 'Select every row on this page';
+    const partial = !!props.someSelected && !props.allSelected;
+    return React.createElement('input', {
+        type: 'checkbox',
+        className: 'terras-check',
+        style: checkStyle(!props.disabled),
+        checked: !!props.allSelected,
+        disabled: props.disabled,
+        ref: function (el) { if (el) el.indeterminate = partial; },
+        onChange: props.onChange,
+        title: props.title === undefined ? label : props.title,
+        'aria-label': label,
+    });
+}
+
+const controlCellStyle = function (width, extra) {
+    return Object.assign({}, extra, { width: width, textAlign: 'center', padding: '3px 4px', verticalAlign: 'middle' });
+};
+
+/** `<td>` + row checkbox, column geometry fixed. */
+function RowCheckboxCell(props) {
+    const cb = Object.assign({}, props);
+    delete cb.tdStyle; delete cb.tdClassName;
+    return React.createElement('td', { style: controlCellStyle(CHECK_COL_W, props.tdStyle), className: props.tdClassName },
+        React.createElement(RowCheckbox, cb));
+}
+
+/** `<th>` + select-all checkbox. */
+function SelectAllCell(props) {
+    const cb = Object.assign({}, props);
+    delete cb.tdStyle; delete cb.tdClassName;
+    return React.createElement('th', { style: controlCellStyle(CHECK_COL_W, props.tdStyle), className: props.tdClassName },
+        React.createElement(SelectAllCheckbox, cb));
+}
+
 Table.EmptyRow = EmptyRow;
+Table.RowCheckbox = RowCheckbox;
+Table.SelectAllCheckbox = SelectAllCheckbox;
+Table.RowCheckboxCell = RowCheckboxCell;
+Table.SelectAllCell = SelectAllCell;
 Table.SortableTh = SortableTh;
 Table.SortMark = SortMark;
 
@@ -313,3 +441,9 @@ module.exports.SortMark = SortMark;
 module.exports.nextSortState = nextSortState;
 module.exports.useSortable = useSortable;
 module.exports.useServerSort = useServerSort;
+module.exports.useRowSelection = useRowSelection;
+module.exports.RowCheckbox = RowCheckbox;
+module.exports.SelectAllCheckbox = SelectAllCheckbox;
+module.exports.RowCheckboxCell = RowCheckboxCell;
+module.exports.SelectAllCell = SelectAllCell;
+module.exports.CHECK_COL_W = CHECK_COL_W;

@@ -63,10 +63,73 @@ export interface SortableThProps extends ThHTMLAttributes<HTMLTableCellElement> 
 declare function SortMark(props: SortMarkProps): JSX.Element | null;
 declare function SortableTh(props: SortableThProps): JSX.Element;
 
-declare function Table(props: TableProps): JSX.Element;
-declare namespace Table {
-  export { EmptyRow, SortableTh, SortMark };
+export interface RowSelection<T> {
+  /** key -> row, for the bulk action and each row's own `checked` test. */
+  selected: Record<string, T>;
+  keys: string[];
+  items: T[];
+  entries: [string, T][];
+  count: number;
+  isSelected: (row: T) => boolean;
+  isSelectedKey: (key: string) => boolean;
+  toggle: (row: T) => void;
+  /** For rows handed to a memoised child that only knows the key. */
+  toggleKey: (key: string) => void;
+  deselectKey: (key: string) => void;
+  /** Header checkbox: adds/removes every eligible row on the current page. */
+  togglePage: () => void;
+  allPageSelected: boolean;
+  /** Some — but not all — of this page is selected: the indeterminate state. */
+  someSelected: boolean;
+  /** Eligible rows on this page; 0 means the header checkbox has nothing to do. */
+  pageEligibleCount: number;
+  clear: () => void;
 }
 
-export { Table, EmptyRow, SortableTh, SortMark };
+/**
+ * Multi-select for a bulk-action list. Keeps the row objects, survives paging;
+ * select-all covers the current page only.
+ */
+export declare function useRowSelection<T>(
+  rows: T[],
+  keyOf: (row: T) => string,
+  opts?: { selectable?: (row: T) => boolean },
+): RowSelection<T>;
+
+export interface RowCheckboxProps {
+  checked: boolean;
+  onChange: () => void;
+  disabled?: boolean;
+  title?: string;
+  /** Names the row for screen readers: "Select WO-1042". */
+  label?: string;
+}
+
+export interface SelectAllCheckboxProps {
+  allSelected: boolean;
+  someSelected: boolean;
+  onChange: () => void;
+  disabled?: boolean;
+  title?: string;
+}
+
+export interface ControlCellProps {
+  tdStyle?: CSSProperties;
+  tdClassName?: string;
+}
+
+/** Width of the leading checkbox column, in px. */
+export declare const CHECK_COL_W: number;
+
+declare function RowCheckbox(props: RowCheckboxProps): JSX.Element;
+declare function SelectAllCheckbox(props: SelectAllCheckboxProps): JSX.Element;
+declare function RowCheckboxCell(props: RowCheckboxProps & ControlCellProps): JSX.Element;
+declare function SelectAllCell(props: SelectAllCheckboxProps & ControlCellProps): JSX.Element;
+
+declare function Table(props: TableProps): JSX.Element;
+declare namespace Table {
+  export { EmptyRow, SortableTh, SortMark, RowCheckbox, SelectAllCheckbox, RowCheckboxCell, SelectAllCell };
+}
+
+export { Table, EmptyRow, SortableTh, SortMark, RowCheckbox, SelectAllCheckbox, RowCheckboxCell, SelectAllCell };
 export default Table;
