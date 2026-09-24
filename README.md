@@ -46,6 +46,10 @@ Plain `React.createElement` (no JSX) so no build step is required to consume the
 | `types` | Type-only: the shared prop vocabularies (`ShellTone`, `ButtonTone`, `ChipFamily`, `ToggleTone`, …) — `import type { ShellTone } from '@bryanadamg/terras-ui/types'` instead of restating the words locally |
 | `styles` | The style primitives the above are built from (`bevel`, `panel`, `titleBar`, `toolbar`, `field`, `button`, `toggleChip`, `cssVar`, `font`, `fs`, `trackingCaps`) — for a one-off surface that has no component yet |
 
+A number field in a dense grid row takes `className="terras-nospin"` to drop the
+native spinner, which otherwise eats a third of a 46px box. It's opt-in per
+input: in a standalone form field the spinner has room and is worth keeping.
+
 Reach for `Combobox` over a `Select` once a list runs past a hundred or so
 options: a native select cannot be typed into, and a native `<datalist>` paints
 the browser's own suggestion list rather than classic chrome. Its popup is
