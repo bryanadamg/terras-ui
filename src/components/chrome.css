@@ -430,6 +430,26 @@
 .terras-menu-item-danger:focus-visible { background: #fff0f0; }
 .terras-menu-item:disabled { opacity: 0.5; }
 
+/* Row-disclosure chevron (Table.ExpandToggle, erp globals.css `.lv-chev`). One
+   right-pointing glyph rotated 90deg for the open state, so hover previews the
+   open direction and springs back on pointer-leave when nothing was clicked.
+   inline-block is required: transform is ignored on a non-replaced inline. */
+.terras-chev {
+  display: inline-block;
+  transform: rotate(0deg);
+  transform-origin: 50% 50%;
+  transition: transform 0.16s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+.terras-chev-open,
+.terras-chev-btn:hover .terras-chev,
+.terras-chev-btn:focus-visible .terras-chev {
+  transform: rotate(90deg);
+}
+.terras-chev-btn:focus-visible { outline: 1px dotted currentColor; outline-offset: 1px; }
+@media (prefers-reduced-motion: reduce) {
+  .terras-chev { transition: none; }
+}
+
 /* ── Scrollbars ──────────────────────────────────────────────────────────────
    Thin, chrome-colored, so a scrolling window body doesn't punch a bright
    modern scrollbar through the beige.

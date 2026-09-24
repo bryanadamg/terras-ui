@@ -433,7 +433,123 @@ function SelectAllCell(props) {
         React.createElement(SelectAllCheckbox, cb));
 }
 
+// ── Row disclosure ──────────────────────────────────────────────────────────
+// Mirrors erp listViewTheme.tsx (ExpandToggle / ExpanderCell / rowStateBg) and
+// xpTheme.tsx (ExpandedRowPanel / ExpandedRowPanelBody / expandedRowFrame).
+//
+// COLUMN ORDER IS FIXED: [checkbox] [chevron] [first data column]. The chevron
+// gets its OWN column and never sits inside a data cell — erp's lists had
+// picked four different arrangements of the same three things. Pair
+// `ExpanderCell` with `rowStateBg('expanded')` on the row: two halves of one
+// convention.
+//
+// Chevron-right, rotated 90° when open (chrome.css `.terras-chev`), so hover
+// previews the open direction and springs back if nothing is clicked. Not a
+// solid caret: that means tree hierarchy, a different affordance.
+
+const EXPANDER_COL_W = 22;
+
+const ROW_STATES = { expanded: 1, selected: 1, highlighted: 1 };
+
+/** Ground for a row in one of three states — `expanded`, `selected` (ticked), `highlighted`. */
+function rowStateBg(state) {
+    return S.cssVar('row-state-' + (ROW_STATES[state] ? state : 'expanded'));
+}
+
+// The package ships no icon set; a 7x9 stroke chevron keeps the default
+// glyph-free of any font. `icon` replaces it.
+const chevron = React.createElement('svg', {
+    width: 7, height: 9, viewBox: '0 0 7 9', 'aria-hidden': true, style: { display: 'block' },
+}, React.createElement('path', {
+    d: 'M1.5 1 L5.5 4.5 L1.5 8', fill: 'none', stroke: 'currentColor', strokeWidth: 1.6,
+    strokeLinecap: 'round', strokeLinejoin: 'round',
+}));
+
+function ExpandToggle(props) {
+    const label = props.label || 'details';
+    const verb = props.expanded ? 'Hide ' : 'Show ';
+    const color = props.tone === 'alert' && props.expanded ? '#c00000' : S.cssVar('win-blue', '#0054e3');
+    return React.createElement('button', {
+        type: 'button',
+        // The row is usually clickable too; without this the click toggles
+        // twice and lands back where it started.
+        onClick: function (e) { e.stopPropagation(); props.onToggle(); },
+        'aria-expanded': !!props.expanded,
+        'aria-controls': props.panelId,
+        'aria-label': verb + label,
+        title: verb + label,
+        className: 'terras-chev-btn',
+        style: Object.assign({
+            background: 'none', border: 'none', padding: 0, margin: 0, cursor: 'pointer',
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            lineHeight: 1, color: color, flexShrink: 0,
+        }, props.style),
+    }, React.createElement('span', {
+        className: 'terras-chev' + (props.expanded ? ' terras-chev-open' : ''),
+        'aria-hidden': true,
+    }, props.icon === undefined ? chevron : props.icon));
+}
+
+/** The dedicated chevron column: geometry + toggle in one. */
+function ExpanderCell(props) {
+    const toggle = Object.assign({}, props);
+    delete toggle.tdStyle; delete toggle.tdClassName;
+    return React.createElement('td', { style: controlCellStyle(EXPANDER_COL_W, props.tdStyle), className: props.tdClassName },
+        React.createElement(ExpandToggle, toggle));
+}
+
+/**
+ * The rail + edge rules of an expanded-row panel, as a paint-only frame: a
+ * left rail in the selection blue pegs the panel to the row it dropped out of,
+ * heavy top/bottom rules bracket it as a break in the list.
+ *
+ * Painted with inset box-shadow, NOT border, and that is load-bearing: the
+ * panel lives in a `<td colSpan>` spanning every column, so any border it
+ * declared would feed that cell's min-content width back into auto table
+ * layout and the row above would jump sideways on expand. Shadows cost zero
+ * width. Exported for a panel that can't be the component (it must be applied
+ * to the `<td>` itself); `railColor` for a rail that carries meaning.
+ */
+const RAIL_W = 4;
+const RULE_W = 2;
+function expandedRowFrame(railColor) {
+    const rule = S.cssVar('win-border-dark', '#808080');
+    return {
+        boxShadow: [
+            'inset ' + RAIL_W + 'px 0 0 0 ' + (railColor || S.cssVar('win-highlight', '#316ac5')),
+            'inset 0 ' + RULE_W + 'px 0 0 ' + rule,
+            'inset 0 -' + RULE_W + 'px 0 0 ' + rule,
+        ].join(', '),
+    };
+}
+
+/**
+ * Frame of an expanded row's detail panel. Put it in a `<td colSpan>` with
+ * `terras-cell-flush`. Flat white like the rows, so wide content gets the full
+ * width. Keep any padding override's left value >= 4px — the rail paints inside
+ * the padding box.
+ */
+function ExpandedRowPanel(props) {
+    return React.createElement('div', {
+        id: props.id,
+        style: Object.assign({}, expandedRowFrame(props.railColor), {
+            background: S.cssVar('table-bg', '#ffffff'),
+            padding: 5,
+            whiteSpace: 'normal',
+        }, props.style),
+    }, props.children);
+}
+
+/** Padded, transparent content box inside an ExpandedRowPanel. */
+function ExpandedRowPanelBody(props) {
+    return React.createElement('div', { style: Object.assign({ padding: '4px 8px' }, props.style) }, props.children);
+}
+
 Table.EmptyRow = EmptyRow;
+Table.ExpandToggle = ExpandToggle;
+Table.ExpanderCell = ExpanderCell;
+Table.ExpandedRowPanel = ExpandedRowPanel;
+Table.ExpandedRowPanelBody = ExpandedRowPanelBody;
 Table.RowCheckbox = RowCheckbox;
 Table.SelectAllCheckbox = SelectAllCheckbox;
 Table.RowCheckboxCell = RowCheckboxCell;
@@ -455,3 +571,10 @@ module.exports.SelectAllCheckbox = SelectAllCheckbox;
 module.exports.RowCheckboxCell = RowCheckboxCell;
 module.exports.SelectAllCell = SelectAllCell;
 module.exports.CHECK_COL_W = CHECK_COL_W;
+module.exports.ExpandToggle = ExpandToggle;
+module.exports.ExpanderCell = ExpanderCell;
+module.exports.ExpandedRowPanel = ExpandedRowPanel;
+module.exports.ExpandedRowPanelBody = ExpandedRowPanelBody;
+module.exports.expandedRowFrame = expandedRowFrame;
+module.exports.rowStateBg = rowStateBg;
+module.exports.EXPANDER_COL_W = EXPANDER_COL_W;

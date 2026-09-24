@@ -422,6 +422,16 @@
   --terras-table-bg: #ffffff;
   --terras-row-hover: #e8f0fc;
   --terras-row-selected: #316ac5;
+  /* Row STATE grounds (erp listViewTheme.tsx ROW_STATE_BG / rowStateBg) —
+     three states, three grounds, never mixed up: `expanded` (its detail panel
+     is open below it, light selection blue), `selected` (ticked for a bulk
+     action — the same hue, darker, so a ticked row that is also expanded still
+     reads as ticked), `highlighted` (transient attention: a scroll target, a
+     search hit — amber, which never means "open"). Distinct from
+     `--terras-row-selected` above, the full-blue `aria-selected` row. */
+  --terras-row-state-expanded: #d6e4f7;
+  --terras-row-state-selected: #b8d0ef;
+  --terras-row-state-highlighted: #fff8c4;
 }
 
 /* Blueprint — alternate drafting-blue theme (not the main brand). */

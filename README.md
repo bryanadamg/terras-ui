@@ -19,7 +19,7 @@ Plain `React.createElement` (no JSX) so no build step is required to consume the
 | `components/Window` | The bevelled view frame + `.TitleBar` / `.Toolbar` / `.Separator` / `.Count` / `.Body` / `.StatusBar` |
 | `components/Modal` | Same chrome one layer up: backdrop, title bar with close box, footer actions. `modeless` drops the backdrop and makes the panel draggable |
 | `components/FormSection` | Field group under a solid blue header bar |
-| `components/Table` | Ruled classic table (`.EmptyRow` for the empty state — with an optional `icon` slot, `stickyCols` to freeze leading columns, `.SortableTh` + `useSortable` / `useServerSort` for sortable headers, `useRowSelection` + `.SelectAllCell` / `.RowCheckboxCell` for bulk-select) |
+| `components/Table` | Ruled classic table (`.EmptyRow` for the empty state — with an optional `icon` slot, `stickyCols` to freeze leading columns, `.SortableTh` + `useSortable` / `useServerSort` for sortable headers, `useRowSelection` + `.SelectAllCell` / `.RowCheckboxCell` for bulk-select, `.ExpanderCell` + `.ExpandedRowPanel` + `rowStateBg` for rows that open a detail panel) |
 | `components/Skeleton` | Loading stand-ins that carry the shape of what's coming — `TableSkeleton` rows (+ `useTableSkeletonMetrics`), `ListSkeleton`, `PanelSkeleton`, `CardGridSkeleton`, `TableBlockSkeleton`, and the `Loading` marquee for a wait with no shape |
 | `components/DetailGrid` | Read-only record fields as a `<dl>` — `.Detail` cells, stacked across `columns` or `inline` (label left, value right); empty values hold their place with a muted — |
 | `components/EmptyState` | "Nothing here" for a pane that isn't a table body — recessed well, optional glyph slot, italic message, room for an action under it |
@@ -116,6 +116,29 @@ The measured row height is cached in memory only; erp also keeps it in
 `sessionStorage`, but storage keys belong to the app, so a reload's first paint
 uses a 26px estimate. `Loading` is for a wait with no shape to promise (a scan
 resolving to one of several screens) — anywhere else, a skeleton.
+
+A row that opens a detail panel takes its **own** chevron column, second after
+any checkbox and before the first data column, never inside a data cell. The
+chevron points right and turns down when open. The panel goes in a flush
+full-width cell below the row, and the row takes the `expanded` ground:
+
+```jsx
+<tr style={{ background: open ? rowStateBg('expanded') : undefined }} onClick={toggle}>
+  <Table.ExpanderCell expanded={open} onToggle={toggle} label="lot lineage" panelId={`lin-${row.id}`} />
+  <td>{row.code}</td>…
+</tr>
+{open && (
+  <tr><td colSpan={cols} className="terras-cell-flush">
+    <Table.ExpandedRowPanel id={`lin-${row.id}`}><Table.ExpandedRowPanelBody>…</Table.ExpandedRowPanelBody></Table.ExpandedRowPanel>
+  </td></tr>
+)}
+```
+
+The three row grounds mean three different things and shouldn't be swapped:
+`expanded` (light blue, panel open), `selected` (a darker blue, ticked for a
+bulk action) and `highlighted` (amber, a scroll target or search hit). The
+panel's rail and rules are inset shadows, not borders. A border inside the
+spanning cell would widen it and shift every column above on expand.
 
 `Pager` is that table's footer, and it *is* a `Window.StatusBar` — the strip is
 the same sunken floor, so put it where the status bar would go rather than under

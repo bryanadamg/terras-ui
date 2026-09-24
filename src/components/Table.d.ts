@@ -128,10 +128,60 @@ declare function SelectAllCheckbox(props: SelectAllCheckboxProps): JSX.Element;
 declare function RowCheckboxCell(props: RowCheckboxProps & ControlCellProps): JSX.Element;
 declare function SelectAllCell(props: SelectAllCheckboxProps & ControlCellProps): JSX.Element;
 
-declare function Table(props: TableProps): JSX.Element;
-declare namespace Table {
-  export { EmptyRow, SortableTh, SortMark, RowCheckbox, SelectAllCheckbox, RowCheckboxCell, SelectAllCell };
+export type RowState = 'expanded' | 'selected' | 'highlighted';
+
+/** Row ground for one of the three row states (a `var(--terras-row-state-*)`). */
+export declare function rowStateBg(state: RowState): string;
+
+/** Width of the chevron column, in px. */
+export declare const EXPANDER_COL_W: number;
+
+export interface ExpandToggleProps {
+  expanded: boolean;
+  /** Same handler the row's onClick uses; the button stops propagation. */
+  onToggle: () => void;
+  /** What is disclosed, for the accessible name ("Show lot lineage"). Default "details". */
+  label?: string;
+  /** id of the panel, for aria-controls. */
+  panelId?: string;
+  /** `alert` recolours the open glyph when the panel holds a problem. */
+  tone?: 'default' | 'alert';
+  /** Replaces the chevron — it is rotated 90° when open, so pass a right-pointing glyph. */
+  icon?: ReactNode;
+  style?: CSSProperties;
 }
 
-export { Table, EmptyRow, SortableTh, SortMark, RowCheckbox, SelectAllCheckbox, RowCheckboxCell, SelectAllCell };
+export interface ExpandedRowPanelProps {
+  children: ReactNode;
+  id?: string;
+  /** Override the selection-blue rail where it carries meaning. */
+  railColor?: string;
+  style?: CSSProperties;
+}
+
+export interface ExpandedRowPanelBodyProps {
+  children: ReactNode;
+  style?: CSSProperties;
+}
+
+/** The panel frame as a style, for a `<td>` that can't hold the component. */
+export declare function expandedRowFrame(railColor?: string): CSSProperties;
+
+declare function ExpandToggle(props: ExpandToggleProps): JSX.Element;
+declare function ExpanderCell(props: ExpandToggleProps & ControlCellProps): JSX.Element;
+declare function ExpandedRowPanel(props: ExpandedRowPanelProps): JSX.Element;
+declare function ExpandedRowPanelBody(props: ExpandedRowPanelBodyProps): JSX.Element;
+
+declare function Table(props: TableProps): JSX.Element;
+declare namespace Table {
+  export {
+    EmptyRow, SortableTh, SortMark, RowCheckbox, SelectAllCheckbox, RowCheckboxCell, SelectAllCell,
+    ExpandToggle, ExpanderCell, ExpandedRowPanel, ExpandedRowPanelBody,
+  };
+}
+
+export {
+  Table, EmptyRow, SortableTh, SortMark, RowCheckbox, SelectAllCheckbox, RowCheckboxCell, SelectAllCell,
+  ExpandToggle, ExpanderCell, ExpandedRowPanel, ExpandedRowPanelBody,
+};
 export default Table;
