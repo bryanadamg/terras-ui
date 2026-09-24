@@ -28,6 +28,8 @@ Plain `React.createElement` (no JSX) so no build step is required to consume the
 | `components/Toast` | `ToastProvider` + `useToast` — transient feedback stack, bottom-right, with a progress-toast handle for long jobs |
 | `components/Tooltip` | Styled hover bubble for one element (no wrapper), `GlobalTooltip` to park native `title`s app-wide and echo clipped text, and the `FloatingLayer` / `useHoverAnchor` base any popout sits on |
 | `components/Button` | Raised bevel button, tones `default` / `primary` / `success` / `danger` |
+| `components/ActionButton` | Compact flat button for a table's action column — five tones incl. `warning`, icon slot, `title` as a styled tooltip |
+| `components/Menu` | Row "⋯" menu — `useFloatingMenu` (one open per table), `FloatingMenu`, `MenuTriggerButton` |
 | `components/WindowCloseButton` | The title bar's close box — grey at rest, red on hover. `Modal` renders it; use it directly in any window title bar you paint yourself |
 | `components/LogoutButton` | The header's logout control — erp's flat red, deliberately not the `danger` tone (see below) |
 | `components/Field` | `Input`, `Select`, `Label`, `SearchField` — recessed field chrome |
@@ -201,6 +203,32 @@ Every layer is a `document.body` portal on the tooltip z-layer (above modals),
 placed in layout px through `terras-ui/scale` and corrected against where it
 actually landed. `FloatingLayer` + `useHoverAnchor` are exported for any other
 popout; pass `interactive` to a layer that takes clicks.
+
+An action column is `ActionButton`s plus a `MenuTriggerButton` for the
+overflow. `ActionButton` is flat on purpose — a raised bevel reads as chunky at
+20px — and so it is a different component from `Button`, not a size of it. Its
+`warning` tone exists because erp's action columns use it; the other four share
+their words with `Button`. One menu is open per table, keyed by row id:
+
+```jsx
+const menu = useFloatingMenu()
+
+<td>
+  <ActionButton tone="primary" icon={<Printer size={11} />} title="Print" onClick={() => print(row)} />
+  <MenuTriggerButton onClick={e => menu.toggle(row.id, e)} expanded={menu.isOpen(row.id)} />
+</td>
+
+{menu.openId && <FloatingMenu menu={menu} items={[
+  { key: 'edit', label: 'Edit', onClick: () => edit(menu.openId) },
+  { key: 'del', label: 'Delete', danger: true, hidden: !canDelete, onClick: () => remove(menu.openId) },
+]} />}
+```
+
+The menu is a portal right-aligned under its trigger, on the overlay layer so it
+clears a modal. An item click runs the item and then closes the menu. Outside
+click, scroll, resize and Escape close it too. erp decided "outside" with a
+`.xp-menu-trigger` class the caller had to add; here any button that calls
+`toggle` counts as the trigger.
 
 `Chip` and `ToggleChip` are different jobs and keep different faces on purpose: a
 `Chip` is a tinted pill that **reports** state over the five status families and

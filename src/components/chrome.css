@@ -410,6 +410,26 @@
   .terras-tip-anim { animation: none; }
 }
 
+/* ── Row menu (Menu.js, erp xpTheme.tsx FloatingMenu / MenuTriggerButton) ──
+   erp swaps these faces from React mouseenter state; here they are stylesheet
+   hovers, and the resting face lives here rather than inline so the hover can
+   beat it without `!important`. */
+.terras-menu-trigger {
+  background: none;
+  border: 1px solid transparent;
+}
+.terras-menu-trigger:not(:disabled):hover,
+.terras-menu-trigger[aria-expanded='true'] {
+  border-color: var(--terras-input-border, #7f9db9);
+  background: #e8f0f8;
+}
+.terras-menu-item { background: none; }
+.terras-menu-item:not(:disabled):hover,
+.terras-menu-item:focus-visible { background: #e8f0f8; outline: none; }
+.terras-menu-item-danger:not(:disabled):hover,
+.terras-menu-item-danger:focus-visible { background: #fff0f0; }
+.terras-menu-item:disabled { opacity: 0.5; }
+
 /* ── Scrollbars ──────────────────────────────────────────────────────────────
    Thin, chrome-colored, so a scrolling window body doesn't punch a bright
    modern scrollbar through the beige.

@@ -357,6 +357,28 @@
   --terras-toggle-glow-red: rgba(165, 32, 32, 0.28);
   --terras-toggle-glow-amber: rgba(192, 112, 0, 0.28);
 
+  /* ── Row action button (erp xpTheme.tsx XP_ACTION_TONES / XPActionButton) ───
+     The compact FLAT button of a table's action column: one border over a soft
+     gradient, NOT the raised two-tone bevel, which reads as chunky and glossy
+     at 20px. Five tones because erp's action columns use five (109 call sites
+     across 28 files) — this mirrors them, it does not add a hue. `warning` is
+     the one tone `Button` lacks; the rest share their words with it. */
+  --terras-action-neutral-bg: linear-gradient(to bottom, #f0efe6, #dddbd0);
+  --terras-action-neutral-border: #909090;
+  --terras-action-neutral-fg: #333333;
+  --terras-action-primary-bg: linear-gradient(to bottom, #cfe0ff, #8fb3e8);
+  --terras-action-primary-border: #335599;
+  --terras-action-primary-fg: #0a2a66;
+  --terras-action-success-bg: linear-gradient(to bottom, #b0e8b0, #70c870);
+  --terras-action-success-border: #0a3e0a;
+  --terras-action-success-fg: #004000;
+  --terras-action-warning-bg: linear-gradient(to bottom, #ffe0b0, #e8b060);
+  --terras-action-warning-border: #99631a;
+  --terras-action-warning-fg: #663300;
+  --terras-action-danger-bg: linear-gradient(to bottom, #f0c0c0, #d07070);
+  --terras-action-danger-border: #992222;
+  --terras-action-danger-fg: #600000;
+
   /* ── Window chrome (erp shellTheme.tsx xpBevel / xpTitleBar / xpToolbar) ──── */
   --terras-bevel-border-light: #dfdfdf;
   --terras-bevel-border-dark: #808080;
