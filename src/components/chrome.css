@@ -466,8 +466,8 @@
 }
 
 /* ── Scrollbars ──────────────────────────────────────────────────────────────
-   Thin, chrome-colored, so a scrolling window body doesn't punch a bright
-   modern scrollbar through the beige.
+   The classic XP bar, so a scrolling window body doesn't punch a bright
+   modern scrollbar through the chrome.
 
    The standard properties are behind @supports on purpose. Since Chrome 121 a
    non-`auto` `scrollbar-width`/`scrollbar-color` makes Chromium ignore EVERY
@@ -479,14 +479,23 @@
 @supports not selector(::-webkit-scrollbar) {
   .terras-scroll { scrollbar-width: thin; scrollbar-color: #b0a898 transparent; }
 }
-.terras-scroll::-webkit-scrollbar { width: 12px; height: 12px; }
-.terras-scroll::-webkit-scrollbar-track { background: var(--terras-win-bg, #ece9d8); }
+/* The XP bar itself is erp's globals.css "Classic: XP scrollbars everywhere"
+   block verbatim — the default for every Terras app: every scroller under
+   .ui-style-classic, plus .terras-scroll surfaces in any theme. */
+.ui-style-classic ::-webkit-scrollbar,
+.terras-scroll::-webkit-scrollbar { width: 16px; height: 16px; }
+.ui-style-classic ::-webkit-scrollbar-track,
+.terras-scroll::-webkit-scrollbar-track { background: #d4d0c8; }
+.ui-style-classic ::-webkit-scrollbar-thumb,
 .terras-scroll::-webkit-scrollbar-thumb {
-  background: var(--terras-win-face-alt, #ece9df);
+  background: linear-gradient(to right, #ffffff, #d4d0c8);
   border: 1px solid var(--terras-win-border-dark, #808080);
-  border-radius: 2px;
+  border-radius: 3px;
 }
-.terras-scroll::-webkit-scrollbar-thumb:hover { background: #dcd9cf; }
+.ui-style-classic ::-webkit-scrollbar-thumb:horizontal,
+.terras-scroll::-webkit-scrollbar-thumb:horizontal { background: linear-gradient(to bottom, #ffffff, #d4d0c8); }
+.ui-style-classic ::-webkit-scrollbar-corner,
+.terras-scroll::-webkit-scrollbar-corner { background: #d4d0c8; }
 
 /* ── Sign-in screen (LoginScreen) ────────────────────────────────────────────
    The step slide, the badge glimmer, and the docs pill's hover — mirrored from
