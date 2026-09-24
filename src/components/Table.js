@@ -196,8 +196,120 @@ function EmptyRow(props) {
     );
 }
 
+// ── Sorting ─────────────────────────────────────────────────────────────────
+// Mirrors erp xpTheme.tsx (useSortable / useServerSort / nextSortState /
+// SortMark) and listViewTheme.tsx (SortableTh). The sort STATE is the app's:
+// these hooks are plain useState, and `nextSortState` is exported on its own
+// for a view whose sort lives in a URL param or a data context instead.
+
+const isNil = function (v) { return v === null || v === undefined || v === ''; };
+
+function compareValues(a, b) {
+    if (isNil(a) && isNil(b)) return 0;
+    if (typeof a === 'number' && typeof b === 'number') return a - b;
+    const na = Number(a);
+    const nb = Number(b);
+    if (!isNaN(na) && !isNaN(nb) && String(a).trim() !== '' && String(b).trim() !== '') return na - nb;
+    return String(a).localeCompare(String(b), undefined, { numeric: true, sensitivity: 'base' });
+}
+
+/**
+ * The header-click transition: unsorted -> asc -> desc -> unsorted, and a click
+ * on a different column starts that column at asc.
+ */
+function nextSortState(prev, key) {
+    if (!prev || prev.key !== key) return { key: key, dir: 1 };
+    return prev.dir === 1 ? { key: key, dir: -1 } : null;
+}
+
+/**
+ * Sort state for a list the SERVER sorts. A windowed list must change a query
+ * param rather than reorder its one page in memory — sorting a page client-side
+ * puts the wrong rows on page 1 entirely.
+ */
+function useServerSort(initial) {
+    const state = React.useState(initial === undefined ? null : initial);
+    const setSort = state[1];
+    const toggleSort = React.useCallback(function (key) {
+        setSort(function (prev) { return nextSortState(prev, key); });
+    }, []);
+    return { sort: state[0], setSort: setSort, toggleSort: toggleSort };
+}
+
+/**
+ * Sort rows client-side. `columns` maps key -> accessor. Empty values sort last
+ * in both directions. Only correct when the view holds the WHOLE set — for a
+ * windowed list use `useServerSort`.
+ */
+function useSortable(rows, columns, initialSort) {
+    const state = React.useState(initialSort === undefined ? null : initialSort);
+    const sort = state[0];
+    const setSort = state[1];
+
+    // `columns` is usually an inline object literal, so it is deliberately not
+    // a dependency — it would re-sort on every render.
+    const sorted = React.useMemo(function () {
+        if (!sort || !columns[sort.key]) return rows;
+        const acc = columns[sort.key];
+        return rows.slice().sort(function (ra, rb) {
+            const a = acc(ra);
+            const b = acc(rb);
+            if (isNil(a) !== isNil(b)) return isNil(a) ? 1 : -1;
+            return compareValues(a, b) * sort.dir;
+        });
+    }, [rows, sort]);
+
+    const toggle = function (key) { setSort(function (prev) { return nextSortState(prev, key); }); };
+    return { sorted: sorted, sort: sort, toggle: toggle };
+}
+
+/** Arrow indicator for a sortable header; nothing when the column is unsorted. */
+function SortMark(props) {
+    const sort = props.sort;
+    if (!sort || sort.key !== props.colKey) return null;
+    return React.createElement('span', { 'aria-hidden': true, style: { marginLeft: 3, fontSize: 8 } }, sort.dir === 1 ? '▲' : '▼');
+}
+
+/**
+ * Sortable `<th>`. Owns the affordances every hand-written copy drifted on:
+ * the pointer, `userSelect: none` (a double-click would select the label
+ * instead of sorting twice), the "Sort" title, `aria-sort`, and the arrow.
+ *
+ * A null/absent `colKey` (or no `onSort`) renders a plain inert header, so a
+ * table built from a column config keeps one component call per column.
+ */
+function SortableTh(props) {
+    const rest = Object.assign({}, props);
+    delete rest.sort; delete rest.colKey; delete rest.onSort; delete rest.children; delete rest.style;
+
+    if (!props.colKey || !props.onSort) {
+        return React.createElement('th', Object.assign({ style: props.style }, rest), props.children);
+    }
+    const key = props.colKey;
+    const sort = props.sort || null;
+    const dir = sort && sort.key === key ? (sort.dir === 1 ? 'ascending' : 'descending') : 'none';
+    return React.createElement(
+        'th',
+        Object.assign({}, rest, {
+            title: props.title === undefined ? 'Sort' : props.title,
+            'aria-sort': dir,
+            style: Object.assign({}, props.style, { cursor: 'pointer', userSelect: 'none' }),
+            onClick: function () { props.onSort(key); },
+        }),
+        props.children,
+        React.createElement(SortMark, { sort: sort, colKey: key }),
+    );
+}
+
 Table.EmptyRow = EmptyRow;
+Table.SortableTh = SortableTh;
+Table.SortMark = SortMark;
 
 module.exports = Table;
 module.exports.Table = Table;
 module.exports.EmptyRow = EmptyRow;
+module.exports.SortableTh = SortableTh;
+module.exports.SortMark = SortMark;
+module.exports.nextSortState = nextSortState;
+module.exports.useSortable = useSortable;
+module.exports.useServerSort = useServerSort;

@@ -19,7 +19,7 @@ Plain `React.createElement` (no JSX) so no build step is required to consume the
 | `components/Window` | The bevelled view frame + `.TitleBar` / `.Toolbar` / `.Separator` / `.Body` / `.StatusBar` |
 | `components/Modal` | Same chrome one layer up: backdrop, title bar with close box, footer actions. `modeless` drops the backdrop and makes the panel draggable |
 | `components/FormSection` | Field group under a solid blue header bar |
-| `components/Table` | Ruled classic table (`.EmptyRow` for the empty/loading state, `stickyCols` to freeze leading columns) |
+| `components/Table` | Ruled classic table (`.EmptyRow` for the empty/loading state, `stickyCols` to freeze leading columns, `.SortableTh` + `useSortable` / `useServerSort` for sortable headers) |
 | `components/Pager` | Prev/next paginator footer — the row window on the left, `Prev` / `Page x / y` / `Next` on the right. Is a `Window.StatusBar`; `inline` fits it into one you already render |
 | `components/Tabs` | Tab strip seated in the pane below it — renders the row only |
 | `components/ProgressBar` | Recessed progress track — up to three stacked segments, a threshold marker, `outside`/`inside` percent label |
@@ -53,6 +53,22 @@ scrolling half no longer has. Offsets are measured from the laid-out cells, so
 the frozen columns may be content-sized; a row whose cell spans across the
 boundary, such as a `colSpan` group header, stays unfrozen rather than being
 pinned wider than the frozen region.
+
+Sorting is a header cell plus a hook, and the hook decides where the sort
+happens. `useSortable(rows, { code: r => r.code, qty: r => r.qty })` reorders in
+memory and is only correct when the view holds the **whole** set; a paged list
+the server sorts takes `useServerSort()` and feeds `sort` into its query instead
+— sorting one page client-side puts the wrong rows on page 1. Both cycle
+asc → desc → off (`nextSortState`, exported for a sort kept in a URL param), and
+empty values sort last either way. `Table.SortableTh` owns the pointer, the
+`aria-sort`, the ▲/▼ mark and `userSelect: none`; a null `colKey` renders a
+plain header, so a config-driven column list keeps one call per column:
+
+```jsx
+const { sorted, sort, toggle } = useSortable(rows, { code: r => r.code, qty: r => r.qty })
+
+<Table.SortableTh sort={sort} colKey="code" onSort={toggle}>Code</Table.SortableTh>
+```
 
 `Pager` is that table's footer, and it *is* a `Window.StatusBar` — the strip is
 the same sunken floor, so put it where the status bar would go rather than under
