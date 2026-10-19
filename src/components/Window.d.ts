@@ -35,6 +35,14 @@ export interface StatusBarProps {
   className?: string;
 }
 
+export interface CountProps {
+  children: ReactNode;
+  /** Push to the far end of the toolbar row. */
+  right?: boolean;
+  style?: CSSProperties;
+}
+
+declare function Count(props: CountProps): JSX.Element;
 declare function TitleBar(props: TitleBarProps): JSX.Element;
 declare function Toolbar(props: ToolbarProps): JSX.Element;
 declare function Separator(): JSX.Element;
@@ -43,8 +51,8 @@ declare function StatusBar(props: StatusBarProps): JSX.Element;
 
 declare function Window(props: WindowProps): JSX.Element;
 declare namespace Window {
-  export { TitleBar, Toolbar, Separator, Body, StatusBar };
+  export { TitleBar, Toolbar, Separator, Body, StatusBar, Count };
 }
 
-export { Window, TitleBar, Toolbar, Separator, Body, StatusBar };
+export { Window, TitleBar, Toolbar, Separator, Body, StatusBar, Count };
 export default Window;

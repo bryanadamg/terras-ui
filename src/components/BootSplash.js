@@ -1,3 +1,4 @@
+'use client';
 'use strict';
 
 // Boot screen for the case where there is no chrome to draw yet — the sign-in

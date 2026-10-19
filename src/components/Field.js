@@ -1,7 +1,8 @@
 'use strict';
 
 // Form/toolbar fields: a recessed text input, a select, and the search box that
-// heads a list view. Mirrors teras-erp's `xpInput` / `xpSelect` / `SearchField`.
+// heads a list view, plus the form label and the submit-error banner. Mirrors
+// teras-erp's `xpInput` / `xpSelect` / `SearchField` / `FieldLabel` / `FormError`.
 //
 // A field is RECESSED chrome — blue-gray 1px border, white well — where a button
 // is raised. Focus is a 1px accent ring drawn inside that border (chrome.css
@@ -128,4 +129,70 @@ function SearchField(props) {
     );
 }
 
-module.exports = { Input: Input, Select: Select, Label: Label, SearchField: SearchField };
+/**
+ * Form field label: bold, with an optional right-hand adornment and a muted
+ * italic `hint` line under it. Mirrors erp xpTheme.tsx FieldLabel. Distinct from
+ * `Label`, which is the plain toolbar/inline label.
+ *
+ * `hint` renders; `title` hovers. A caption earns its line only when the reader
+ * needs it every time (an empty-means-X rule, a figure they are correcting); the
+ * explanation of WHY a field works the way it does is read once and then costs
+ * a line forever, so it goes in `title`. Ten fields with ten captions reads as
+ * prose.
+ */
+function FieldLabel(props) {
+    return React.createElement(
+        React.Fragment,
+        null,
+        React.createElement(
+            'div',
+            { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 } },
+            React.createElement('label', {
+                htmlFor: props.htmlFor,
+                title: props.title,
+                style: { fontFamily: S.font, fontSize: S.fs.base, fontWeight: 'bold', color: '#2b2822', margin: 0 },
+            }, props.children),
+            props.right,
+        ),
+        props.hint
+            ? React.createElement('div', {
+                id: props.hintId,
+                style: { fontFamily: S.font, fontSize: S.fs.sm, color: '#938c76', fontStyle: 'italic', marginBottom: 3 },
+            }, props.hint)
+            : null,
+    );
+}
+
+/**
+ * "What you just submitted was rejected" — the banner at the top of a form or
+ * modal body. Mirrors erp xpTheme.tsx FormError. Renders nothing for an empty
+ * message, so a call site needs no `&&` guard. `role="alert"` so the rejection
+ * is announced.
+ *
+ * Not for status callouts (a "late" badge, a scanner error) — those carry their
+ * own icons and reds — and not for transient outcomes, which are a toast.
+ */
+function FormError(props) {
+    if (!props.children) return null;
+    return React.createElement('div', {
+        role: 'alert',
+        style: Object.assign({
+            background: '#f5e8e8',
+            border: '1px solid #8e0000',
+            color: '#8e0000',
+            padding: '4px 8px',
+            fontSize: S.fs.base,
+            marginBottom: 10,
+            fontFamily: S.font,
+        }, props.style),
+    }, props.children);
+}
+
+module.exports = {
+    Input: Input,
+    Select: Select,
+    Label: Label,
+    SearchField: SearchField,
+    FieldLabel: FieldLabel,
+    FormError: FormError,
+};

@@ -136,7 +136,30 @@ function StatusBar(props) {
     );
 }
 
+/**
+ * The "412 orders" tally a list toolbar ends with (erp shellTheme.tsx
+ * ToolbarCount). `right` pushes it to the far end of the toolbar row — the
+ * common case, which sku was writing as an inline `marginLeft: 'auto'` span.
+ */
+function Count(props) {
+    return React.createElement(
+        'span',
+        {
+            style: Object.assign({
+                flexShrink: 0,
+                whiteSpace: 'nowrap',
+                marginLeft: props.right ? 'auto' : undefined,
+                fontFamily: S.font,
+                fontSize: S.fs.base,
+                color: S.cssVar('win-text-2', '#333333'),
+            }, props.style),
+        },
+        props.children,
+    );
+}
+
 Window.TitleBar = TitleBar;
+Window.Count = Count;
 Window.Toolbar = Toolbar;
 Window.Separator = Separator;
 Window.Body = Body;
@@ -149,3 +172,4 @@ module.exports.Toolbar = Toolbar;
 module.exports.Separator = Separator;
 module.exports.Body = Body;
 module.exports.StatusBar = StatusBar;
+module.exports.Count = Count;

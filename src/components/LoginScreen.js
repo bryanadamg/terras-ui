@@ -1,3 +1,4 @@
+'use client';
 'use strict';
 
 // The Terras sign-in screen. Extracted from teras-erp's `app/login/page.tsx`,

@@ -209,6 +209,21 @@
   border-color: var(--terras-win-highlight, #316ac5);
   box-shadow: inset 0 0 0 1px var(--terras-win-highlight, #316ac5);
 }
+/* Number input with the native spinner suppressed (erp globals.css
+   `.xp-nospin`). The spinner is ~16px of chrome inside the field, which on a
+   dense grid row is a third of the box: a 46px qty input had 16px left for
+   digits and clipped "216" into "21". Those fields are typed, not stepped, and
+   the arrow keys still increment. Opt-in per input — a standalone form field
+   has the room, and there the affordance is real. */
+.terras-nospin {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+.terras-nospin::-webkit-outer-spin-button,
+.terras-nospin::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
 .terras-field:disabled {
   background: var(--terras-win-bg, #ece9d8);
   color: var(--terras-win-text-3, #666666);
@@ -316,9 +331,143 @@
   border-right-color: var(--terras-table-head-line, #808080);
 }
 
+/* Row / select-all checkboxes (Table.RowCheckbox / SelectAllCheckbox, erp
+   globals.css `.lv-check`). Hover ring only — the box never moves, so a dense
+   list doesn't reflow under the cursor. The radius matters: Chromium draws a
+   bare native checkbox with rounded corners whatever the CSS says, and
+   box-shadow follows the element's own border-radius, so without it the ring
+   boxes the rounded glyph in a sharp square. */
+.terras-check {
+  border-radius: 3px;
+  transition: box-shadow 0.12s ease;
+}
+.terras-check:hover:not(:disabled) {
+  box-shadow: 0 0 0 2px rgba(26, 61, 107, 0.30);
+}
+
+/* ── Skeletons + loading marquee (Skeleton.js, erp globals.css `.xp-skel` /
+   `.xp-loading-*`) ───────────────────────────────────────────────────────────
+   Neutral alpha greys, so one bar reads right on beige and on white. Only
+   background-position animates. Held invisible for the first 250ms, then
+   faded in: a load that lands inside that window never shows grey bars at all,
+   which on a fast response is a flash of artefacts rather than feedback. CSS,
+   not a JS timer, because the skeleton is in the server HTML and paints before
+   any script runs. */
+.terras-skel {
+  background-color: rgba(0, 0, 0, 0.07);
+  background-image: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0.06) 45%,
+    rgba(0, 0, 0, 0.06) 55%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  background-size: 220% 100%;
+  background-repeat: no-repeat;
+  animation: terras-skel-in 120ms ease-out 250ms both,
+             terras-skel-shimmer 1.3s ease-in-out infinite;
+}
+@keyframes terras-skel-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes terras-skel-shimmer {
+  from { background-position: 140% 50%; }
+  to   { background-position: -40% 50%; }
+}
+
+.terras-loading-track {
+  width: 200px;
+  height: 16px;
+  margin: 0 auto;
+  background: #ffffff;
+  border: 1px solid;
+  border-color: #808080 #ffffff #ffffff #808080;
+  padding: 2px;
+  overflow: hidden;
+  position: relative;
+  box-sizing: content-box;
+}
+.terras-loading-blocks {
+  position: absolute;
+  top: 2px;
+  left: 0;
+  height: 10px;
+  display: flex;
+  gap: 2px;
+  animation: terras-loading-slide 1.6s linear infinite;
+}
+.terras-loading-blocks span {
+  width: 9px;
+  height: 10px;
+  background: linear-gradient(to bottom, #5a9af4, #1a5cd4);
+  flex-shrink: 0;
+}
+@keyframes terras-loading-slide {
+  from { transform: translateX(-40px); }
+  to   { transform: translateX(206px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* No shimmer or fade, but keep the delay: it is not motion. */
+  .terras-skel { animation: terras-skel-in 0s 250ms both; }
+}
+
+/* ── Hover surfaces (Tooltip.js, erp globals.css `.tip-anim`) ───────────────
+   The bubble fades in from just under its anchor. Only the entrance lives here
+   — React can't express keyframes inline. */
+@keyframes terras-tip-in {
+  from { opacity: 0; transform: translateY(-2px); }
+  to   { opacity: 1; transform: none; }
+}
+.terras-tip-anim { animation: terras-tip-in 110ms ease-out; }
+@media (prefers-reduced-motion: reduce) {
+  .terras-tip-anim { animation: none; }
+}
+
+/* ── Row menu (Menu.js, erp xpTheme.tsx FloatingMenu / MenuTriggerButton) ──
+   erp swaps these faces from React mouseenter state; here they are stylesheet
+   hovers, and the resting face lives here rather than inline so the hover can
+   beat it without `!important`. */
+.terras-menu-trigger {
+  background: none;
+  border: 1px solid transparent;
+}
+.terras-menu-trigger:not(:disabled):hover,
+.terras-menu-trigger[aria-expanded='true'] {
+  border-color: var(--terras-input-border, #7f9db9);
+  background: #e8f0f8;
+}
+.terras-menu-item { background: none; }
+.terras-menu-item:not(:disabled):hover,
+.terras-menu-item:focus-visible { background: #e8f0f8; outline: none; }
+.terras-menu-item-danger:not(:disabled):hover,
+.terras-menu-item-danger:focus-visible { background: #fff0f0; }
+.terras-menu-item:disabled { opacity: 0.5; }
+
+/* Row-disclosure chevron (Table.ExpandToggle, erp globals.css `.lv-chev`). One
+   right-pointing glyph rotated 90deg for the open state, so hover previews the
+   open direction and springs back on pointer-leave when nothing was clicked.
+   inline-block is required: transform is ignored on a non-replaced inline. */
+.terras-chev {
+  display: inline-block;
+  transform: rotate(0deg);
+  transform-origin: 50% 50%;
+  transition: transform 0.16s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+.terras-chev-open,
+.terras-chev-btn:hover .terras-chev,
+.terras-chev-btn:focus-visible .terras-chev {
+  transform: rotate(90deg);
+}
+.terras-chev-btn:focus-visible { outline: 1px dotted currentColor; outline-offset: 1px; }
+@media (prefers-reduced-motion: reduce) {
+  .terras-chev { transition: none; }
+}
+
 /* ── Scrollbars ──────────────────────────────────────────────────────────────
-   Thin, chrome-colored, so a scrolling window body doesn't punch a bright
-   modern scrollbar through the beige.
+   The classic XP bar, so a scrolling window body doesn't punch a bright
+   modern scrollbar through the chrome.
 
    The standard properties are behind @supports on purpose. Since Chrome 121 a
    non-`auto` `scrollbar-width`/`scrollbar-color` makes Chromium ignore EVERY
@@ -330,14 +479,23 @@
 @supports not selector(::-webkit-scrollbar) {
   .terras-scroll { scrollbar-width: thin; scrollbar-color: #b0a898 transparent; }
 }
-.terras-scroll::-webkit-scrollbar { width: 12px; height: 12px; }
-.terras-scroll::-webkit-scrollbar-track { background: var(--terras-win-bg, #ece9d8); }
+/* The XP bar itself is erp's globals.css "Classic: XP scrollbars everywhere"
+   block verbatim — the default for every Terras app: every scroller under
+   .ui-style-classic, plus .terras-scroll surfaces in any theme. */
+.ui-style-classic ::-webkit-scrollbar,
+.terras-scroll::-webkit-scrollbar { width: 16px; height: 16px; }
+.ui-style-classic ::-webkit-scrollbar-track,
+.terras-scroll::-webkit-scrollbar-track { background: #d4d0c8; }
+.ui-style-classic ::-webkit-scrollbar-thumb,
 .terras-scroll::-webkit-scrollbar-thumb {
-  background: var(--terras-win-face-alt, #ece9df);
+  background: linear-gradient(to right, #ffffff, #d4d0c8);
   border: 1px solid var(--terras-win-border-dark, #808080);
-  border-radius: 2px;
+  border-radius: 3px;
 }
-.terras-scroll::-webkit-scrollbar-thumb:hover { background: #dcd9cf; }
+.ui-style-classic ::-webkit-scrollbar-thumb:horizontal,
+.terras-scroll::-webkit-scrollbar-thumb:horizontal { background: linear-gradient(to bottom, #ffffff, #d4d0c8); }
+.ui-style-classic ::-webkit-scrollbar-corner,
+.terras-scroll::-webkit-scrollbar-corner { background: #d4d0c8; }
 
 /* ── Sign-in screen (LoginScreen) ────────────────────────────────────────────
    The step slide, the badge glimmer, and the docs pill's hover — mirrored from
@@ -446,6 +604,7 @@
   .terras-btn,
   .terras-tab,
   .terras-toggle,
+  .terras-check,
   .terras-tab::after { transition: none; }
   .terras-btn:not(:disabled):hover,
   .terras-btn:not(:disabled):active { transform: none; }

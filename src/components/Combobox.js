@@ -1,3 +1,4 @@
+'use client';
 'use strict';
 
 // Type-to-search single select. Mirrors teras-erp's `SearchableSelect`, which is

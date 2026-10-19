@@ -23,3 +23,16 @@ declare const tokens: Tokens & {
 };
 
 export default tokens;
+
+// The same values, as named exports — index.js hangs them off module.exports.
+export declare const color: Tokens['color'];
+export declare const radius: Tokens['radius'];
+export declare const font: Tokens['font'];
+export declare const shadow: Tokens['shadow'];
+export declare const layout: Tokens['layout'];
+export declare const zIndex: Tokens['zIndex'];
+export declare const breakpoint: Tokens['breakpoint'];
+export declare const cssPath: string;
+export declare const chromeCssPath: string;
+export declare const scaleCssPath: string;
+export { tokens };

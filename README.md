@@ -16,18 +16,26 @@ Plain `React.createElement` (no JSX) so no build step is required to consume the
 | --- | --- |
 | `components/AppHeader` | Full-bleed blue top band — page name + global actions |
 | `components/Sidebar` | Nav rail: brand block, flat items and/or gradient sections, footer — collapses to an icon rail |
-| `components/Window` | The bevelled view frame + `.TitleBar` / `.Toolbar` / `.Separator` / `.Body` / `.StatusBar` |
+| `components/Window` | The bevelled view frame + `.TitleBar` / `.Toolbar` / `.Separator` / `.Count` / `.Body` / `.StatusBar` |
 | `components/Modal` | Same chrome one layer up: backdrop, title bar with close box, footer actions. `modeless` drops the backdrop and makes the panel draggable |
 | `components/FormSection` | Field group under a solid blue header bar |
-| `components/Table` | Ruled classic table (`.EmptyRow` for the empty/loading state, `stickyCols` to freeze leading columns) |
+| `components/Table` | Ruled classic table (`.EmptyRow` for the empty state — with an optional `icon` slot, `stickyCols` to freeze leading columns, `.SortableTh` + `useSortable` / `useServerSort` for sortable headers, `useRowSelection` + `.SelectAllCell` / `.RowCheckboxCell` for bulk-select, `.ExpanderCell` + `.ExpandedRowPanel` + `rowStateBg` for rows that open a detail panel) |
+| `components/Skeleton` | Loading stand-ins that carry the shape of what's coming — `TableSkeleton` rows (+ `useTableSkeletonMetrics`), `ListSkeleton`, `PanelSkeleton`, `CardGridSkeleton`, `TableBlockSkeleton`, and the `Loading` marquee for a wait with no shape |
+| `components/DetailGrid` | Read-only record fields as a `<dl>` — `.Detail` cells, stacked across `columns` or `inline` (label left, value right); empty values hold their place with a muted — |
+| `components/EmptyState` | "Nothing here" for a pane that isn't a table body — recessed well, optional glyph slot, italic message, room for an action under it |
 | `components/Pager` | Prev/next paginator footer — the row window on the left, `Prev` / `Page x / y` / `Next` on the right. Is a `Window.StatusBar`; `inline` fits it into one you already render |
 | `components/Tabs` | Tab strip seated in the pane below it — renders the row only |
 | `components/ProgressBar` | Recessed progress track — up to three stacked segments, a threshold marker, `outside`/`inside` percent label |
+| `components/Sparkline` | Inline-SVG trend line coloured by status family, dot on the latest point. No stat tile beside it — see below |
 | `components/Toast` | `ToastProvider` + `useToast` — transient feedback stack, bottom-right, with a progress-toast handle for long jobs |
+| `components/Tooltip` | Styled hover bubble for one element (no wrapper), `GlobalTooltip` to park native `title`s app-wide and echo clipped text, and the `FloatingLayer` / `useHoverAnchor` base any popout sits on |
 | `components/Button` | Raised bevel button, tones `default` / `primary` / `success` / `danger` |
+| `components/ActionButton` | Compact flat button for a table's action column — five tones incl. `warning`, icon slot, `title` as a styled tooltip |
+| `components/Menu` | Row "⋯" menu — `useFloatingMenu` (one open per table), `FloatingMenu`, `MenuTriggerButton` |
 | `components/WindowCloseButton` | The title bar's close box — grey at rest, red on hover. `Modal` renders it; use it directly in any window title bar you paint yourself |
+| `components/FeedbackDialog` | The in-app feedback form (kind, message, opt-in name) — anonymous by default; the app owns the trigger button and `onSubmit` |
 | `components/LogoutButton` | The header's logout control — erp's flat red, deliberately not the `danger` tone (see below) |
-| `components/Field` | `Input`, `Select`, `Label`, `SearchField` — recessed field chrome |
+| `components/Field` | `Input`, `Select`, `Label`, `SearchField` — recessed field chrome; `FieldLabel` (bold form label + optional hint) and `FormError` (the submit-rejected banner) |
 | `components/Combobox` | Type-to-search single select — trigger with a ▼ well, portaled popup with its own search box |
 | `components/Chip` | Status chip over the five shared status families |
 | `components/ToggleChip` | Pressed/unpressed chip, tones `blue` / `green` / `red` / `amber` |
@@ -36,7 +44,12 @@ Plain `React.createElement` (no JSX) so no build step is required to consume the
 | `components/LoginScreen` | The sign-in screen — wordmark, suite panel, two-step form, ID badge (+ `.SuitePanel` / `.IdCard` / `.StatusDot`) |
 | `components/BootSplash` | Pre-chrome boot screen + `useBootIndicator`, the two guards that keep it from flashing |
 | `components/CityMatrix` | The dot-matrix city behind the sign-in field — a canvas of blinking dots over a generated grid |
-| `styles` | The style primitives the above are built from (`bevel`, `panel`, `titleBar`, `toolbar`, `field`, `button`, `toggleChip`, `cssVar`, `font`, `fs`, `trackingCaps`) — for a one-off surface that has no component yet |
+| `types` | Type-only: the shared prop vocabularies (`ShellTone`, `ButtonTone`, `ChipFamily`, `ToggleTone`, …) — `import type { ShellTone } from '@bryanadamg/terras-ui/types'` instead of restating the words locally |
+| `styles` | The style primitives the above are built from (`bevel`, `panel`, `recessed`, `titleBar`, `toolbar`, `field`, `button`, `toggleChip`, `cssVar`, `font`, `fs`, `trackingCaps`) — for a one-off surface that has no component yet |
+
+A number field in a dense grid row takes `className="terras-nospin"` to drop the
+native spinner, which otherwise eats a third of a 46px box. It's opt-in per
+input: in a standalone form field the spinner has room and is worth keeping.
 
 Reach for `Combobox` over a `Select` once a list runs past a hundred or so
 options: a native select cannot be typed into, and a native `<datalist>` paints
@@ -52,6 +65,85 @@ scrolling half no longer has. Offsets are measured from the laid-out cells, so
 the frozen columns may be content-sized; a row whose cell spans across the
 boundary, such as a `colSpan` group header, stays unfrozen rather than being
 pinned wider than the frozen region.
+
+Sorting is a header cell plus a hook, and the hook decides where the sort
+happens. `useSortable(rows, { code: r => r.code, qty: r => r.qty })` reorders in
+memory and is only correct when the view holds the **whole** set; a paged list
+the server sorts takes `useServerSort()` and feeds `sort` into its query instead
+— sorting one page client-side puts the wrong rows on page 1. Both cycle
+asc → desc → off (`nextSortState`, exported for a sort kept in a URL param), and
+empty values sort last either way. `Table.SortableTh` owns the pointer, the
+`aria-sort`, the ▲/▼ mark and `userSelect: none`; a null `colKey` renders a
+plain header, so a config-driven column list keeps one call per column:
+
+```jsx
+const { sorted, sort, toggle } = useSortable(rows, { code: r => r.code, qty: r => r.qty })
+
+<Table.SortableTh sort={sort} colKey="code" onSort={toggle}>Code</Table.SortableTh>
+```
+
+Bulk selection keeps the **row objects**, keyed, so the selection survives
+paging and a bulk action never has to look a row up in a page that is no longer
+on screen. The header checkbox is page-scoped on purpose — it adds or clears the
+eligible rows you can see, and rows ticked on other pages stay ticked — and it
+owns the indeterminate state, which is a DOM property with no attribute form.
+`selectable` excludes rows that can't take the action. A row checkbox stops its
+click from reaching the row, so a clickable row doesn't also open. The checkbox
+column comes first, before any expander:
+
+```jsx
+const sel = useRowSelection(rows, r => r.id, { selectable: r => r.status !== 'LOCKED' })
+
+<tr><Table.SelectAllCell allSelected={sel.allPageSelected} someSelected={sel.someSelected} onChange={sel.togglePage} />…</tr>
+<tr><Table.RowCheckboxCell checked={sel.isSelected(row)} onChange={() => sel.toggle(row)} label={row.code} />…</tr>
+```
+
+Load a table with `TableSkeleton` rows, not a "Loading..." row: the bars sit in
+the table's own columns and ruling, so nothing jumps when the data lands. Feed it
+from `useTableSkeletonMetrics`, which counts the columns off the live `<thead>`
+(a hand-counted `cols` goes stale the day someone adds one), remembers the real
+row height once it has seen a row, and fills the scroll box's free height. Show
+the skeleton while the first fetch is in flight and `Table.EmptyRow` once it has
+resolved empty. The bars stay invisible for 250ms (chrome.css), so a fast
+response never flashes grey:
+
+```jsx
+const bodyRef = useRef(null)
+const skel = useTableSkeletonMetrics('sales-orders', bodyRef, rows.length > 0)
+
+<tbody ref={bodyRef}>
+  {rows.length === 0 && (loading
+    ? <TableSkeleton cols={skel.cols ?? 8} rowHeight={skel.rowHeight} fillHeight={skel.fillHeight} />
+    : <Table.EmptyRow colSpan={8}>No orders</Table.EmptyRow>)}
+```
+
+The measured row height is cached in memory only; erp also keeps it in
+`sessionStorage`, but storage keys belong to the app, so a reload's first paint
+uses a 26px estimate. `Loading` is for a wait with no shape to promise (a scan
+resolving to one of several screens) — anywhere else, a skeleton.
+
+A row that opens a detail panel takes its **own** chevron column, second after
+any checkbox and before the first data column, never inside a data cell. The
+chevron points right and turns down when open. The panel goes in a flush
+full-width cell below the row, and the row takes the `expanded` ground:
+
+```jsx
+<tr style={{ background: open ? rowStateBg('expanded') : undefined }} onClick={toggle}>
+  <Table.ExpanderCell expanded={open} onToggle={toggle} label="lot lineage" panelId={`lin-${row.id}`} />
+  <td>{row.code}</td>…
+</tr>
+{open && (
+  <tr><td colSpan={cols} className="terras-cell-flush">
+    <Table.ExpandedRowPanel id={`lin-${row.id}`}><Table.ExpandedRowPanelBody>…</Table.ExpandedRowPanelBody></Table.ExpandedRowPanel>
+  </td></tr>
+)}
+```
+
+The three row grounds mean three different things and shouldn't be swapped:
+`expanded` (light blue, panel open), `selected` (a darker blue, ticked for a
+bulk action) and `highlighted` (amber, a scroll target or search hit). The
+panel's rail and rules are inset shadows, not borders. A border inside the
+spanning cell would widen it and shift every column above on expand.
 
 `Pager` is that table's footer, and it *is* a `Window.StatusBar` — the strip is
 the same sunken floor, so put it where the status bar would go rather than under
@@ -116,6 +208,69 @@ it when the bar means something other than completion, like blue for "in progres
 or red for a shortfall. `secondaryPct` / `tertiaryPct` stack after the primary fill
 and are each clamped against what the earlier segments already took, so three
 optimistic numbers can't overflow the track.
+
+`Tooltip` wraps **one** element and clones hover/focus handlers onto it — no
+wrapper node, so a `<th>` or a flex child keeps its layout. It is for text
+someone asked for: the dwell is 900ms, close to the native delay, so it doesn't
+fire on the mouse merely crossing a dense table. Icon-only buttons in an action
+column want `placement="side"`, since below them is the next row's button.
+
+```jsx
+<Tooltip content="Steps completed on the MOs behind this line"><th>MO Progress</th></Tooltip>
+```
+
+`GlobalTooltip` is opt-in and app-wide, so mount it once near the root. It
+moves every `title` onto `data-original-title` as it appears (mirroring it to
+`aria-label` when the element has no other name) so the OS never draws its grey
+box, and it echoes single-line text that is clipped by its column after a short
+260ms dwell. A plain `title` no longer opens anything once it's mounted — that is
+the point. Anything inside `[data-no-tip]` is left alone, and so are `<option>`,
+`<select>` and `<iframe>`. Components here that fall back to a native `title`
+(`ProgressBar`'s default tooltip, a collapsed `Sidebar`'s labels) go quiet under
+it, so pass them a `Tooltip` where the text matters.
+
+Every layer is a `document.body` portal on the tooltip z-layer (above modals),
+placed in layout px through `terras-ui/scale` and corrected against where it
+actually landed. `FloatingLayer` + `useHoverAnchor` are exported for any other
+popout; pass `interactive` to a layer that takes clicks.
+
+An action column is `ActionButton`s plus a `MenuTriggerButton` for the
+overflow. `ActionButton` is flat on purpose — a raised bevel reads as chunky at
+20px — and so it is a different component from `Button`, not a size of it. Its
+`warning` tone exists because erp's action columns use it; the other four share
+their words with `Button`. One menu is open per table, keyed by row id:
+
+```jsx
+const menu = useFloatingMenu()
+
+<td>
+  <ActionButton tone="primary" icon={<Printer size={11} />} title="Print" onClick={() => print(row)} />
+  <MenuTriggerButton onClick={e => menu.toggle(row.id, e)} expanded={menu.isOpen(row.id)} />
+</td>
+
+{menu.openId && <FloatingMenu menu={menu} items={[
+  { key: 'edit', label: 'Edit', onClick: () => edit(menu.openId) },
+  { key: 'del', label: 'Delete', danger: true, hidden: !canDelete, onClick: () => remove(menu.openId) },
+]} />}
+```
+
+The menu is a portal right-aligned under its trigger, on the overlay layer so it
+clears a modal. An item click runs the item and then closes the menu. Outside
+click, scroll, resize and Escape close it too. erp decided "outside" with a
+`.xp-menu-trigger` class the caller had to add; here any button that calls
+`toggle` counts as the trigger.
+
+`Sparkline` takes the status-family words (`family="amber"`), not a hex, so a
+trend reads the same as the chip beside it. The KPI tile around it is **not**
+shared. A tile's big figure needs a display font size, `tokens.css` has
+deliberately no display tier, and erp itself paints the same kind of tile at
+20px and 26px. Paint the tile in the app, from `panel()`.
+
+A form's rejection is `FormError` at the top of the body — `role="alert"`, and
+it renders nothing when the message is empty, so `<FormError>{error}</FormError>`
+needs no guard. It is not a status callout and not a toast. `FieldLabel` is the
+form label, bold where `Label` is plain. Its `hint` is a visible line, so give it
+only the rule a reader needs every time; the one-time *why* goes in `title`.
 
 `Chip` and `ToggleChip` are different jobs and keep different faces on purpose: a
 `Chip` is a tinted pill that **reports** state over the five status families and
@@ -238,6 +393,14 @@ import Window from '@bryanadamg/terras-ui/components/Window'
   <Pager page={page} total={total} pageSize={25} onPageChange={setPage} />
 </Window>
 ```
+
+A list toolbar ends with its tally and its actions: `<Window.Count right>412
+orders</Window.Count>` pushes the count to the far end, and the actions are
+plain `Button`s. erp's `ToolbarButton` is not a separate component here because
+its tones are `Button`'s: `create` is `success`, `neutral` is `default`, and
+`launch` / `danger` map to `primary` / `danger`. erp's own `launch` and `danger`
+gradients are a shade off `BTN_TONES`, which is drift, not a reason for a fifth
+and sixth tone.
 
 `Sidebar` only owns layout + the classic-theme palette (`--terras-sidebar-*` tokens) — routing/active-match stays with the consuming app (works the same under Next.js or react-router).
 

@@ -2,6 +2,8 @@ node_modules/
 
 CLAUDE.md
 .env
+.claude
+.superpowers
 
 # city-matrix generator: local venv, Overpass/Nominatim response cache, and the
 # eyeball previews. The generated module under src/assets/ IS committed.
