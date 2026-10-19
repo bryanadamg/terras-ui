@@ -35,6 +35,7 @@
     "./components/DetailGrid": { "types": "./src/components/DetailGrid.d.ts", "default": "./src/components/DetailGrid.js" },
     "./components/EmptyState": { "types": "./src/components/EmptyState.d.ts", "default": "./src/components/EmptyState.js" },
     "./components/Field": { "types": "./src/components/Field.d.ts", "default": "./src/components/Field.js" },
+    "./components/FeedbackDialog": { "types": "./src/components/FeedbackDialog.d.ts", "default": "./src/components/FeedbackDialog.js" },
     "./components/FilterChipBar": { "types": "./src/components/FilterChipBar.d.ts", "default": "./src/components/FilterChipBar.js" },
     "./components/FormSection": { "types": "./src/components/FormSection.d.ts", "default": "./src/components/FormSection.js" },
     "./components/LoginScreen": { "types": "./src/components/LoginScreen.d.ts", "default": "./src/components/LoginScreen.js" },
