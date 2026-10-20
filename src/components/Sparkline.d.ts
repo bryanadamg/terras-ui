@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from 'react';
+import type { ReactElement, CSSProperties, ReactNode } from 'react';
 import type { ChipFamily } from './types';
 
 export interface SparklineProps {
@@ -17,7 +17,7 @@ export interface SparklineProps {
   style?: CSSProperties;
 }
 
-declare function Sparkline(props: SparklineProps): JSX.Element;
+declare function Sparkline(props: SparklineProps): ReactElement;
 
 export { Sparkline };
 export default Sparkline;

@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from 'react';
+import type { ReactElement, CSSProperties, ReactNode } from 'react';
 
 export interface EmptyStateProps {
   message: ReactNode;
@@ -9,7 +9,7 @@ export interface EmptyStateProps {
   children?: ReactNode;
 }
 
-declare function EmptyState(props: EmptyStateProps): JSX.Element;
+declare function EmptyState(props: EmptyStateProps): ReactElement;
 
 export { EmptyState };
 export default EmptyState;

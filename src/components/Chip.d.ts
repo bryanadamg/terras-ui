@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from 'react';
+import type { ReactElement, CSSProperties, ReactNode } from 'react';
 import type { ChipFamily } from './types';
 
 export interface ChipProps {
@@ -12,7 +12,7 @@ export interface ChipProps {
   children: ReactNode;
 }
 
-declare function Chip(props: ChipProps): JSX.Element;
+declare function Chip(props: ChipProps): ReactElement;
 
 export declare const FAMILIES: ChipFamily[];
 export { Chip };

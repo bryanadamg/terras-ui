@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 
 /** Dialog intent, not a `ButtonTone` — `warning` is erp's own non-decision:
  *  the confirm button falls back to the plain face, there is no orange
@@ -17,7 +17,7 @@ export interface ConfirmModalProps {
   width?: number | string;
 }
 
-declare function ConfirmModal(props: ConfirmModalProps): JSX.Element;
+declare function ConfirmModal(props: ConfirmModalProps): ReactElement;
 
 export { ConfirmModal };
 export default ConfirmModal;

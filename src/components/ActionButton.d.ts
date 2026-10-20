@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes, CSSProperties, MouseEvent, ReactNode } from 'react';
+import type { ReactElement, ButtonHTMLAttributes, CSSProperties, MouseEvent, ReactNode } from 'react';
 
 /** Five tones — erp's action columns use all five; `warning` is the one `Button` lacks. */
 export type ActionTone = 'neutral' | 'primary' | 'success' | 'warning' | 'danger';
@@ -17,7 +17,7 @@ export interface ActionButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonE
   style?: CSSProperties;
 }
 
-declare function ActionButton(props: ActionButtonProps): JSX.Element;
+declare function ActionButton(props: ActionButtonProps): ReactElement;
 
 export { ActionButton };
 export default ActionButton;

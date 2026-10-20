@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from 'react';
+import type { ReactElement, CSSProperties, ReactNode } from 'react';
 
 export interface DetailGridProps {
   /** Stacked layout only. Default 2. */
@@ -21,8 +21,8 @@ export interface DetailProps {
 /** The muted placeholder for an empty value (U+2014). */
 export declare const EMPTY_DASH: string;
 
-declare function Detail(props: DetailProps): JSX.Element;
-declare function DetailGrid(props: DetailGridProps): JSX.Element;
+declare function Detail(props: DetailProps): ReactElement;
+declare function DetailGrid(props: DetailGridProps): ReactElement;
 declare namespace DetailGrid {
   export { Detail };
 }

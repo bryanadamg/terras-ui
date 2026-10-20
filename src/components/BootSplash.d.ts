@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react';
+import type { ReactElement, CSSProperties } from 'react';
 
 export interface BootStep {
   /** Matched against `phase`. */
@@ -43,7 +43,7 @@ export declare function useBootIndicator(active: boolean): boolean;
 
 export declare const DEFAULT_STEPS: BootStep[];
 
-declare function BootSplash(props: BootSplashProps): JSX.Element;
+declare function BootSplash(props: BootSplashProps): ReactElement;
 
 declare namespace BootSplash {
   export { useBootIndicator, DEFAULT_STEPS };

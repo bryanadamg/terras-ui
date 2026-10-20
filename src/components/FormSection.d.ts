@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from 'react';
+import type { ReactElement, CSSProperties, ReactNode } from 'react';
 
 export interface FormSectionProps {
   title: ReactNode;
@@ -12,7 +12,7 @@ export interface FormSectionProps {
   children: ReactNode;
 }
 
-declare function FormSection(props: FormSectionProps): JSX.Element;
+declare function FormSection(props: FormSectionProps): ReactElement;
 
 export { FormSection };
 export default FormSection;

@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react';
+import type { ReactElement, CSSProperties } from 'react';
 import type { SegmentedAction } from './types';
 
 export type { SegmentedAction };
@@ -11,7 +11,7 @@ export interface SegmentedBarProps {
   style?: CSSProperties;
 }
 
-declare function SegmentedBar(props: SegmentedBarProps): JSX.Element;
+declare function SegmentedBar(props: SegmentedBarProps): ReactElement;
 
 export { SegmentedBar };
 export default SegmentedBar;

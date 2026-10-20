@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode, Ref, UIEvent } from 'react';
+import type { ReactElement, CSSProperties, ReactNode, Ref, UIEvent } from 'react';
 import type { SidebarItemSpec, SidebarSectionSpec } from './types';
 
 /** A slot that can adapt itself to the icon rail. Pass a plain node when the
@@ -31,7 +31,7 @@ export interface SidebarProps {
   style?: CSSProperties;
 }
 
-declare function Sidebar(props: SidebarProps): JSX.Element;
+declare function Sidebar(props: SidebarProps): ReactElement;
 
 export { Sidebar };
 export default Sidebar;

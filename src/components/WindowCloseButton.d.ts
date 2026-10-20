@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes } from 'react';
+import type { ReactElement, ButtonHTMLAttributes } from 'react';
 
 export interface WindowCloseButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'style'> {
   onClose: () => void;
@@ -6,7 +6,7 @@ export interface WindowCloseButtonProps extends Omit<ButtonHTMLAttributes<HTMLBu
   style?: object;
 }
 
-declare function WindowCloseButton(props: WindowCloseButtonProps): JSX.Element;
+declare function WindowCloseButton(props: WindowCloseButtonProps): ReactElement;
 
 export { WindowCloseButton };
 export default WindowCloseButton;

@@ -59,7 +59,7 @@ export interface FloatingLayerProps {
   children: ReactNode;
 }
 
-export declare function FloatingLayer(props: FloatingLayerProps): JSX.Element | null;
+export declare function FloatingLayer(props: FloatingLayerProps): ReactElement | null;
 
 export interface TooltipSurfaceProps {
   children: ReactNode;
@@ -67,7 +67,7 @@ export interface TooltipSurfaceProps {
   id?: string;
 }
 
-export declare function TooltipSurface(props: TooltipSurfaceProps): JSX.Element;
+export declare function TooltipSurface(props: TooltipSurfaceProps): ReactElement;
 
 export interface TooltipProps {
   content: ReactNode;
@@ -87,9 +87,9 @@ export declare function isClipped(el: HTMLElement | null): boolean;
  * Mount once near the app root: parks every native `title` (so the OS never
  * draws it) and echoes clipped single-line text on hover.
  */
-export declare function GlobalTooltip(): JSX.Element | null;
+export declare function GlobalTooltip(): ReactElement | null;
 
-declare function Tooltip(props: TooltipProps): JSX.Element;
+declare function Tooltip(props: TooltipProps): ReactElement;
 
 export { Tooltip };
 export default Tooltip;

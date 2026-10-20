@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from 'react';
+import type { ReactElement, CSSProperties, ReactNode } from 'react';
 import type { ShellTone, WindowFill } from './types';
 
 export interface WindowProps {
@@ -42,14 +42,14 @@ export interface CountProps {
   style?: CSSProperties;
 }
 
-declare function Count(props: CountProps): JSX.Element;
-declare function TitleBar(props: TitleBarProps): JSX.Element;
-declare function Toolbar(props: ToolbarProps): JSX.Element;
-declare function Separator(): JSX.Element;
-declare function Body(props: BodyProps): JSX.Element;
-declare function StatusBar(props: StatusBarProps): JSX.Element;
+declare function Count(props: CountProps): ReactElement;
+declare function TitleBar(props: TitleBarProps): ReactElement;
+declare function Toolbar(props: ToolbarProps): ReactElement;
+declare function Separator(): ReactElement;
+declare function Body(props: BodyProps): ReactElement;
+declare function StatusBar(props: StatusBarProps): ReactElement;
 
-declare function Window(props: WindowProps): JSX.Element;
+declare function Window(props: WindowProps): ReactElement;
 declare namespace Window {
   export { TitleBar, Toolbar, Separator, Body, StatusBar, Count };
 }

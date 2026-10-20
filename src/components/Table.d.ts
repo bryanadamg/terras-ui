@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode, ThHTMLAttributes } from 'react';
+import type { ReactElement, CSSProperties, ReactNode, ThHTMLAttributes } from 'react';
 
 export interface TableProps {
   minWidth?: number | string;
@@ -24,7 +24,7 @@ export interface EmptyRowProps {
   children: ReactNode;
 }
 
-declare function EmptyRow(props: EmptyRowProps): JSX.Element;
+declare function EmptyRow(props: EmptyRowProps): ReactElement;
 
 /** Current sort: which column, ascending (1) or descending (-1); null = unsorted. */
 export type SortState = { key: string; dir: 1 | -1 } | null;
@@ -62,8 +62,8 @@ export interface SortableThProps extends ThHTMLAttributes<HTMLTableCellElement> 
   children?: ReactNode;
 }
 
-declare function SortMark(props: SortMarkProps): JSX.Element | null;
-declare function SortableTh(props: SortableThProps): JSX.Element;
+declare function SortMark(props: SortMarkProps): ReactElement | null;
+declare function SortableTh(props: SortableThProps): ReactElement;
 
 export interface RowSelection<T> {
   /** key -> row, for the bulk action and each row's own `checked` test. */
@@ -123,10 +123,10 @@ export interface ControlCellProps {
 /** Width of the leading checkbox column, in px. */
 export declare const CHECK_COL_W: number;
 
-declare function RowCheckbox(props: RowCheckboxProps): JSX.Element;
-declare function SelectAllCheckbox(props: SelectAllCheckboxProps): JSX.Element;
-declare function RowCheckboxCell(props: RowCheckboxProps & ControlCellProps): JSX.Element;
-declare function SelectAllCell(props: SelectAllCheckboxProps & ControlCellProps): JSX.Element;
+declare function RowCheckbox(props: RowCheckboxProps): ReactElement;
+declare function SelectAllCheckbox(props: SelectAllCheckboxProps): ReactElement;
+declare function RowCheckboxCell(props: RowCheckboxProps & ControlCellProps): ReactElement;
+declare function SelectAllCell(props: SelectAllCheckboxProps & ControlCellProps): ReactElement;
 
 export type RowState = 'expanded' | 'selected' | 'highlighted';
 
@@ -167,12 +167,12 @@ export interface ExpandedRowPanelBodyProps {
 /** The panel frame as a style, for a `<td>` that can't hold the component. */
 export declare function expandedRowFrame(railColor?: string): CSSProperties;
 
-declare function ExpandToggle(props: ExpandToggleProps): JSX.Element;
-declare function ExpanderCell(props: ExpandToggleProps & ControlCellProps): JSX.Element;
-declare function ExpandedRowPanel(props: ExpandedRowPanelProps): JSX.Element;
-declare function ExpandedRowPanelBody(props: ExpandedRowPanelBodyProps): JSX.Element;
+declare function ExpandToggle(props: ExpandToggleProps): ReactElement;
+declare function ExpanderCell(props: ExpandToggleProps & ControlCellProps): ReactElement;
+declare function ExpandedRowPanel(props: ExpandedRowPanelProps): ReactElement;
+declare function ExpandedRowPanelBody(props: ExpandedRowPanelBodyProps): ReactElement;
 
-declare function Table(props: TableProps): JSX.Element;
+declare function Table(props: TableProps): ReactElement;
 declare namespace Table {
   export {
     EmptyRow, SortableTh, SortMark, RowCheckbox, SelectAllCheckbox, RowCheckboxCell, SelectAllCell,
