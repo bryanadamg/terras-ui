@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from 'react';
+import type { ReactElement, CSSProperties, ReactNode } from 'react';
 
 export interface AppHeaderProps {
   title?: ReactNode;
@@ -8,7 +8,7 @@ export interface AppHeaderProps {
   style?: CSSProperties;
 }
 
-declare function AppHeader(props: AppHeaderProps): JSX.Element;
+declare function AppHeader(props: AppHeaderProps): ReactElement;
 
 export { AppHeader };
 export default AppHeader;

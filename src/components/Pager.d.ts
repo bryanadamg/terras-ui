@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from 'react';
+import type { ReactElement, CSSProperties, ReactNode } from 'react';
 
 export interface PagerProps {
   /** 1-based. Clamped into `1..pages`, so a stale page past a shrunken total
@@ -27,7 +27,7 @@ export interface PagerProps {
   className?: string;
 }
 
-declare function Pager(props: PagerProps): JSX.Element | null;
+declare function Pager(props: PagerProps): ReactElement | null;
 
 export { Pager };
 export default Pager;

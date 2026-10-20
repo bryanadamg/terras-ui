@@ -36,7 +36,7 @@ export interface ProgressBarProps {
 /** The solid colour a segment paints, for a legend beside the bar. */
 export declare function progressToneColor(tone?: ProgressTone): string;
 
-declare function ProgressBar(props: ProgressBarProps): JSX.Element;
+declare function ProgressBar(props: ProgressBarProps): ReactElement;
 
 export { ProgressBar };
 export default ProgressBar;

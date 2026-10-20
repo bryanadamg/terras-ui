@@ -1,4 +1,4 @@
-import type { CSSProperties, FormHTMLAttributes, ReactNode } from 'react';
+import type { ReactElement, CSSProperties, FormHTMLAttributes, ReactNode } from 'react';
 import type { ShellTone } from './types';
 
 export interface ModalProps extends Omit<FormHTMLAttributes<HTMLFormElement>, 'title' | 'style'> {
@@ -35,7 +35,7 @@ export interface ModalProps extends Omit<FormHTMLAttributes<HTMLFormElement>, 't
  */
 declare const REPOSITION_EVENT: 'terras-modal-reposition';
 
-declare function Modal(props: ModalProps): JSX.Element;
+declare function Modal(props: ModalProps): ReactElement;
 declare namespace Modal {
   export { REPOSITION_EVENT };
 }

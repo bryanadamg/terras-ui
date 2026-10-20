@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes, ReactNode } from 'react';
+import type { ReactElement, ButtonHTMLAttributes, ReactNode } from 'react';
 
 export interface LogoutButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   /** Any ReactNode — this package has no icon-set opinion. */
@@ -8,7 +8,7 @@ export interface LogoutButtonProps extends ButtonHTMLAttributes<HTMLButtonElemen
   children?: ReactNode;
 }
 
-declare function LogoutButton(props: LogoutButtonProps): JSX.Element;
+declare function LogoutButton(props: LogoutButtonProps): ReactElement;
 
 export { LogoutButton };
 export default LogoutButton;

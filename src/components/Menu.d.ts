@@ -1,4 +1,4 @@
-import type { MouseEvent, ReactNode } from 'react';
+import type { ReactElement, MouseEvent, ReactNode } from 'react';
 
 export interface FloatingMenuState {
   /** Row id whose menu is open, or null. */
@@ -42,5 +42,5 @@ export interface MenuTriggerButtonProps {
   expanded?: boolean;
 }
 
-export declare function FloatingMenu(props: FloatingMenuProps): JSX.Element | null;
-export declare function MenuTriggerButton(props: MenuTriggerButtonProps): JSX.Element;
+export declare function FloatingMenu(props: FloatingMenuProps): ReactElement | null;
+export declare function MenuTriggerButton(props: MenuTriggerButtonProps): ReactElement;

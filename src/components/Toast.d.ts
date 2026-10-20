@@ -1,4 +1,4 @@
-import type { Context, ReactNode } from 'react';
+import type { ReactElement, Context, ReactNode } from 'react';
 import type { ToastTone } from './types';
 
 // Re-exported: the tone is part of this component's public surface, and
@@ -42,7 +42,7 @@ export interface ToastProviderProps {
 export declare function useToast(): ToastContextValue;
 export declare const ToastContext: Context<ToastContextValue | null>;
 
-declare function ToastProvider(props: ToastProviderProps): JSX.Element;
+declare function ToastProvider(props: ToastProviderProps): ReactElement;
 
 export { ToastProvider };
 export default ToastProvider;

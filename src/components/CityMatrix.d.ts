@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react';
+import type { ReactElement, CSSProperties } from 'react';
 
 /**
  * A city rasterized to a level grid. Generated offline by
@@ -103,7 +103,7 @@ export declare function decode(data: CityMatrixData): Uint8Array;
  * relative`), `pointer-events: none` and `aria-hidden`. Randomly chosen dots
  * blink; the base field is painted once per resize.
  */
-declare function CityMatrix(props: CityMatrixProps): JSX.Element | null;
+declare function CityMatrix(props: CityMatrixProps): ReactElement | null;
 
 declare namespace CityMatrix {
   export { decode };

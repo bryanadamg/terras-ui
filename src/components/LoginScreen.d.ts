@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from 'react';
+import type { ReactElement, CSSProperties, ReactNode } from 'react';
 import type { CityMatrixData } from './CityMatrix';
 
 export type SystemStatus = 'checking' | 'ok' | 'degraded' | 'offline';
@@ -137,9 +137,9 @@ export interface LoginScreenProps {
   style?: CSSProperties;
 }
 
-declare function StatusDot(props: StatusDotProps): JSX.Element;
-declare function IdCard(props: IdCardProps): JSX.Element;
-declare function SuitePanel(props: SuitePanelProps): JSX.Element;
+declare function StatusDot(props: StatusDotProps): ReactElement;
+declare function IdCard(props: IdCardProps): ReactElement;
+declare function SuitePanel(props: SuitePanelProps): ReactElement;
 
 /**
  * The Terras sign-in screen — deep blue, modern face, deliberately not classic
@@ -167,7 +167,7 @@ declare function SuitePanel(props: SuitePanelProps): JSX.Element;
  * />
  * ```
  */
-declare function LoginScreen(props: LoginScreenProps): JSX.Element;
+declare function LoginScreen(props: LoginScreenProps): ReactElement;
 
 declare namespace LoginScreen {
   export { StatusDot, IdCard, SuitePanel, SUITE_MODULES, STATUS_LABEL };

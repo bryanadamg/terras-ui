@@ -1,4 +1,4 @@
-import type { CSSProperties, RefObject } from 'react';
+import type { ReactElement, CSSProperties, RefObject } from 'react';
 
 export interface SkeletonBarProps {
   width?: number | string;
@@ -71,15 +71,15 @@ export interface LoadingProps {
 /** Rows to draw for a full-page list before its free height is measured. */
 export declare const SKEL_PAGE_ROWS: number;
 
-export declare function SkeletonBar(props: SkeletonBarProps): JSX.Element;
-export declare function TableSkeleton(props: TableSkeletonProps): JSX.Element;
+export declare function SkeletonBar(props: SkeletonBarProps): ReactElement;
+export declare function TableSkeleton(props: TableSkeletonProps): ReactElement;
 export declare function useTableSkeletonMetrics(
   key: string,
   bodyRef: RefObject<HTMLElement | null>,
   hasRows: boolean,
 ): TableSkeletonMetrics;
-export declare function ListSkeleton(props: ListSkeletonProps): JSX.Element;
-export declare function PanelSkeleton(props: PanelSkeletonProps): JSX.Element;
-export declare function CardGridSkeleton(props: CardGridSkeletonProps): JSX.Element;
-export declare function TableBlockSkeleton(props: TableBlockSkeletonProps): JSX.Element;
-export declare function Loading(props: LoadingProps): JSX.Element;
+export declare function ListSkeleton(props: ListSkeletonProps): ReactElement;
+export declare function PanelSkeleton(props: PanelSkeletonProps): ReactElement;
+export declare function CardGridSkeleton(props: CardGridSkeletonProps): ReactElement;
+export declare function TableBlockSkeleton(props: TableBlockSkeletonProps): ReactElement;
+export declare function Loading(props: LoadingProps): ReactElement;

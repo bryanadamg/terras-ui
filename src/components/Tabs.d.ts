@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from 'react';
+import type { ReactElement, CSSProperties, ReactNode } from 'react';
 
 export interface TabDef<K extends string = string> {
   key: K;
@@ -20,7 +20,7 @@ export interface TabsProps<K extends string = string> {
   style?: CSSProperties;
 }
 
-declare function Tabs<K extends string = string>(props: TabsProps<K>): JSX.Element;
+declare function Tabs<K extends string = string>(props: TabsProps<K>): ReactElement;
 
 export { Tabs };
 export default Tabs;

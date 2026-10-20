@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from 'react';
+import type { ReactElement, CSSProperties, ReactNode } from 'react';
 
 export interface AccessDeniedProps {
   /** Defaults to a plain lock glyph — this package ships no icon set. */
@@ -14,7 +14,7 @@ export interface AccessDeniedProps {
   style?: CSSProperties;
 }
 
-declare function AccessDenied(props: AccessDeniedProps): JSX.Element;
+declare function AccessDenied(props: AccessDeniedProps): ReactElement;
 
 export { AccessDenied };
 export default AccessDenied;

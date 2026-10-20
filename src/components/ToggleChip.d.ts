@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes, ReactNode } from 'react';
+import type { ReactElement, ButtonHTMLAttributes, ReactNode } from 'react';
 import type { ChipSeg, ToggleTone } from './types';
 
 export type { ChipSeg, ToggleTone };
@@ -20,7 +20,7 @@ export interface ToggleChipProps extends Omit<ButtonHTMLAttributes<HTMLButtonEle
   children: ReactNode;
 }
 
-declare function ToggleChip(props: ToggleChipProps): JSX.Element;
+declare function ToggleChip(props: ToggleChipProps): ReactElement;
 
 export { ToggleChip };
 export default ToggleChip;

@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react';
+import type { ReactElement, CSSProperties } from 'react';
 
 export interface ComboboxOption {
   value: string;
@@ -36,7 +36,7 @@ export interface ComboboxProps {
   viewportHeight?: () => number;
 }
 
-declare function Combobox(props: ComboboxProps): JSX.Element;
+declare function Combobox(props: ComboboxProps): ReactElement;
 
 export { Combobox };
 export default Combobox;

@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 
 /** The wire shape each app's `POST /feedback` accepts (the app adds `page`). */
 export interface FeedbackReport {
@@ -30,7 +30,7 @@ export interface FeedbackDialogProps {
   icon?: ReactNode;
 }
 
-declare function FeedbackDialog(props: FeedbackDialogProps): JSX.Element;
+declare function FeedbackDialog(props: FeedbackDialogProps): ReactElement;
 
 export { FeedbackDialog };
 export default FeedbackDialog;

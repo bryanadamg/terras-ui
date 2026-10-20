@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes, ReactNode } from 'react';
+import type { ReactElement, ButtonHTMLAttributes, ReactNode } from 'react';
 import type { ButtonSize, ButtonTone } from './types';
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -9,7 +9,7 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   block?: boolean;
 }
 
-declare function Button(props: ButtonProps): JSX.Element;
+declare function Button(props: ButtonProps): ReactElement;
 
 export { Button };
 export default Button;

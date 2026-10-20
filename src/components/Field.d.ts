@@ -1,4 +1,5 @@
 import type {
+  ReactElement,
   CSSProperties,
   InputHTMLAttributes,
   LabelHTMLAttributes,
@@ -24,10 +25,10 @@ export interface SearchFieldProps {
   style?: CSSProperties;
 }
 
-export declare function Input(props: InputProps): JSX.Element;
-export declare function Select(props: SelectProps): JSX.Element;
-export declare function Label(props: LabelProps): JSX.Element;
-export declare function SearchField(props: SearchFieldProps): JSX.Element;
+export declare function Input(props: InputProps): ReactElement;
+export declare function Select(props: SelectProps): ReactElement;
+export declare function Label(props: LabelProps): ReactElement;
+export declare function SearchField(props: SearchFieldProps): ReactElement;
 
 export interface FieldLabelProps {
   children: ReactNode;
@@ -48,5 +49,5 @@ export interface FormErrorProps {
   style?: CSSProperties;
 }
 
-export declare function FieldLabel(props: FieldLabelProps): JSX.Element;
-export declare function FormError(props: FormErrorProps): JSX.Element | null;
+export declare function FieldLabel(props: FieldLabelProps): ReactElement;
+export declare function FormError(props: FormErrorProps): ReactElement | null;

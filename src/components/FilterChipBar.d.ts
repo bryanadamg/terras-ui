@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from 'react';
+import type { ReactElement, CSSProperties, ReactNode } from 'react';
 import type { FilterChipOption, ToggleTone } from './types';
 
 // Re-exported so a consuming app can type its own option/tone maps without
@@ -24,7 +24,7 @@ export interface FilterChipBarProps {
   style?: CSSProperties;
 }
 
-declare function FilterChipBar(props: FilterChipBarProps): JSX.Element;
+declare function FilterChipBar(props: FilterChipBarProps): ReactElement;
 
 export { FilterChipBar };
 export default FilterChipBar;
