@@ -2,7 +2,7 @@
 'use strict';
 
 // Classic dialog: dimmed backdrop + a floating bevelled window with a blue
-// title bar, a scrolling body, and a footer action strip. Mirrors teras-erp's
+// title bar, a scrolling body, and a footer action strip. Mirrors terras-erp's
 // ModalWrapper / ModalFooterActions.
 //
 // It is the SAME chrome as `Window`, one z-layer up — that is the point. A

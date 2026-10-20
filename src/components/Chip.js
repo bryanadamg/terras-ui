@@ -2,7 +2,7 @@
 
 // Status chip — the small tinted pill that carries a row's state. Reads the
 // theme-independent `statusFamily` tokens, so a chip looks identical in every
-// theme (mirrors teras-erp's STATUS_FAMILY / `Chip`, which is XP-flavoured in
+// theme (mirrors terras-erp's STATUS_FAMILY / `Chip`, which is XP-flavoured in
 // both themes rather than branching per theme at ~100 call sites).
 //
 // Five families and no more: gray (neutral/idle), amber (waiting/attention),

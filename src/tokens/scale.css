@@ -27,7 +27,7 @@
    that half lives in src/scale.js, and every component in this
    package that measures already goes through it.
 
-   Mirrors teras-erp/frontend/app/globals.css's "Interface scale"
+   Mirrors terras-erp/frontend/app/globals.css's "Interface scale"
    block, which is the source of truth — same var names, same
    values, so erp's migration onto this file is a deletion and not
    a rewrite of its call sites.

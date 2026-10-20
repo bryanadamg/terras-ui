@@ -1,7 +1,7 @@
 # Brand assets
 
 The Terras mark, shared so every app renders the identical logo. Source of truth
-is `teras-erp/frontend/app/icon.svg` + `teras-erp/frontend/public/icons/*` —
+is `terras-erp/frontend/app/icon.svg` + `terras-erp/frontend/public/icons/*` —
 these are copies, same hand-sync rule as the tokens.
 
 | File | What it's for |
@@ -44,5 +44,5 @@ dependency of each app. Every component in this package takes `icon` as a plain
 already has; vendoring one here would pin its version for all three apps, double
 the bundle when an app uses a different set, and break tree-shaking.
 
-**Tenant logos** — `teras-erp/backend/static/logos/` is user-uploaded content
+**Tenant logos** — `terras-erp/backend/static/logos/` is user-uploaded content
 served by the API, not brand chrome. It does not belong in a design package.

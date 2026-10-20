@@ -2,7 +2,7 @@
 
 // Horizontal progress readout — a recessed track with up to three stacked
 // segments, an optional threshold marker and an optional percent label.
-// Mirrors teras-erp's `ProgressBar` in xpTheme.tsx.
+// Mirrors terras-erp's `ProgressBar` in xpTheme.tsx.
 //
 // It is a FIELD face, not a button face: the track carries the blue-grey
 // `--terras-progress-track-border` and no bevel, because a bar reports a number

@@ -1,7 +1,7 @@
 'use strict';
 
 // Classic button: raised two-tone bevel over a top-light gradient face, in four
-// intents. Mirrors teras-erp's `xpBtn` + `BTN_TONES`.
+// intents. Mirrors terras-erp's `xpBtn` + `BTN_TONES`.
 //
 // Hover/press motion comes from the `.terras-btn` class in chrome.css, not from
 // JS hover state — and it animates filter/transform/shadow only. That is

@@ -1,7 +1,7 @@
 'use strict';
 
 // Full-page "you can't be here" — swapped in for a route's content when the
-// signed-in user lacks the permission it requires. Mirrors teras-erp's
+// signed-in user lacks the permission it requires. Mirrors terras-erp's
 // `AccessDenied`; the app shell (sidebar, header, logout) stays around it so
 // there's somewhere else to go, which is why this renders only the panel, not
 // a whole-screen takeover.

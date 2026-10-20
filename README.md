@@ -1,8 +1,8 @@
 # terras-ui
 
-Shared design tokens (colors, radii, fonts, status chip colors) and UI components for Terras apps: `teras-erp`, `terras-crm`, `terras-sku`.
+Shared design tokens (colors, radii, fonts, status chip colors) and UI components for Terras apps: `terras-erp`, `terras-crm`, `terras-sku`.
 
-Values mirror `teras-erp/frontend/app/globals.css` and `xpTheme.tsx` — that repo is the source of truth for design decisions; this package is a mirror kept in sync by hand. **Classic (XP) is the primary Terras brand** — the one to build new shared components against. `modern` (plain indigo default) and `blueprint` (drafting-blue alt theme, `.ui-style-modern` in teras-erp) exist for parity with that source repo but are secondary.
+Values mirror `terras-erp/frontend/app/globals.css` and `xpTheme.tsx` — that repo is the source of truth for design decisions; this package is a mirror kept in sync by hand. **Classic (XP) is the primary Terras brand** — the one to build new shared components against. `modern` (plain indigo default) and `blueprint` (drafting-blue alt theme, `.ui-style-modern` in terras-erp) exist for parity with that source repo but are secondary.
 
 Published as a private package on **GitHub Packages** (`npm.pkg.github.com`), scoped `@bryanadamg`.
 
@@ -148,7 +148,7 @@ spanning cell would widen it and shift every column above on expand.
 `Pager` is that table's footer, and it *is* a `Window.StatusBar` — the strip is
 the same sunken floor, so put it where the status bar would go rather than under
 one. Paging state stays with the app (`page` / `total` / `pageSize` /
-`onPageChange`, server-side in teras-erp); the component owns only the
+`onPageChange`, server-side in terras-erp); the component owns only the
 arithmetic every hand-rolled pager re-derived — the page count, the `1-25 of 411`
 window, and which end disables which button. `hideWhenEmpty` drops the strip
 when `total` is 0, and `leftContent` replaces the row window with something else
@@ -161,7 +161,7 @@ render the bar yourself and pass `inline`:
 </Window.StatusBar>
 ```
 
-There is no rows-per-page picker, because teras-erp has none — each view fixes
+There is no rows-per-page picker, because terras-erp has none — each view fixes
 its own `PAGE_SIZE`. `Prev` / `Next` are plain `Button`s so the pager reads as
 the same button family as the toolbar above it; `prevLabel` / `nextLabel` take a
 node if you want your own icon set in them. Printing is the app's call: pass its
@@ -198,7 +198,7 @@ and sku with lucide, so an unset tone falls back to a text mark rather than a
 bundled SVG set. Not for anything the user must act on — a toast that asks a
 question is a `Modal` wearing the wrong chrome.
 
-`ProgressBar`'s tooltip is a **slot**, not a dependency. teras-erp wraps the
+`ProgressBar`'s tooltip is a **slot**, not a dependency. terras-erp wraps the
 track and the threshold marker in its own `Tooltip` — ~300 lines over a portal
 layer, a theme context and the clipped-chip popout, none of which this package
 ships. Pass `tooltip={(node, content) => <YourTip content={content}>{node}</YourTip>}`
@@ -281,7 +281,7 @@ tones. Reach for `FilterChipBar` / `SegmentedBar` rather than a hand-spaced row 
 `LogoutButton` is flat red (`#ff4d4d`, one `#800000` border) where `Button`'s
 `danger` tone is the XP gradient over a two-tone bevel. That is not drift — it is
 where the control lives. A destructive button inside a window wears the bevel;
-logout sits in the title band, which is flat chrome, and teras-erp paints it flat
+logout sits in the title band, which is flat chrome, and terras-erp paints it flat
 there. Don't unify them by flattening `--terras-btn-danger-face`: that would drag
 every modal's Delete in all three apps off `xpTheme.tsx` to settle one header
 control. It defaults `title` and `data-testid` — erp and sku already hand-typed
@@ -376,7 +376,7 @@ if (showBoot) return <BootSplash phase={mounted ? bootPhase : 'hydrating'} />
 if (booting) return null
 ```
 
-If your app scales its whole UI (teras-erp divides a `--ui-zoom` factor back out
+If your app scales its whole UI (terras-erp divides a `--ui-zoom` factor back out
 into `--app-vh` / `--app-vw`), point the two tokens `--terras-app-vh` /
 `--terras-app-vw` at yours — `LoginScreen` sizes itself against those, and they
 default to the real viewport units.

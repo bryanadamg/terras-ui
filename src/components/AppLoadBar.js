@@ -2,7 +2,7 @@
 
 // Determinate strip for a boot-time data load — the one place a filling bar is
 // honest, because the caller can count responses against a known total.
-// Mirrors teras-erp's `AppLoadBar`; the counting itself (DataContext's
+// Mirrors terras-erp's `AppLoadBar`; the counting itself (DataContext's
 // `loadProgress`) stays app-side, this only takes the two numbers.
 
 const React = require('react');

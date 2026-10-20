@@ -1,6 +1,6 @@
 'use strict';
 
-// Groups related fields in a form under a labelled bar. Mirrors teras-erp's
+// Groups related fields in a form under a labelled bar. Mirrors terras-erp's
 // FormSection: a soft-bordered box with an inset highlight and a SOLID blue
 // header (not a gradient — erp moved off the left-to-right fade because a long
 // title washed out to near-white by its right edge, so each box read as a

@@ -33,7 +33,7 @@ def geocode(city, country):
     return loc.latitude, loc.longitude
 
 
-# Road importance weights, mirroring teras-erp/maptoposter's line-weight hierarchy.
+# Road importance weights, mirroring terras-erp/maptoposter's line-weight hierarchy.
 # Without this every cell in a dense metro reads the same: residential grids blanket
 # the whole bbox, so unweighted length has almost no core-to-edge contrast.
 ROAD_WEIGHTS = {

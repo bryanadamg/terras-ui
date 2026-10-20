@@ -3,7 +3,7 @@
 
 // The in-app "send feedback" form, shared so every Terras app asks the same
 // three things the same way: what kind, what happened, and whether to attach
-// the sender's name. Extracted from teras-erp's FeedbackButton.
+// the sender's name. Extracted from terras-erp's FeedbackButton.
 //
 // Anonymous by default. The checkbox starts unticked and the dialog says, under
 // it, exactly what will be attached either way — the promise the backend keeps

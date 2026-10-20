@@ -14,7 +14,7 @@ export interface ModalProps extends Omit<FormHTMLAttributes<HTMLFormElement>, 't
   /**
    * Modeless window: no backdrop, the page behind stays interactive, and the
    * panel is dragged by its title bar. Falls back to a normal blocking dialog
-   * below 768px. Mirrors teras-erp's ModalWrapper prop of the same name.
+   * below 768px. Mirrors terras-erp's ModalWrapper prop of the same name.
    */
   modeless?: boolean;
   width?: number | string;

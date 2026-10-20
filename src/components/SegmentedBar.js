@@ -3,7 +3,7 @@
 // The stateless sibling of `FilterChipBar`: a flush group of plain actions with
 // no selected member — the date-range presets ("Today | 7d | 30d | Month") that
 // erp's two report views each hand-rolled. Same segment geometry, so a preset row
-// and a filter row read as the same control. Mirrors teras-erp's `SegmentedBar`.
+// and a filter row read as the same control. Mirrors terras-erp's `SegmentedBar`.
 //
 // If one of the members should stay lit after the click, it is a filter, not an
 // action — use `FilterChipBar`.
