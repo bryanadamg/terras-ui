@@ -33,7 +33,7 @@ Plain `React.createElement` (no JSX) so no build step is required to consume the
 | `components/ActionButton` | Compact flat button for a table's action column — five tones incl. `warning`, icon slot, `title` as a styled tooltip |
 | `components/Menu` | Row "⋯" menu — `useFloatingMenu` (one open per table), `FloatingMenu`, `MenuTriggerButton` |
 | `components/WindowCloseButton` | The title bar's close box — grey at rest, red on hover. `Modal` renders it; use it directly in any window title bar you paint yourself |
-| `components/FeedbackDialog` | The in-app feedback form (kind, message, opt-in name) — anonymous by default; the app owns the trigger button and `onSubmit` |
+| `components/FeedbackDialog` | The in-app feedback form (one message box, opt-in name) — anonymous by default; the app owns the trigger button and `onSubmit` |
 | `components/LogoutButton` | The header's logout control — erp's flat red, deliberately not the `danger` tone (see below) |
 | `components/Field` | `Input`, `Select`, `Label`, `SearchField` — recessed field chrome; `FieldLabel` (bold form label + optional hint) and `FormError` (the submit-rejected banner) |
 | `components/Combobox` | Type-to-search single select — trigger with a ▼ well, portaled popup with its own search box |
