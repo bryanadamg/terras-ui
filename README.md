@@ -18,6 +18,7 @@ Plain `React.createElement` (no JSX) so no build step is required to consume the
 | `components/Sidebar` | Nav rail: brand block, flat items and/or gradient sections, footer — collapses to an icon rail |
 | `components/Window` | The bevelled view frame + `.TitleBar` / `.Toolbar` / `.Separator` / `.Count` / `.Body` / `.StatusBar` |
 | `components/Modal` | Same chrome one layer up: backdrop, title bar with close box, footer actions. `modeless` drops the backdrop and makes the panel draggable |
+| `components/ConfirmModal` | Confirm/cancel dialog — a `Modal` + `Button` composition, `tone` picks the confirm button (`warning` maps to the plain face) |
 | `components/FormSection` | Field group under a solid blue header bar |
 | `components/Table` | Ruled classic table (`.EmptyRow` for the empty state — with an optional `icon` slot, `stickyCols` to freeze leading columns, `.SortableTh` + `useSortable` / `useServerSort` for sortable headers, `useRowSelection` + `.SelectAllCell` / `.RowCheckboxCell` for bulk-select, `.ExpanderCell` + `.ExpandedRowPanel` + `rowStateBg` for rows that open a detail panel) |
 | `components/Skeleton` | Loading stand-ins that carry the shape of what's coming — `TableSkeleton` rows (+ `useTableSkeletonMetrics`), `ListSkeleton`, `PanelSkeleton`, `CardGridSkeleton`, `TableBlockSkeleton`, and the `Loading` marquee for a wait with no shape |
@@ -43,6 +44,8 @@ Plain `React.createElement` (no JSX) so no build step is required to consume the
 | `components/SegmentedBar` | Its stateless sibling — a flush group of plain actions |
 | `components/LoginScreen` | The sign-in screen — wordmark, suite panel, two-step form, ID badge (+ `.SuitePanel` / `.IdCard` / `.StatusDot`) |
 | `components/BootSplash` | Pre-chrome boot screen + `useBootIndicator`, the two guards that keep it from flashing |
+| `components/AppLoadBar` | Determinate strip for a boot-time data load — takes `done` / `total`, the counting stays app-side |
+| `components/AccessDenied` | Panel swapped in for a route's content when the user lacks its permission — the shell stays around it, `onBack` is a callback, not a router |
 | `components/CityMatrix` | The dot-matrix city behind the sign-in field — a canvas of blinking dots over a generated grid |
 | `types` | Type-only: the shared prop vocabularies (`ShellTone`, `ButtonTone`, `ChipFamily`, `ToggleTone`, …) — `import type { ShellTone } from '@bryanadamg/terras-ui/types'` instead of restating the words locally |
 | `styles` | The style primitives the above are built from (`bevel`, `panel`, `recessed`, `titleBar`, `toolbar`, `field`, `button`, `toggleChip`, `cssVar`, `font`, `fs`, `trackingCaps`) — for a one-off surface that has no component yet |
