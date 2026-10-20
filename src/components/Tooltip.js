@@ -40,16 +40,6 @@ const POPOUT_DELAY = 260;
 
 const TOOLTIP_Z = tokens.zIndex.tooltip;
 
-// React 18's useId where it exists; a per-instance counter on 16.8/17, where
-// SSR id agreement was never on offer anyway.
-let idSeq = 0;
-function useStableId() {
-    if (React.useId) return React.useId();
-    const ref = React.useRef(null);
-    if (ref.current === null) ref.current = 'terras-tip-' + (++idSeq);
-    return ref.current;
-}
-
 /**
  * Hover/focus state machine for anything that floats off an element. Measures
  * the trigger at hover time (never on render — a row measured on mount is wrong
@@ -236,7 +226,7 @@ function Tooltip(props) {
     const content = props.content;
     const empty = content === null || content === undefined || content === '';
     const anchor = useHoverAnchor({ delay: props.delay, enabled: !props.disabled && !empty });
-    const tipId = useStableId();
+    const tipId = React.useId();
     const child = React.Children.only(props.children);
     const cloned = React.cloneElement(child, {
         'aria-describedby': anchor.rect ? tipId : child.props['aria-describedby'],
