@@ -51,7 +51,7 @@ tends to produce either a featureless blob or a disc. The first two are density
 mode's; class mode replaces them with `ROAD_WEIGHTS` + `CLASS_CUTS`.
 
 - **Road length is weighted by OSM `highway` class** (`ROAD_WEIGHTS`, mirroring
-  teras-erp's line-weight hierarchy). Unweighted length has almost no
+  terras-erp's line-weight hierarchy). Unweighted length has almost no
   core-to-edge contrast in a dense metro — residential grids blanket the entire
   bbox, so every cell scores about the same and the output is a flat field. The
   weighting is what makes arterials and the centre legible.

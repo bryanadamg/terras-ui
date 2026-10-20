@@ -10,7 +10,7 @@
 // Modal wearing the wrong chrome; a toast carrying a validation message is an
 // inline error that got lost.
 //
-// Merged from teras-erp's `shared/Toast.tsx` and terras-sku's local `ui/toast.tsx`.
+// Merged from terras-erp's `shared/Toast.tsx` and terras-sku's local `ui/toast.tsx`.
 // erp brought the progress toast; sku brought the close button, the visible cap,
 // the per-tone durations and the role/aria split. Both keep their behaviour —
 // the point of consolidating is that neither app loses what it had.

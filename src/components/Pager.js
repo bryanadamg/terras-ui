@@ -1,6 +1,6 @@
 'use strict';
 
-// Prev/next paginator footer. Mirrors teras-erp's `shared/Pager.tsx` — the same
+// Prev/next paginator footer. Mirrors terras-erp's `shared/Pager.tsx` — the same
 // props (`page` / `total` / `pageSize` / `onPageChange`, plus `hideWhenEmpty`
 // and `leftContent`), the same two halves: a "from-to of total" summary on the
 // left, and Prev / "Page x / y" / Next on the right.

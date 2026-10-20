@@ -2,7 +2,7 @@
 
 // The full-bleed top band of the app — the flat blue bar carrying the current
 // page's name on the left and global controls (language, logout, …) on the
-// right. Mirrors teras-erp's `.classic-header`.
+// right. Mirrors terras-erp's `.classic-header`.
 //
 // Two things about its geometry are load-bearing:
 //  1. Height comes from `--terras-app-header-h`, the SAME var the Sidebar's

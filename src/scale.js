@@ -27,7 +27,7 @@
 //    Verified in Chrome — at zoom 0.8 a 100px box measures 80 via
 //    getBoundingClientRect but still reports clientHeight 100.
 //
-// Ported from teras-erp's components/shared/uiScale.ts, which is the source of
+// Ported from terras-erp's components/shared/uiScale.ts, which is the source of
 // truth for the behaviour.
 
 // The scale steps, as percentages. erp's set; the apps were drawn dense enough

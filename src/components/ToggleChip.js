@@ -1,7 +1,7 @@
 'use strict';
 
 // Pressed/unpressed button — THE on-off chip shape across Terras: filter rows,
-// segmented pickers, weekday selectors. Mirrors teras-erp's `ToggleChip`
+// segmented pickers, weekday selectors. Mirrors terras-erp's `ToggleChip`
 // (xpTheme.tsx), which exists because a dozen views each styled their own
 // "selected" state and arrived at three different blues.
 //

@@ -4,7 +4,7 @@
 // toolbar strip + scrolling body + optional status bar. This is THE frame every
 // top-level view sits in — a page whose content floats straight on the beige
 // desktop background is the single biggest tell that a screen hasn't been
-// themed. Mirrors teras-erp's shellTheme.tsx (`ShellWindow` / `xpTitleBar` /
+// themed. Mirrors terras-erp's shellTheme.tsx (`ShellWindow` / `xpTitleBar` /
 // `xpToolbar` / `XPStatusBar`).
 //
 // Composed rather than configured: `<Window>` holds the frame, and the parts go

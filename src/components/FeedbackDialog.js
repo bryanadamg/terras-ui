@@ -2,8 +2,12 @@
 'use strict';
 
 // The in-app "send feedback" form, shared so every Terras app asks the same
-// three things the same way: what kind, what happened, and whether to attach
-// the sender's name. Extracted from teras-erp's FeedbackButton.
+// two things the same way: what happened, and whether to attach the sender's
+// name. Extracted from terras-erp's FeedbackButton.
+//
+// One text box on purpose — no type picker, no title, no template. Users don't
+// know (and shouldn't have to learn) how to file an issue; whoever triages the
+// inbox titles and labels it.
 //
 // Anonymous by default. The checkbox starts unticked and the dialog says, under
 // it, exactly what will be attached either way — the promise the backend keeps
@@ -23,10 +27,6 @@ const Field = require('./Field');
 
 const DEFAULT_LABELS = {
     title: 'Send feedback',
-    type: 'Type',
-    bug: 'Bug / something broken',
-    idea: 'Idea / improvement',
-    question: 'Question',
     message: 'What happened or what would help?',
     includeName: 'Include my name so the team can follow up',
     anonymousHint: 'Sent anonymously: only the page and app version are attached.',
@@ -40,14 +40,13 @@ const DEFAULT_LABELS = {
 /**
  * @param {{
  *   onClose: () => void,
- *   onSubmit: (report: { kind: 'bug'|'idea'|'question', message: string, include_name: boolean }) => Promise<unknown>,
+ *   onSubmit: (report: { message: string, include_name: boolean }) => Promise<unknown>,
  *   labels?: object,          // partial — English defaults fill the rest
  *   icon?: React.ReactNode,   // title-bar slot; this package ships no icon set
  * }} props
  */
 function FeedbackDialog(props) {
     const L = Object.assign({}, DEFAULT_LABELS, props.labels);
-    const [kind, setKind] = React.useState('bug');
     const [message, setMessage] = React.useState('');
     const [includeName, setIncludeName] = React.useState(false);
     const [sending, setSending] = React.useState(false);
@@ -58,7 +57,7 @@ function FeedbackDialog(props) {
         if (sending || !message.trim()) return;
         setSending(true);
         setError('');
-        Promise.resolve(props.onSubmit({ kind: kind, message: message, include_name: includeName }))
+        Promise.resolve(props.onSubmit({ message: message, include_name: includeName }))
             .then(() => props.onClose())
             .catch((err) => {
                 setSending(false);
@@ -83,17 +82,6 @@ function FeedbackDialog(props) {
         ),
     },
         h(Field.FormError, null, error),
-        h('div', { style: { marginBottom: 8 } },
-            h(Field.FieldLabel, { htmlFor: 'terras-feedback-kind' }, L.type),
-            h(Field.Select, {
-                id: 'terras-feedback-kind', value: kind,
-                onChange: (e) => setKind(e.target.value), style: { width: '100%' },
-            },
-                h('option', { value: 'bug' }, L.bug),
-                h('option', { value: 'idea' }, L.idea),
-                h('option', { value: 'question' }, L.question),
-            ),
-        ),
         h('div', { style: { marginBottom: 8 } },
             h(Field.FieldLabel, { htmlFor: 'terras-feedback-message' }, L.message),
             h('textarea', {

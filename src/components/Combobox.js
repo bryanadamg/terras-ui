@@ -1,7 +1,7 @@
 'use client';
 'use strict';
 
-// Type-to-search single select. Mirrors teras-erp's `SearchableSelect`, which is
+// Type-to-search single select. Mirrors terras-erp's `SearchableSelect`, which is
 // the source of truth for the shape: a closed trigger with a ▼ well, and a popup
 // carrying its own search box above the list.
 //

@@ -1,10 +1,7 @@
 import type { ReactNode } from 'react';
 
-export type FeedbackKind = 'bug' | 'idea' | 'question';
-
 /** The wire shape each app's `POST /feedback` accepts (the app adds `page`). */
 export interface FeedbackReport {
-  kind: FeedbackKind;
   message: string;
   /** False unless the sender ticked the box — anonymous by default. */
   include_name: boolean;
@@ -12,10 +9,6 @@ export interface FeedbackReport {
 
 export interface FeedbackLabels {
   title: string;
-  type: string;
-  bug: string;
-  idea: string;
-  question: string;
   message: string;
   includeName: string;
   anonymousHint: string;

@@ -9,7 +9,7 @@
  * th/td need. Everything here reads --terras-* vars, so it stays in step with
  * the tokens rather than re-typing hexes.
  *
- * Mirrored from teras-erp/frontend/app/globals.css (BUTTONS / TABS / table
+ * Mirrored from terras-erp/frontend/app/globals.css (BUTTONS / TABS / table
  * blocks). When a value here conflicts with that repo, that repo wins.
  */
 
@@ -499,7 +499,7 @@
 
 /* ── Sign-in screen (LoginScreen) ────────────────────────────────────────────
    The step slide, the badge glimmer, and the docs pill's hover — mirrored from
-   teras-erp/frontend/app/globals.css (`login-*` block). The card's OWN motion
+   terras-erp/frontend/app/globals.css (`login-*` block). The card's OWN motion
    (face fade, frame re-shape, avatar glide) is inline in the component, because
    those animate one persistent set of nodes; keyframes were the wrong tool
    there — see the comment in LoginScreen.js. */

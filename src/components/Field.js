@@ -2,7 +2,7 @@
 
 // Form/toolbar fields: a recessed text input, a select, and the search box that
 // heads a list view, plus the form label and the submit-error banner. Mirrors
-// teras-erp's `xpInput` / `xpSelect` / `SearchField` / `FieldLabel` / `FormError`.
+// terras-erp's `xpInput` / `xpSelect` / `SearchField` / `FieldLabel` / `FormError`.
 //
 // A field is RECESSED chrome — blue-gray 1px border, white well — where a button
 // is raised. Focus is a 1px accent ring drawn inside that border (chrome.css

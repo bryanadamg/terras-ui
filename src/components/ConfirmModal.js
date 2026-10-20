@@ -1,7 +1,7 @@
 'use strict';
 
 // A confirm/cancel dialog — one press away from something you'd rather ask
-// about first. Mirrors teras-erp's `ConfirmModal`, built the same way here: a
+// about first. Mirrors terras-erp's `ConfirmModal`, built the same way here: a
 // composition of `Modal` + `Button`, not a new primitive.
 //
 // erp's own version has a fifth, unstyled "warning" button (its `xpConfirmBtn`

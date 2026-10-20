@@ -1,6 +1,6 @@
 'use strict';
 
-// Classic tab strip. Mirrors teras-erp's components/shared/Tabs.tsx.
+// Classic tab strip. Mirrors terras-erp's components/shared/Tabs.tsx.
 //
 // Renders ONLY the row of tab buttons — the pane below it stays with the caller,
 // because different views wrap their tabs differently (some sit directly under a

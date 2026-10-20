@@ -2,7 +2,7 @@
 
 // Status-filter row for a list toolbar — **segmented**: the chips sit flush
 // against each other as one control, not as loose pills. That is the app-wide
-// shape for "pick one of these"; don't re-space it per view. Mirrors teras-erp's
+// shape for "pick one of these"; don't re-space it per view. Mirrors terras-erp's
 // `FilterChipBar` (shellTheme.tsx), which replaced five hand-rolled versions
 // carrying five different "selected" blues.
 //

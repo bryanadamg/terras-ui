@@ -3,7 +3,7 @@
  * Apply `.ui-style-classic` on the root element for the classic (XP) theme — this is
  * the primary brand identity shared across Terras apps.
  * Apply `.ui-style-blueprint` instead for the alternate drafting-blue theme.
- * Source values mirrored from teras-erp/frontend/app/globals.css + xpTheme.tsx.
+ * Source values mirrored from terras-erp/frontend/app/globals.css + xpTheme.tsx.
  */
 
 :root {

@@ -2,7 +2,7 @@
 
 // Shared style primitives every Terras component is built from — the classic
 // (XP) chrome expressed as plain style objects over the `--terras-*` custom
-// properties in tokens.css. Mirrors teras-erp's xpTheme.tsx / shellTheme.tsx
+// properties in tokens.css. Mirrors terras-erp's xpTheme.tsx / shellTheme.tsx
 // helpers of the same names; when a value here conflicts with that repo, that
 // repo wins.
 //

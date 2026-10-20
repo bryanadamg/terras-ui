@@ -30,7 +30,7 @@ export interface ComboboxProps {
   style?: CSSProperties;
   /**
    * Override how the trigger is measured. Only needed by an app that scales its
-   * UI (teras-erp), where a screen-px rect would misplace a fixed-position popup.
+   * UI (terras-erp), where a screen-px rect would misplace a fixed-position popup.
    */
   rectOf?: (el: Element) => { top: number; bottom: number; left: number; width: number };
   viewportHeight?: () => number;

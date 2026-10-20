@@ -1,7 +1,7 @@
 'use client';
 'use strict';
 
-// The Terras sign-in screen. Extracted from teras-erp's `app/login/page.tsx`,
+// The Terras sign-in screen. Extracted from terras-erp's `app/login/page.tsx`,
 // which stays the source of truth for the look.
 //
 // This is the one Terras surface that is NOT classic chrome: a deep blue field,

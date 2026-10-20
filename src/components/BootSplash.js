@@ -2,7 +2,7 @@
 'use strict';
 
 // Boot screen for the case where there is no chrome to draw yet — the sign-in
-// route and an Electron cold start. Mirrors teras-erp's `BootSplash.tsx`.
+// route and an Electron cold start. Mirrors terras-erp's `BootSplash.tsx`.
 // An authenticated route that already has a frame should paint that frame with
 // a loading state instead; this component covers the whole viewport because at
 // the moment it runs there is nothing underneath it to cover.
