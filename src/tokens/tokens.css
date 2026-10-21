@@ -28,16 +28,18 @@
 
   /* Classic type scale. erp has NO ramp and no Tailwind: `.ui-style-classic`
      sets 11px (globals.css) and the whole app then works in a closed set of px
-     steps written inline in xpTheme.tsx. These four are the steps this package
+     steps written inline in xpTheme.tsx. These five are the steps this package
      actually paints — base 11 (controls, body, table head), sm 10 (caps labels,
-     chips, sub-text), sub 10.5 (sidebar sub-item, erp Sidebar.tsx), title 12
-     (title bar, card title, lg button, table cell). Theme-independent, same
+     sub-text), sub 10.5 (sidebar sub-item, erp Sidebar.tsx), xs 9 (status chips,
+     erp statusChipStyle), title 12 (title bar, card title, lg button, table
+     cell). Theme-independent, same
      reasoning as the chip/button radii above.
      Don't add a step no component paints, and don't add a display tier: erp's
      own large sizes (13/14/15/20/26) are ad-hoc per print sheet and KPI tile,
      inconsistent between views, and deliberately not mirrored here. */
   --terras-fs-sub: 10.5px;
   --terras-fs-sm: 10px;
+  --terras-fs-xs: 9px;
   --terras-fs-base: 11px;
   --terras-fs-title: 12px;
 
@@ -77,6 +79,16 @@
   --terras-chip-blue-bg: #dce4f5;    --terras-chip-blue-border: #3a5faa;    --terras-chip-blue-text: #0d2a6e;
   --terras-chip-green-bg: #d4edda;   --terras-chip-green-border: #27713a;   --terras-chip-green-text: #0c3a1a;
   --terras-chip-red-bg: #f8d7da;     --terras-chip-red-border: #a01a1a;     --terras-chip-red-text: #4a0000;
+
+  /* `<Chip solid>` faces (erp xpTheme.tsx FAMILY_CHIP). Not the status-* accents
+     above: a filled chip needs a darker rim than its fill, amber needs a deeper
+     orange to carry white text, and gray is a light button-face grey with dark
+     text rather than a dark grey slab. */
+  --terras-chip-gray-solid-bg: #d4d0c8;  --terras-chip-gray-solid-border: #808080;  --terras-chip-gray-solid-text: #333333;
+  --terras-chip-amber-solid-bg: #c77800; --terras-chip-amber-solid-border: #7a4a00; --terras-chip-amber-solid-text: #ffffff;
+  --terras-chip-blue-solid-bg: #0058e6;  --terras-chip-blue-solid-border: #003080;  --terras-chip-blue-solid-text: #ffffff;
+  --terras-chip-green-solid-bg: #2d7a2d; --terras-chip-green-solid-border: #1a5e1a; --terras-chip-green-solid-text: #ffffff;
+  --terras-chip-red-solid-bg: #c00000;   --terras-chip-red-solid-border: #800000;   --terras-chip-red-solid-text: #ffffff;
 
   /* Progress-bar fills, one pair per status family (erp xpTheme.tsx
      PROGRESS_FILL_DK / _LT). The light half is ONLY the second stripe of the

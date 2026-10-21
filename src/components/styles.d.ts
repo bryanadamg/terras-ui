@@ -9,12 +9,12 @@ export declare const fontMono: string;
 
 /**
  * The classic type scale as `var(--terras-fs-*)` strings — `base` 11px
- * (controls, body, table head), `sm` 10px (caps labels, chips, sub-text),
- * `sub` 10.5px (sidebar sub-item), `title` 12px (title bar, lg button, cell).
- * Four steps because that's what erp paints; it has no ramp. Use these over a
- * bare number, and check erp before adding a step.
+ * (controls, body, table head), `sm` 10px (caps labels, sub-text),
+ * `sub` 10.5px (sidebar sub-item), `xs` 9px (status chips), `title` 12px
+ * (title bar, lg button, cell). Five steps because that's what erp paints; it
+ * has no ramp. Use these over a bare number, and check erp before adding a step.
  */
-export declare const fs: Record<'sub' | 'sm' | 'base' | 'title', string>;
+export declare const fs: Record<'sub' | 'sm' | 'xs' | 'base' | 'title', string>;
 
 /** Uppercase micro-label tracking (0.5px) — pairs with `fs.sm` + bold + caps. */
 export declare const trackingCaps: string;
