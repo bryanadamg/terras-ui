@@ -17,6 +17,9 @@ export interface TableSkeletonProps {
   rowHeight?: number;
   /** Free height below the header, in px — rows are generated to fill it. */
   fillHeight?: number;
+  /** Ground for every second row, for a table whose real rows are zebra-striped
+   *  (erp's list views: `'#f5f3ee'`). Omit for a ruled `.terras-table`. */
+  stripe?: string;
 }
 
 export interface TableSkeletonMetrics {
@@ -58,6 +61,8 @@ export interface TableBlockSkeletonProps {
   rows?: number;
   header?: boolean;
   rowHeight?: number;
+  /** Ground for every second row, as on `TableSkeleton`. */
+  stripe?: string;
 }
 
 export interface LoadingProps {

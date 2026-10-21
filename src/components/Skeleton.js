@@ -80,8 +80,13 @@ function TableSkeleton(props) {
         ? Math.min(40, Math.max(3, Math.ceil(props.fillHeight / rowH)))
         : (props.rows === undefined ? 6 : props.rows);
 
+    // Opt-in: `.terras-table` is ruled, not striped, but a zebra table's skeleton
+    // has to stripe too or the rows visibly change ground when data lands.
     return h(React.Fragment, null, times(rowCount, function (r) {
-        return h('tr', { key: 'skel-' + r, 'aria-hidden': true }, times(props.cols, function (c) {
+        const ground = props.stripe
+            ? { background: r % 2 ? props.stripe : S.cssVar('table-bg', '#ffffff') }
+            : undefined;
+        return h('tr', { key: 'skel-' + r, 'aria-hidden': true, style: ground }, times(props.cols, function (c) {
             return h('td', {
                 key: c,
                 style: Object.assign({}, tdStyle, { height: rowH, boxSizing: 'border-box', verticalAlign: 'middle' }),
@@ -275,7 +280,7 @@ function TableBlockSkeleton(props) {
                 key: r,
                 style: {
                     display: 'flex', height: rowH, alignItems: 'center',
-                    background: S.cssVar('table-bg', '#ffffff'),
+                    background: props.stripe && r % 2 ? props.stripe : S.cssVar('table-bg', '#ffffff'),
                     borderBottom: '1px solid ' + S.cssVar('table-line', '#d6d3ce'),
                 },
             }, times(cols, function (c) { return cell(c, skelWidth(r, c)); }));

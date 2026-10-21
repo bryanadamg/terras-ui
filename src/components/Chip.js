@@ -26,17 +26,12 @@ const FAMILIES = ['gray', 'amber', 'blue', 'green', 'red'];
  */
 function Chip(props) {
     const family = FAMILIES.indexOf(props.family) === -1 ? 'gray' : props.family;
-    const base = props.solid
-        ? {
-            background: S.cssVar('status-' + family),
-            borderColor: S.cssVar('status-' + family),
-            color: '#ffffff',
-        }
-        : {
-            background: S.cssVar('chip-' + family + '-bg'),
-            borderColor: S.cssVar('chip-' + family + '-border'),
-            color: S.cssVar('chip-' + family + '-text'),
-        };
+    const face = props.solid ? 'chip-' + family + '-solid-' : 'chip-' + family + '-';
+    const base = {
+        background: S.cssVar(face + 'bg'),
+        borderColor: S.cssVar(face + 'border'),
+        color: S.cssVar(face + 'text'),
+    };
 
     return React.createElement(
         'span',
@@ -49,13 +44,15 @@ function Chip(props) {
                 borderStyle: 'solid',
                 borderWidth: 1,
                 borderRadius: S.cssVar('radius-chip', '3px'),
-                padding: '0 4px',
+                // erp statusChipStyle's geometry. Its line height is inherited
+                // from Bootstrap's body (1.5); stated here so the chip is the same
+                // 17.5px tall in an app whose body sets something else.
+                padding: '1px 6px',
                 fontFamily: props.mono ? S.fontMono : S.font,
-                fontSize: S.fs.sm,
+                fontSize: S.fs.xs,
                 fontWeight: 'bold',
-                lineHeight: '14px',
+                lineHeight: 1.5,
                 whiteSpace: 'nowrap',
-                verticalAlign: 'middle',
             }, base, props.style),
         },
         props.children,

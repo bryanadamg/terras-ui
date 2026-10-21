@@ -18,12 +18,13 @@ const fontMono = v('font-mono', 'Consolas, monospace');
 
 // The classic type scale (tokens.css `--terras-fs-*`). erp has no ramp — the
 // theme class sets 11px and every size is a px step written inline — so these
-// are the four steps this package paints, not a generated scale. Use them
+// are the five steps this package paints, not a generated scale. Use them
 // instead of a bare number so an app can retune the surface in one place; a new
 // step means checking erp first, the same rule as a new tone or radius.
 const fs = {
     sub: v('fs-sub', '10.5px'),
     sm: v('fs-sm', '10px'),
+    xs: v('fs-xs', '9px'),
     base: v('fs-base', '11px'),
     title: v('fs-title', '12px'),
 };

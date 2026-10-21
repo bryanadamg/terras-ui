@@ -42,11 +42,6 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
-@media (prefers-reduced-motion: reduce) {
-  .terras-btn { transition: none; }
-  .terras-btn:not(:disabled):hover,
-  .terras-btn:not(:disabled):active { transform: none; }
-}
 
 /* ── Window close box ─────────────────────────────────────────────
    Grey at rest, red on hover (erp ModalWrapper.tsx WindowCloseButton, which
@@ -391,7 +386,8 @@
   padding: 2px;
   overflow: hidden;
   position: relative;
-  box-sizing: content-box;
+  /* 200x16 outside, as erp's track is under Bootstrap's global border-box. */
+  box-sizing: border-box;
 }
 .terras-loading-blocks {
   position: absolute;

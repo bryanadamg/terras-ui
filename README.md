@@ -120,6 +120,10 @@ const skel = useTableSkeletonMetrics('sales-orders', bodyRef, rows.length > 0)
     : <Table.EmptyRow colSpan={8}>No orders</Table.EmptyRow>)}
 ```
 
+A ruled `.terras-table` takes the skeleton as is. A zebra-striped table passes its
+second-row ground as `stripe` (`TableBlockSkeleton` takes the same prop), or the
+rows change colour when the data lands.
+
 The measured row height is cached in memory only; erp also keeps it in
 `sessionStorage`, but storage keys belong to the app, so a reload's first paint
 uses a 26px estimate. `Loading` is for a wait with no shape to promise (a scan
@@ -279,7 +283,9 @@ only the rule a reader needs every time; the one-time *why* goes in `title`.
 `Chip` is a tinted pill that **reports** state over the five status families and
 never takes a click; a `ToggleChip` is a control that says **pressed**, over four
 tones. Reach for `FilterChipBar` / `SegmentedBar` rather than a hand-spaced row of
-`ToggleChip` — they own the flush segment geometry.
+`ToggleChip` — they own the flush segment geometry. `Chip` is erp's status chip,
+9px bold over `1px 6px`; `solid` takes erp's filled faces (`--terras-chip-*-solid-*`),
+where amber deepens to carry white text and gray turns light with dark text.
 
 `LogoutButton` is flat red (`#ff4d4d`, one `#800000` border) where `Button`'s
 `danger` tone is the XP gradient over a two-tone bevel. That is not drift — it is
