@@ -5,11 +5,29 @@ export interface FeedbackReport {
   message: string;
   /** False unless the sender ticked the box — anonymous by default. */
   include_name: boolean;
+  /**
+   * Base64 image bytes, no `data:` prefix — PNG, or JPEG when PNG would be
+   * too big. At most 3, each at most 4 MB decoded; already stripped of
+   * EXIF/GPS and with any black-out baked in.
+   */
+  screenshots: string[];
 }
 
 export interface FeedbackLabels {
   title: string;
   message: string;
+  attach: string;
+  pasteHint: string;
+  /** Under the thumbnails: why and how to black out a screenshot. */
+  editHint: string;
+  /** Inside the black-out editor. */
+  blackoutHint: string;
+  undo: string;
+  done: string;
+  remove: string;
+  limit: string;
+  tooLarge: string;
+  notImage: string;
   includeName: string;
   anonymousHint: string;
   namedHint: string;
