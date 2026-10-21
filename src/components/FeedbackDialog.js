@@ -58,6 +58,7 @@ const DEFAULT_LABELS = {
     send: 'Send',
     sending: 'Sending…',
     failed: 'Could not send feedback. Please try again later.',
+    offline: "Couldn't reach the server. Check your connection and try again.",
 };
 
 function loadImage(src) {
@@ -232,7 +233,11 @@ function FeedbackDialog(props) {
             .then(() => props.onClose())
             .catch((err) => {
                 setSending(false);
-                setError((err && err.message) || L.failed);
+                // fetch() rejects with a TypeError when the request never left
+                // the device, and its message is the browser's own ("Failed to
+                // fetch", "Load failed"), which tells an operator nothing.
+                // Anything else is the server talking, and its message stands.
+                setError(err instanceof TypeError ? L.offline : (err && err.message) || L.failed);
             });
     };
 

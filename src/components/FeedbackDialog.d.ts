@@ -36,6 +36,8 @@ export interface FeedbackLabels {
   sending: string;
   /** Shown when `onSubmit` rejects with no `message` of its own. */
   failed: string;
+  /** Shown when `onSubmit` rejects with a `TypeError` — fetch's "never reached the server". */
+  offline: string;
 }
 
 export interface FeedbackDialogProps {
