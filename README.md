@@ -120,6 +120,10 @@ const skel = useTableSkeletonMetrics('sales-orders', bodyRef, rows.length > 0)
     : <Table.EmptyRow colSpan={8}>No orders</Table.EmptyRow>)}
 ```
 
+A ruled `.terras-table` takes the skeleton as is. A zebra-striped table passes its
+second-row ground as `stripe` (`TableBlockSkeleton` takes the same prop), or the
+rows change colour when the data lands.
+
 The measured row height is cached in memory only; erp also keeps it in
 `sessionStorage`, but storage keys belong to the app, so a reload's first paint
 uses a 26px estimate. `Loading` is for a wait with no shape to promise (a scan
