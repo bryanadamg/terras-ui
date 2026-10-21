@@ -25,6 +25,11 @@
 // is app chrome (erp's is Bootstrap, sku's is AppHeader), and fetch/auth/toasts
 // stay with the app — `onSubmit` is the whole contract. Mount it conditionally,
 // like `Modal`: `{open && <FeedbackDialog … />}`.
+//
+// An unsent message survives closing the dialog only if the app keeps it:
+// `defaultMessage` seeds the box on open and `onMessageChange` reports every
+// edit. Where it is kept (and under which user) is the app's call, the same as
+// any other storage key — this package holds none.
 
 const React = require('react');
 const S = require('./styles');
@@ -190,11 +195,13 @@ function BlackoutEditor(props) {
  *   onSubmit: (report: { message: string, include_name: boolean, screenshots: string[] }) => Promise<unknown>,
  *   labels?: object,          // partial — English defaults fill the rest
  *   icon?: React.ReactNode,   // title-bar slot; this package ships no icon set
+ *   defaultMessage?: string,  // seeds the box on open (an app-kept draft)
+ *   onMessageChange?: (message: string) => void,
  * }} props
  */
 function FeedbackDialog(props) {
     const L = Object.assign({}, DEFAULT_LABELS, props.labels);
-    const [message, setMessage] = React.useState('');
+    const [message, setMessage] = React.useState(props.defaultMessage || '');
     const [includeName, setIncludeName] = React.useState(false);
     const [shots, setShots] = React.useState([]);   // data: URLs, already normalized
     const [editing, setEditing] = React.useState(null);
@@ -267,7 +274,11 @@ function FeedbackDialog(props) {
                 className: 'terras-field',
                 style: S.field({ width: '100%', height: 'auto', padding: '4px 6px', resize: 'vertical' }),
                 rows: 5, maxLength: 5000, autoFocus: true,
-                value: message, onChange: (e) => setMessage(e.target.value),
+                value: message,
+                onChange: (e) => {
+                    setMessage(e.target.value);
+                    if (props.onMessageChange) props.onMessageChange(e.target.value);
+                },
             }),
         ),
 
