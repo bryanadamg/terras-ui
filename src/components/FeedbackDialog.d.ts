@@ -36,6 +36,8 @@ export interface FeedbackLabels {
   sending: string;
   /** Shown when `onSubmit` rejects with no `message` of its own. */
   failed: string;
+  /** Shown when `onSubmit` rejects with a `TypeError` — fetch's "never reached the server". */
+  offline: string;
 }
 
 export interface FeedbackDialogProps {
@@ -46,6 +48,10 @@ export interface FeedbackDialogProps {
   labels?: Partial<FeedbackLabels>;
   /** Title-bar icon slot — this package has no icon-set opinion. */
   icon?: ReactNode;
+  /** Seeds the message box when the dialog opens — an app-kept unsent draft. */
+  defaultMessage?: string;
+  /** Called on every edit of the message, so the app can keep the draft. */
+  onMessageChange?: (message: string) => void;
 }
 
 declare function FeedbackDialog(props: FeedbackDialogProps): ReactElement;
