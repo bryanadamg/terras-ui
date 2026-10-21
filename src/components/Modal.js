@@ -324,31 +324,39 @@ function Modal(props) {
             : null,
     );
 
-    // Modeless: the panel IS the whole render. No backdrop element at all —
-    // an invisible full-screen div would still swallow clicks on the page the
-    // mode exists to keep usable.
-    if (floating) return panel;
-
+    // The panel always sits under the same wrapper, so the media query flipping
+    // a modeless dialog to blocking on its first effect (narrow screens) doesn't
+    // remount the panel — that dropped the focus the effect above had just set.
+    // Modeless: the wrapper is `display: contents`, i.e. no box at all — a
+    // full-screen div, even an invisible one, would swallow clicks on the page
+    // the mode exists to keep usable.
     return React.createElement(
         'div',
-        {
-            style: {
-                position: 'fixed',
-                inset: 0,
-                zIndex: zIndex,
-                background: 'rgba(0,0,0,0.4)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: 16,
+        floating
+            ? { style: { display: 'contents' } }
+            : {
+                style: {
+                    position: 'fixed',
+                    inset: 0,
+                    zIndex: zIndex,
+                    background: 'rgba(0,0,0,0.4)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: 16,
+                },
+                onMouseDown: function (e) {
+                    // mouseDown, not click: a click fires on the backdrop when a drag
+                    // that STARTED inside the dialog (selecting text in a field)
+                    // happens to end outside it, which closed the form mid-edit.
+                    // preventDefault: the press would otherwise move focus to
+                    // <body> AFTER the close has handed it back to the opener.
+                    if (closeOnBackdrop && e.target === e.currentTarget && props.onClose) {
+                        e.preventDefault();
+                        props.onClose();
+                    }
+                },
             },
-            onMouseDown: function (e) {
-                // mouseDown, not click: a click fires on the backdrop when a drag
-                // that STARTED inside the dialog (selecting text in a field)
-                // happens to end outside it, which closed the form mid-edit.
-                if (closeOnBackdrop && e.target === e.currentTarget && props.onClose) props.onClose();
-            },
-        },
         panel,
     );
 }
