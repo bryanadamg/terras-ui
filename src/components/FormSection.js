@@ -40,6 +40,8 @@ function FormSection(props) {
         React.createElement(
             'div',
             {
+                // A plain block, as in erp: a bare `title` (text, or erp's own
+                // icon-plus-text fragments) lays out inline exactly as it does there.
                 style: {
                     background: S.cssVar('form-section-blue', '#3a6fc4'),
                     color: '#ffffff',
@@ -49,39 +51,27 @@ function FormSection(props) {
                     padding: '3px 8px',
                     letterSpacing: S.trackingCaps,
                     textTransform: 'uppercase',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    gap: 6,
                 },
             },
-            React.createElement(
-                'span',
-                { style: { display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 } },
-                props.icon || null,
-                props.title,
-            ),
-            // Normal weight / no letter-spacing: the header's uppercase tracking is
-            // for the label, and a button or count inheriting it reads as a second
-            // title competing with the first.
-            props.right
+            // With an icon or a `right`, the row inside is erp's SectionTitle.
+            props.icon || props.right
                 ? React.createElement(
                     'span',
-                    {
-                        style: {
-                            marginLeft: 'auto',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 6,
-                            flexShrink: 0,
-                            fontWeight: 'normal',
-                            letterSpacing: 0,
-                            textTransform: 'none',
-                        },
-                    },
-                    props.right,
+                    { style: { display: 'flex', alignItems: 'center', width: '100%', gap: 6 } },
+                    props.icon || null,
+                    props.title,
+                    // Normal weight / no letter-spacing: the header's uppercase
+                    // tracking is for the label, and a button or count inheriting it
+                    // reads as a second title competing with the first.
+                    props.right
+                        ? React.createElement(
+                            'span',
+                            { style: { marginLeft: 'auto', fontWeight: 'normal', textTransform: 'none', letterSpacing: 0 } },
+                            props.right,
+                        )
+                        : null,
                 )
-                : null,
+                : props.title,
         ),
         React.createElement(
             'div',
