@@ -19,6 +19,7 @@
     "./scale.css": "./src/tokens/scale.css",
     "./scale": { "types": "./src/scale.d.ts", "default": "./src/scale.js" },
     "./tokens.json": "./src/tokens/tokens.json",
+    "./package.json": "./package.json",
     "./assets/*": "./src/assets/*",
     "./types": { "types": "./src/components/types.d.ts" },
     "./styles": { "types": "./src/components/styles.d.ts", "default": "./src/components/styles.js" },
