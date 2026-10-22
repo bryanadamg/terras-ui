@@ -19,8 +19,7 @@ const FAMILIES = ['gray', 'amber', 'blue', 'green', 'red'];
  *   family?: 'gray'|'amber'|'blue'|'green'|'red',
  *   solid?: boolean,          // filled face instead of the tint, for a chip that must shout
  *   mono?: boolean,           // code/reference chips — tabular, so columns of them align
- *   title?: string,
- *   style?: object,
+ *   style?: object,           // and any other span attribute (title, onMouseEnter, …)
  *   children: React.ReactNode,
  * }} props
  */
@@ -32,11 +31,15 @@ function Chip(props) {
         borderColor: S.cssVar(face + 'border'),
         color: S.cssVar(face + 'text'),
     };
+    // Everything else reaches the span — a wrapping Tooltip hands its hover and
+    // focus handlers down through these.
+    const rest = Object.assign({}, props);
+    delete rest.family; delete rest.solid; delete rest.mono;
+    delete rest.style; delete rest.children;
 
     return React.createElement(
         'span',
-        {
-            title: props.title,
+        Object.assign({
             style: Object.assign({
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -54,7 +57,7 @@ function Chip(props) {
                 lineHeight: 1.5,
                 whiteSpace: 'nowrap',
             }, base, props.style),
-        },
+        }, rest),
         props.children,
     );
 }
