@@ -458,7 +458,7 @@ accept a `({ collapsed }) => node` function for content that can't survive 44px.
 ```json
 {
   "dependencies": {
-    "@bryanadamg/terras-ui": "^0.7.0"
+    "@bryanadamg/terras-ui": "^1.0.0"
   }
 }
 ```
@@ -538,3 +538,10 @@ NODE_AUTH_TOKEN=<PAT with write:packages,repo> npm publish
 ```
 
 PAT needs `write:packages` + `repo` (private repo) scopes to publish.
+
+From 1.0 the apps take `^1`, so every minor and patch reaches all three on their
+next install. Major: removing or renaming an export, entry point, prop or token,
+changing what a prop means, or raising a peer dependency. Minor: a new component,
+prop or token, or a deliberate visual change to an existing component — say so
+in the commit, since it lands in every app without a dependency bump. Patch: a fix
+that brings a component back to what it was meant to look like or do.
