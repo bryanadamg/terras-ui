@@ -75,7 +75,7 @@
   --terras-status-red: #c00000;
 
   --terras-chip-gray-bg: #e8e8e8;    --terras-chip-gray-border: #7a7a7a;    --terras-chip-gray-text: #222222;
-  --terras-chip-amber-bg: #fff3cd;   --terras-chip-amber-border: #b8860b;   --terras-chip-amber-text: #5d3800;
+  --terras-chip-amber-bg: #fff3cd;   --terras-chip-amber-border: var(--terras-status-amber);   --terras-chip-amber-text: #5d3800;
   --terras-chip-blue-bg: #dce4f5;    --terras-chip-blue-border: #3a5faa;    --terras-chip-blue-text: #0d2a6e;
   --terras-chip-green-bg: #d4edda;   --terras-chip-green-border: #27713a;   --terras-chip-green-text: #0c3a1a;
   --terras-chip-red-bg: #f8d7da;     --terras-chip-red-border: #a01a1a;     --terras-chip-red-text: #4a0000;
@@ -86,9 +86,9 @@
      text rather than a dark grey slab. */
   --terras-chip-gray-solid-bg: #d4d0c8;  --terras-chip-gray-solid-border: #808080;  --terras-chip-gray-solid-text: #333333;
   --terras-chip-amber-solid-bg: #c77800; --terras-chip-amber-solid-border: #7a4a00; --terras-chip-amber-solid-text: #ffffff;
-  --terras-chip-blue-solid-bg: #0058e6;  --terras-chip-blue-solid-border: #003080;  --terras-chip-blue-solid-text: #ffffff;
-  --terras-chip-green-solid-bg: #2d7a2d; --terras-chip-green-solid-border: #1a5e1a; --terras-chip-green-solid-text: #ffffff;
-  --terras-chip-red-solid-bg: #c00000;   --terras-chip-red-solid-border: #800000;   --terras-chip-red-solid-text: #ffffff;
+  --terras-chip-blue-solid-bg: var(--terras-status-blue);  --terras-chip-blue-solid-border: #003080;  --terras-chip-blue-solid-text: #ffffff;
+  --terras-chip-green-solid-bg: var(--terras-status-green); --terras-chip-green-solid-border: #1a5e1a; --terras-chip-green-solid-text: #ffffff;
+  --terras-chip-red-solid-bg: var(--terras-status-red);   --terras-chip-red-solid-border: #800000;   --terras-chip-red-solid-text: #ffffff;
 
   /* Progress-bar fills, one pair per status family (erp xpTheme.tsx
      PROGRESS_FILL_DK / _LT). The light half is ONLY the second stripe of the
@@ -99,9 +99,9 @@
      it reads as "no progress yet" against the track, not as a label. */
   --terras-progress-gray: #c8c3b6;   --terras-progress-gray-light: #e2ddd0;
   --terras-progress-amber: #c77800;  --terras-progress-amber-light: #f5d060;
-  --terras-progress-blue: #0058e6;   --terras-progress-blue-light: #4a8fe8;
-  --terras-progress-green: #2d7a2d;  --terras-progress-green-light: #6fce6f;
-  --terras-progress-red: #c00000;    --terras-progress-red-light: #e88a8a;
+  --terras-progress-blue: var(--terras-status-blue);   --terras-progress-blue-light: #4a8fe8;
+  --terras-progress-green: var(--terras-status-green);  --terras-progress-green-light: #6fce6f;
+  --terras-progress-red: var(--terras-status-red);    --terras-progress-red-light: #e88a8a;
   /* The well the fill runs in — a field's recessed edge, since that is what it
      is: a readout, not a raised control. */
   --terras-progress-track: #e9e9e9;
@@ -247,12 +247,39 @@
   /* Pale wash of the highlight blue, for hover/selected surfaces — same hue as
      STATUS_FAMILY's blue tint (#dce4f5), reused rather than inventing a new blue. */
   --terras-win-highlight-tint: #dce4f5;
-  --terras-title-blue: linear-gradient(to right, #0058e6 0%, #08a5ff 100%);
-  --terras-title-blue-border: #003080;
-  --terras-title-flat: #0058e6;
-  --terras-title-blue-inactive: linear-gradient(to right, #7a96b8 0%, #a8bcd4 100%);
+
+  /* ── Semantic layer ──────────────────────────────────────────────────────
+     The win-* tokens above already name the surface, edge and text roles.
+     These name the two roles that had no name: the accent (the brand blue the
+     default title band, sidebar and pressed toggle are drawn in) and the tone
+     ramps the red / amber / green chrome shares. Component tokens below point
+     at these with var() instead of repeating the hex, so a palette restyles the
+     chrome by redefining this short list.
+
+     Only tokens that share a value AND a meaning point here. `--terras-status-blue`
+     and the blue chips are also #0058e6 but report state, so they keep their own
+     value and will not follow the accent when a palette changes it.
+
+     Scope rule, enforced by `node tools/check-tokens.js`: a token may reference
+     only tokens declared in its own block or in :root. A custom property
+     resolves its var()s on the element that declares it, and erp applies
+     .ui-style-classic to nested elements as well as <html>. */
+  --terras-accent: #0058e6;
+  --terras-accent-deep: #003080;      /* borders, active nav text, dark end of gradients */
+  --terras-accent-bright: #08a5ff;    /* light end of the title band */
+  --terras-accent-inactive: #7a96b8;  /* the accent dimmed for an unfocused window */
+  --terras-accent-edge: #7f9db9;      /* blue-grey edge of a recessed field / idle toggle */
+  --terras-win-well: #ffffff;         /* recessed ground: input and table body */
+  --terras-tone-green: #1a7a1a;     --terras-tone-green-deep: #0a4a0a;
+  --terras-tone-amber: #c07000;     --terras-tone-amber-deep: #804000;
+  --terras-tone-red-dark: #8e0000;  --terras-tone-red-deep: #5e0000;
+
+  --terras-title-blue: linear-gradient(to right, var(--terras-accent) 0%, var(--terras-accent-bright) 100%);
+  --terras-title-blue-border: var(--terras-accent-deep);
+  --terras-title-flat: var(--terras-accent);
+  --terras-title-blue-inactive: linear-gradient(to right, var(--terras-accent-inactive) 0%, #a8bcd4 100%);
   --terras-title-blue-border-inactive: #6a819b;
-  --terras-title-flat-inactive: #7a96b8;
+  --terras-title-flat-inactive: var(--terras-accent-inactive);
 
   --terras-font-classic: "Tahoma", "Segoe UI", "Arial", sans-serif;
 
@@ -282,18 +309,18 @@
   --terras-sidebar-bg: #d6dff7;
   --terras-sidebar-border: #718bb7;
   --terras-sidebar-item-border: #c0ccee;
-  --terras-sidebar-hover-bg: #0058e6;
+  --terras-sidebar-hover-bg: var(--terras-accent);
   --terras-sidebar-hover-color: #ffffff;
   --terras-sidebar-active-bg: #ffffff;
-  --terras-sidebar-active-color: #003080;
+  --terras-sidebar-active-color: var(--terras-accent-deep);
   /* Nested nav levels + the section header band (erp Sidebar.tsx SUB_BG /
      SUB_BG_DEEP / sectionHdrStyle) and the footer strip the ID card sits on. */
   --terras-sidebar-sub-bg: #bcc9e8;
   --terras-sidebar-sub-bg-deep: #a8b4cc;
-  --terras-sidebar-section-bg: linear-gradient(to right, #0058e6, #003080);
-  --terras-sidebar-section-bg-hover: linear-gradient(to right, #2a7cff, #0058e6);
+  --terras-sidebar-section-bg: linear-gradient(to right, var(--terras-accent), var(--terras-accent-deep));
+  --terras-sidebar-section-bg-hover: linear-gradient(to right, #2a7cff, var(--terras-accent));
   --terras-sidebar-section-border-top: #7090cc;
-  --terras-sidebar-section-border-bottom: #003080;
+  --terras-sidebar-section-border-bottom: var(--terras-accent-deep);
   --terras-sidebar-footer-bg: #c0cade;
   --terras-sidebar-footer-border: #9098b8;
 
@@ -302,8 +329,8 @@
      (light top/left, dark bottom/right) — that bevel is the whole classic
      button, so it can't be reduced to a single border color. */
   --terras-btn-face: linear-gradient(to bottom, #ffffff 0%, #d4d0c8 100%);
-  --terras-btn-border-light: #dfdfdf;
-  --terras-btn-border-dark: #808080;
+  --terras-btn-border-light: var(--terras-win-border-raised-light);
+  --terras-btn-border-dark: var(--terras-win-border-dark);
   /* The title bar's close box (erp ModalWrapper.tsx WindowCloseButton). A warm
      grey gradient at rest over the plain button bevel, going red only on hover
      — the colour swap is what says "this one closes", so the resting face must
@@ -312,22 +339,22 @@
      control with a fixed face, not the danger intent (same split as logout). */
   --terras-winclose-face: linear-gradient(to bottom, #d4c8c8, #a89898);
   --terras-winclose-face-hover: linear-gradient(to bottom, #e8a0a0, #c84040);
-  --terras-winclose-border-hover-light: #8e0000;
-  --terras-winclose-border-hover-dark: #5e0000;
+  --terras-winclose-border-hover-light: var(--terras-tone-red-dark);
+  --terras-winclose-border-hover-dark: var(--terras-tone-red-deep);
 
-  --terras-btn-primary-face: linear-gradient(to bottom, #316ac5, #1a4a8a);
+  --terras-btn-primary-face: linear-gradient(to bottom, var(--terras-win-highlight), #1a4a8a);
   --terras-btn-primary-border-light: #1a3a7a;
   --terras-btn-primary-border-dark: #0a1a4a;
   --terras-btn-success-face: linear-gradient(to bottom, #5ec85e, #2d7a2d);
   --terras-btn-success-border-light: #1a5e1a;
   --terras-btn-success-border-dark: #0a3e0a;
-  --terras-btn-danger-face: linear-gradient(to bottom, #c84040, #8e0000);
-  --terras-btn-danger-border-light: #8e0000;
-  --terras-btn-danger-border-dark: #5e0000;
+  --terras-btn-danger-face: linear-gradient(to bottom, #c84040, var(--terras-tone-red-dark));
+  --terras-btn-danger-border-light: var(--terras-tone-red-dark);
+  --terras-btn-danger-border-dark: var(--terras-tone-red-deep);
   /* Sunken field border — a blue-gray, NOT win-border-dark: an input reads as
      recessed against the beige, a button as raised. */
-  --terras-input-border: #7f9db9;
-  --terras-input-bg: #ffffff;
+  --terras-input-border: var(--terras-accent-edge);
+  --terras-input-bg: var(--terras-win-well);
   --terras-sep: #a0988c;
 
   /* ── Toggle chip (erp xpTheme.tsx CHIP_TONES / ToggleChip) ───────────────────
@@ -341,25 +368,25 @@
      coincides (#0058e6). Four tones, matching the title-bar set minus grey —
      a fifth means the states aren't distinct. */
   --terras-toggle-flat-bg: #eceae0;
-  --terras-toggle-blue-bg: #0058e6;    --terras-toggle-blue-border: #003080;
-  --terras-toggle-green-bg: #1a7a1a;   --terras-toggle-green-border: #0a4a0a;
-  --terras-toggle-red-bg: #a52020;     --terras-toggle-red-border: #5e0000;
-  --terras-toggle-amber-bg: #c07000;   --terras-toggle-amber-border: #804000;
+  --terras-toggle-blue-bg: var(--terras-accent);    --terras-toggle-blue-border: var(--terras-accent-deep);
+  --terras-toggle-green-bg: var(--terras-tone-green);   --terras-toggle-green-border: var(--terras-tone-green-deep);
+  --terras-toggle-red-bg: #a52020;     --terras-toggle-red-border: var(--terras-tone-red-deep);
+  --terras-toggle-amber-bg: var(--terras-tone-amber);   --terras-toggle-amber-border: var(--terras-tone-amber-deep);
   /* Toned idle face — for a standalone toggle whose label alone doesn't say what
      it does ("Running only"). Never in a filter row: a row of tinted idle chips
      reads as several selections at once. */
   --terras-toggle-blue-idle-bg: linear-gradient(to bottom, #ffffff, #d6e6fb);
-  --terras-toggle-blue-idle-border: #7f9db9;
+  --terras-toggle-blue-idle-border: var(--terras-accent-edge);
   --terras-toggle-blue-idle-text: #00006e;
   --terras-toggle-green-idle-bg: linear-gradient(to bottom, #ffffff, #d7ecd7);
   --terras-toggle-green-idle-border: #7aa87a;
-  --terras-toggle-green-idle-text: #0a4a0a;
+  --terras-toggle-green-idle-text: var(--terras-tone-green-deep);
   --terras-toggle-red-idle-bg: linear-gradient(to bottom, #ffffff, #f5d8d8);
   --terras-toggle-red-idle-border: #c08a8a;
-  --terras-toggle-red-idle-text: #5e0000;
+  --terras-toggle-red-idle-text: var(--terras-tone-red-deep);
   --terras-toggle-amber-idle-bg: linear-gradient(to bottom, #ffffff, #f7e6c8);
   --terras-toggle-amber-idle-border: #c0a070;
-  --terras-toggle-amber-idle-text: #804000;
+  --terras-toggle-amber-idle-text: var(--terras-tone-amber-deep);
   /* Hover glow, per tone. Read by `.terras-toggle:hover` in chrome.css off an
      inline `--terras-toggle-glow` the component sets from its tone — an outer
      glow, not the inset ring an earlier erp version drew, which read as two
@@ -377,7 +404,7 @@
      the one tone `Button` lacks; the rest share their words with it. */
   --terras-action-neutral-bg: linear-gradient(to bottom, #f0efe6, #dddbd0);
   --terras-action-neutral-border: #909090;
-  --terras-action-neutral-fg: #333333;
+  --terras-action-neutral-fg: var(--terras-win-text-2);
   --terras-action-primary-bg: linear-gradient(to bottom, #cfe0ff, #8fb3e8);
   --terras-action-primary-border: #335599;
   --terras-action-primary-fg: #0a2a66;
@@ -392,16 +419,16 @@
   --terras-action-danger-fg: #600000;
 
   /* ── Window chrome (erp shellTheme.tsx xpBevel / xpTitleBar / xpToolbar) ──── */
-  --terras-bevel-border-light: #dfdfdf;
-  --terras-bevel-border-dark: #808080;
+  --terras-bevel-border-light: var(--terras-win-border-raised-light);
+  --terras-bevel-border-dark: var(--terras-win-border-dark);
   --terras-toolbar-bg: linear-gradient(to bottom, #f5f4ef, #e0dfd8);
   --terras-toolbar-border: #b0a898;
   --terras-title-red: linear-gradient(to right, #990000 0%, #cc2222 100%);
   --terras-title-red-border: #550000;
-  --terras-title-amber: linear-gradient(to right, #c07000 0%, #e09830 100%);
-  --terras-title-amber-border: #804000;
-  --terras-title-green: linear-gradient(to right, #1a7a1a 0%, #2ea42e 100%);
-  --terras-title-green-border: #0a4a0a;
+  --terras-title-amber: linear-gradient(to right, var(--terras-tone-amber) 0%, #e09830 100%);
+  --terras-title-amber-border: var(--terras-tone-amber-deep);
+  --terras-title-green: linear-gradient(to right, var(--terras-tone-green) 0%, #2ea42e 100%);
+  --terras-title-green-border: var(--terras-tone-green-deep);
   --terras-title-grey: linear-gradient(to bottom, #6a6a6a, #4a4a4a);
   --terras-title-grey-border: #222222;
   /* Solid blue bar heading a form section — flat, not a gradient: erp switched
@@ -422,18 +449,18 @@
   --terras-tab-edge: #a8a290;
   --terras-tab-strip-bg: linear-gradient(to bottom, #dcd9cd, #cdcabe);
   --terras-tab-face: linear-gradient(to bottom, #e8e6db, #d0cec4);
-  --terras-tab-border-light: #c0bdb5;
+  --terras-tab-border-light: var(--terras-win-border-soft);
   --terras-tab-text: #444444;
 
   /* ── Table chrome (erp globals.css `.ui-style-classic .table`) ──────────────
      Header cells are their own raised bevel; body cells get a light 1px grid on
      all four sides (classic tables are ruled, not row-striped). */
   --terras-table-head: linear-gradient(to bottom, #ffffff 0%, #d6d3ce 100%);
-  --terras-table-head-line: #808080;
+  --terras-table-head-line: var(--terras-win-border-dark);
   --terras-table-line: #d6d3ce;
-  --terras-table-bg: #ffffff;
+  --terras-table-bg: var(--terras-win-well);
   --terras-row-hover: #e8f0fc;
-  --terras-row-selected: #316ac5;
+  --terras-row-selected: var(--terras-win-highlight);
   /* Row STATE grounds (erp listViewTheme.tsx ROW_STATE_BG / rowStateBg) —
      three states, three grounds, never mixed up: `expanded` (its detail panel
      is open below it, light selection blue), `selected` (ticked for a bulk
