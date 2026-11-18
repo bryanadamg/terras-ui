@@ -55,7 +55,7 @@ const brandStyle = (collapsed, clickable) => ({
     background: S.cssVar('title-flat', '#0058e6'),
     borderBottom: '1px solid ' + S.cssVar('title-blue-border', '#003080'),
     boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.3)',
-    color: '#ffffff',
+    color: S.cssVar('on-solid', '#ffffff'),
     display: 'flex',
     alignItems: 'center',
     justifyContent: collapsed ? 'center' : undefined,
@@ -81,7 +81,7 @@ const toggleStyle = {
     lineHeight: 1,
     fontSize: S.fs.title,
     fontWeight: 'bold',
-    color: '#ffffff',
+    color: S.cssVar('on-solid', '#ffffff'),
     opacity: 0.85,
     cursor: 'pointer',
 };
@@ -141,7 +141,7 @@ function sectionStyle(highlighted, collapsed, bare) {
         background: highlighted
             ? S.cssVar('sidebar-section-bg-hover', 'linear-gradient(to right, #2a7cff, #0058e6)')
             : S.cssVar('sidebar-section-bg', 'linear-gradient(to right, #0058e6, #003080)'),
-        color: '#ffffff',
+        color: S.cssVar('on-solid', '#ffffff'),
         fontWeight: 'bold',
         fontSize: S.fs.sm,
         height: bare ? 6 : undefined,

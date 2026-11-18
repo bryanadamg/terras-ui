@@ -170,6 +170,7 @@
   /* "View Documentation" pill — an outline that glows on hover (chrome.css). */
   --terras-login-pill: #a8cef2;
   --terras-login-pill-border: rgba(122, 176, 232, 0.3);
+  --terras-login-pill-hover-text: #dcefff;
   /* Suite tiles. Flat filled squares, same language as the CityMatrix field
      behind them (fill brightness only, no border, no glow) — active is the
      brightest fill, idle fades by distance from the active pair. */
@@ -202,6 +203,7 @@
      there is no card behind it to lift it off the screen. */
   --terras-badge-photo-bg-idle: #c8d8f0;
   --terras-badge-photo-border-idle: #8fa4c8;
+  --terras-badge-photo-shine: #f4f8ff;   /* inset top-left highlight on the photo well */
   --terras-badge-text: #16294f;
   --terras-badge-text-2: #3d5480;
   --terras-badge-text-3: #5b6c92;
@@ -270,6 +272,7 @@
   --terras-accent-inactive: #7a96b8;  /* the accent dimmed for an unfocused window */
   --terras-accent-edge: #7f9db9;      /* blue-grey edge of a recessed field / idle toggle */
   --terras-win-well: #ffffff;         /* recessed ground: input and table body */
+  --terras-on-solid: #ffffff;         /* text and glyphs on a solid fill: title bands, coloured buttons, selected rows */
   --terras-tone-green: #1a7a1a;     --terras-tone-green-deep: #0a4a0a;
   --terras-tone-amber: #c07000;     --terras-tone-amber-deep: #804000;
   --terras-tone-red-dark: #8e0000;  --terras-tone-red-deep: #5e0000;
@@ -471,6 +474,38 @@
   --terras-row-state-expanded: #d6e4f7;
   --terras-row-state-selected: #b8d0ef;
   --terras-row-state-highlighted: #fff8c4;
+
+  /* One-off component colours that used to be literals in the JS / chrome.css.
+     Each use keeps the literal as its var() fallback, so a component outside
+     .ui-style-classic still paints exactly what it did. Some are near-copies of
+     each other (empty-icon #a0a0a0 vs sparkline-empty-text #aaaaaa; menu-text,
+     feedback-editor-text, menu-trigger-text, load-bar-text vs the win-text-*
+     tiers) — merging them is a visual change, so it is left for a deliberate pass. */
+  --terras-load-bar-text: #33393f;
+  --terras-empty-icon: #a0a0a0;
+  --terras-sparkline-empty-text: #aaaaaa;
+  --terras-field-label: #2b2822;
+  --terras-field-hint: #938c76;
+  --terras-form-error-bg: #f5e8e8;
+  --terras-menu-bg: #ffffff;
+  --terras-menu-text: #222222;
+  --terras-menu-danger-text: #aa0000;
+  --terras-menu-trigger-text: #555555;
+  --terras-menu-hover-bg: #e8f0f8;
+  --terras-menu-danger-hover-bg: #fff0f0;
+  --terras-check-hover-ring: rgba(26, 61, 107, 0.30);
+  --terras-tooltip-bg: #2f3136;
+  --terras-tooltip-text: #f2f2f2;
+  --terras-tooltip-border: #16171a;
+  --terras-skeleton-strip: #a6a6a6;
+  --terras-loading-label: #1a3d90;
+  --terras-loading-block: linear-gradient(to bottom, #5a9af4, #1a5cd4);
+  --terras-scrollbar-face: #d4d0c8;
+  --terras-scrollbar-thin: #b0a898;
+  --terras-feedback-editor-bg: #f5f4ef;
+  --terras-feedback-editor-text: #444444;
+  --terras-feedback-remove-bg: #c84040;
+  --terras-feedback-remove-border: #800000;
 }
 
 /* Blueprint — alternate drafting-blue theme (not the main brand). */

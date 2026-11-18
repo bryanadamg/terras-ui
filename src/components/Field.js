@@ -150,14 +150,14 @@ function FieldLabel(props) {
             React.createElement('label', {
                 htmlFor: props.htmlFor,
                 title: props.title,
-                style: { fontFamily: S.font, fontSize: S.fs.base, fontWeight: 'bold', color: '#2b2822', margin: 0 },
+                style: { fontFamily: S.font, fontSize: S.fs.base, fontWeight: 'bold', color: S.cssVar('field-label', '#2b2822'), margin: 0 },
             }, props.children),
             props.right,
         ),
         props.hint
             ? React.createElement('div', {
                 id: props.hintId,
-                style: { fontFamily: S.font, fontSize: S.fs.sm, color: '#938c76', fontStyle: 'italic', marginBottom: 3 },
+                style: { fontFamily: S.font, fontSize: S.fs.sm, color: S.cssVar('field-hint', '#938c76'), fontStyle: 'italic', marginBottom: 3 },
             }, props.hint)
             : null,
     );
@@ -177,9 +177,9 @@ function FormError(props) {
     return React.createElement('div', {
         role: 'alert',
         style: Object.assign({
-            background: '#f5e8e8',
-            border: '1px solid #8e0000',
-            color: '#8e0000',
+            background: S.cssVar('form-error-bg', '#f5e8e8'),
+            border: '1px solid ' + S.cssVar('tone-red-dark', '#8e0000'),
+            color: S.cssVar('tone-red-dark', '#8e0000'),
             padding: '4px 8px',
             fontSize: S.fs.base,
             marginBottom: 10,

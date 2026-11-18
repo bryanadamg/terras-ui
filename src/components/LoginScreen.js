@@ -297,7 +297,7 @@ function IdCard(props) {
                             ? S.cssVar('badge-photo-border', '#6d84b0')
                             : S.cssVar('badge-photo-border-idle', '#8fa4c8')),
                         borderRadius: open ? 4 : 0,
-                        boxShadow: 'inset 1px 1px 0 #f4f8ff',
+                        boxShadow: 'inset 1px 1px 0 ' + S.cssVar('badge-photo-shine', '#f4f8ff'),
                         transition: [
                             'margin-left 900ms ' + glide,
                             'transform 900ms ' + glide,

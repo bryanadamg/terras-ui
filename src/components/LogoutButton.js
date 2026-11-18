@@ -28,7 +28,7 @@ const face = (style) => Object.assign({
     background: S.cssVar('logout-face', '#ff4d4d'),
     border: '1px solid ' + S.cssVar('logout-border', '#800000'),
     borderColor: S.cssVar('logout-border', '#800000'),
-    color: '#ffffff',
+    color: S.cssVar('on-solid', '#ffffff'),
     fontWeight: 'bold',
     fontSize: S.fs.sm,
     height: 22,

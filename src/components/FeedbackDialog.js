@@ -152,15 +152,15 @@ function BlackoutEditor(props) {
     };
 
     return h('div', {
-        style: { border: '1px solid #808080', background: '#f5f4ef', padding: 6, marginBottom: 8 },
+        style: { border: '1px solid ' + S.cssVar('win-border-dark', '#808080'), background: S.cssVar('feedback-editor-bg', '#f5f4ef'), padding: 6, marginBottom: 8 },
     },
-        h('div', { style: { fontFamily: S.font, fontSize: S.fs.sm, color: '#444444', marginBottom: 4 } }, L.blackoutHint),
+        h('div', { style: { fontFamily: S.font, fontSize: S.fs.sm, color: S.cssVar('feedback-editor-text', '#444444'), marginBottom: 4 } }, L.blackoutHint),
         h('canvas', {
             ref: canvasRef,
             style: {
                 display: 'block', margin: '0 auto', maxWidth: '100%',
                 maxHeight: 'calc(' + S.cssVar('app-vh', '100vh') + ' * 45 / 100)',
-                cursor: 'crosshair', touchAction: 'none', background: '#ffffff',
+                cursor: 'crosshair', touchAction: 'none', background: S.cssVar('win-well', '#ffffff'),
             },
             onPointerDown: (e) => {
                 if (!img) return;
@@ -249,7 +249,7 @@ function FeedbackDialog(props) {
     };
 
     const h = React.createElement;
-    const hint = { fontFamily: S.font, fontSize: S.fs.sm, color: '#666666' };
+    const hint = { fontFamily: S.font, fontSize: S.fs.sm, color: S.cssVar('win-text-3', '#666666') };
     return h(Modal, {
         as: 'form',
         onSubmit: submit,
@@ -312,21 +312,21 @@ function FeedbackDialog(props) {
                             h('img', {
                                 src: src, alt: '', title: L.editHint,
                                 onClick: () => setEditing(i),
-                                style: { height: 56, maxWidth: 120, objectFit: 'cover', border: '1px solid #808080', cursor: 'pointer', display: 'block' },
+                                style: { height: 56, maxWidth: 120, objectFit: 'cover', border: '1px solid ' + S.cssVar('win-border-dark', '#808080'), cursor: 'pointer', display: 'block' },
                             }),
                             h('button', {
                                 type: 'button', 'aria-label': L.remove, title: L.remove,
                                 onClick: () => setShots((s) => s.filter((_, j) => j !== i)),
                                 style: {
                                     position: 'absolute', top: -6, right: -6, width: 16, height: 16, padding: 0,
-                                    borderRadius: 8, border: '1px solid #800000', background: '#c84040',
-                                    color: '#ffffff', fontSize: 10, lineHeight: '14px', cursor: 'pointer',
+                                    borderRadius: 8, border: '1px solid ' + S.cssVar('feedback-remove-border', '#800000'), background: S.cssVar('feedback-remove-bg', '#c84040'),
+                                    color: S.cssVar('on-solid', '#ffffff'), fontSize: 10, lineHeight: '14px', cursor: 'pointer',
                                 },
                             }, '×'),
                         )))
                     : null,
                 shots.length ? h('div', { style: Object.assign({ marginTop: 4 }, hint) }, L.editHint) : null,
-                notice ? h('div', { role: 'status', style: Object.assign({ marginTop: 4 }, hint, { color: '#8e0000' }) }, notice) : null,
+                notice ? h('div', { role: 'status', style: Object.assign({ marginTop: 4 }, hint, { color: S.cssVar('tone-red-dark', '#8e0000') }) }, notice) : null,
             ),
 
         h('label', {

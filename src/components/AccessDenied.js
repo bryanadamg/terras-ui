@@ -18,7 +18,7 @@ const Button = require('./Button');
 // top/left), not `S.panel()`'s raised one: this reports state, it isn't a
 // pressable surface.
 const panelStyle = Object.assign(
-    { background: '#ffffff', padding: '28px 16px', textAlign: 'center', color: S.cssVar('win-text', '#555555') },
+    { background: S.cssVar('win-well', '#ffffff'), padding: '28px 16px', textAlign: 'center', color: S.cssVar('win-text', '#555555') },
     S.raised(S.cssVar('win-border-dark', '#808080'), S.cssVar('win-border-light', '#ffffff')),
 );
 

@@ -30,7 +30,7 @@ function Sparkline(props) {
         return h('span', {
             role: 'img',
             'aria-label': props.label + ': not enough history',
-            style: { fontSize: 9, color: '#aaaaaa', fontFamily: S.font },
+            style: { fontSize: 9, color: S.cssVar('sparkline-empty-text', '#aaaaaa'), fontFamily: S.font },
         }, props.emptyText === undefined ? 'not enough history' : props.emptyText);
     }
 

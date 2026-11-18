@@ -42,7 +42,7 @@ function AppLoadBar(props) {
                 borderBottom: '1px solid ' + S.cssVar('toolbar-border', '#b0a898'),
                 fontFamily: S.font,
                 fontSize: S.fs.base,
-                color: '#33393f',
+                color: S.cssVar('load-bar-text', '#33393f'),
                 userSelect: 'none',
             }, props.style),
         },

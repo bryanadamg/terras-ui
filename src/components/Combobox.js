@@ -306,7 +306,7 @@ function Combobox(props) {
                                 padding: '2px 6px', minHeight: 20, cursor: 'pointer',
                                 fontFamily: S.font, fontSize: S.fs.base,
                                 background: background,
-                                color: isSelected ? '#ffffff' : S.cssVar('win-text', '#000000'),
+                                color: isSelected ? S.cssVar('on-solid', '#ffffff') : S.cssVar('win-text', '#000000'),
                                 borderBottom: '1px solid ' + S.cssVar('win-face-alt', '#ece9df'),
                             },
                         },
@@ -339,7 +339,7 @@ function Combobox(props) {
                                     style: {
                                         fontSize: S.fs.sm, padding: '0 4px', flexShrink: 0,
                                         background: isSelected ? 'rgba(255,255,255,0.2)' : S.cssVar('win-face-alt', '#ece9df'),
-                                        color: isSelected ? '#ffffff' : S.cssVar('win-text-2', '#333333'),
+                                        color: isSelected ? S.cssVar('on-solid', '#ffffff') : S.cssVar('win-text-2', '#333333'),
                                     },
                                 },
                                 option.category,

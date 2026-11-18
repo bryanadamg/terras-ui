@@ -295,7 +295,7 @@
 .terras-table tbody tr:hover > td { background: var(--terras-row-hover, #e8f0fc); }
 .terras-table tbody tr[aria-selected='true'] > td {
   background: var(--terras-row-selected, #316ac5);
-  color: #ffffff;
+  color: var(--terras-on-solid, #ffffff);
 }
 /* Opt-out for a cell that must wrap or own its own padding (a description
    column, an embedded chip row). */
@@ -342,7 +342,7 @@
   transition: box-shadow 0.12s ease;
 }
 .terras-check:hover:not(:disabled) {
-  box-shadow: 0 0 0 2px rgba(26, 61, 107, 0.30);
+  box-shadow: 0 0 0 2px var(--terras-check-hover-ring, rgba(26, 61, 107, 0.30));
 }
 
 /* ── Skeletons + loading marquee (Skeleton.js, erp globals.css `.xp-skel` /
@@ -380,9 +380,9 @@
   width: 200px;
   height: 16px;
   margin: 0 auto;
-  background: #ffffff;
+  background: var(--terras-win-well, #ffffff);
   border: 1px solid;
-  border-color: #808080 #ffffff #ffffff #808080;
+  border-color: var(--terras-win-border-dark, #808080) var(--terras-win-border-light, #ffffff) var(--terras-win-border-light, #ffffff) var(--terras-win-border-dark, #808080);
   padding: 2px;
   overflow: hidden;
   position: relative;
@@ -401,7 +401,7 @@
 .terras-loading-blocks span {
   width: 9px;
   height: 10px;
-  background: linear-gradient(to bottom, #5a9af4, #1a5cd4);
+  background: var(--terras-loading-block, linear-gradient(to bottom, #5a9af4, #1a5cd4));
   flex-shrink: 0;
 }
 @keyframes terras-loading-slide {
@@ -437,13 +437,13 @@
 .terras-menu-trigger:not(:disabled):hover,
 .terras-menu-trigger[aria-expanded='true'] {
   border-color: var(--terras-input-border, #7f9db9);
-  background: #e8f0f8;
+  background: var(--terras-menu-hover-bg, #e8f0f8);
 }
 .terras-menu-item { background: none; }
 .terras-menu-item:not(:disabled):hover,
-.terras-menu-item:focus-visible { background: #e8f0f8; outline: none; }
+.terras-menu-item:focus-visible { background: var(--terras-menu-hover-bg, #e8f0f8); outline: none; }
 .terras-menu-item-danger:not(:disabled):hover,
-.terras-menu-item-danger:focus-visible { background: #fff0f0; }
+.terras-menu-item-danger:focus-visible { background: var(--terras-menu-danger-hover-bg, #fff0f0); }
 .terras-menu-item:disabled { opacity: 0.5; }
 
 /* Row-disclosure chevron (Table.ExpandToggle, erp globals.css `.lv-chev`). One
@@ -478,7 +478,7 @@
    is the discriminator: Firefox has no ::-webkit-scrollbar selector and takes
    the two lines, Chromium/WebKit skip them and draw the block below. */
 @supports not selector(::-webkit-scrollbar) {
-  .terras-scroll { scrollbar-width: thin; scrollbar-color: #b0a898 transparent; }
+  .terras-scroll { scrollbar-width: thin; scrollbar-color: var(--terras-scrollbar-thin, #b0a898) transparent; }
 }
 /* The XP bar itself is erp's globals.css "Classic: XP scrollbars everywhere"
    block verbatim — the default for every Terras app: every scroller under
@@ -486,17 +486,17 @@
 .ui-style-classic ::-webkit-scrollbar,
 .terras-scroll::-webkit-scrollbar { width: 16px; height: 16px; }
 .ui-style-classic ::-webkit-scrollbar-track,
-.terras-scroll::-webkit-scrollbar-track { background: #d4d0c8; }
+.terras-scroll::-webkit-scrollbar-track { background: var(--terras-scrollbar-face, #d4d0c8); }
 .ui-style-classic ::-webkit-scrollbar-thumb,
 .terras-scroll::-webkit-scrollbar-thumb {
-  background: linear-gradient(to right, #ffffff, #d4d0c8);
+  background: linear-gradient(to right, var(--terras-win-border-light, #ffffff), var(--terras-scrollbar-face, #d4d0c8));
   border: 1px solid var(--terras-win-border-dark, #808080);
   border-radius: 3px;
 }
 .ui-style-classic ::-webkit-scrollbar-thumb:horizontal,
-.terras-scroll::-webkit-scrollbar-thumb:horizontal { background: linear-gradient(to bottom, #ffffff, #d4d0c8); }
+.terras-scroll::-webkit-scrollbar-thumb:horizontal { background: linear-gradient(to bottom, var(--terras-win-border-light, #ffffff), var(--terras-scrollbar-face, #d4d0c8)); }
 .ui-style-classic ::-webkit-scrollbar-corner,
-.terras-scroll::-webkit-scrollbar-corner { background: #d4d0c8; }
+.terras-scroll::-webkit-scrollbar-corner { background: var(--terras-scrollbar-face, #d4d0c8); }
 
 /* ── Sign-in screen (LoginScreen) ────────────────────────────────────────────
    The step slide, the badge glimmer, and the docs pill's hover — mirrored from
@@ -543,7 +543,7 @@
 .terras-login-pill:hover {
   border-color: rgba(122, 176, 232, 0.75);
   background: rgba(122, 176, 232, 0.14);
-  color: #dcefff;
+  color: var(--terras-login-pill-hover-text, #dcefff);
   box-shadow: 0 0 10px rgba(122, 176, 232, 0.55), 0 0 22px rgba(122, 176, 232, 0.25);
 }
 
