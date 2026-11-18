@@ -14,6 +14,9 @@ export interface SidebarProps {
   items?: SidebarItemSpec[];
   /** Grouped nav: a gradient section band followed by its indented children. */
   sections?: SidebarSectionSpec[];
+  /** Slot after the last nav row, inside the scrolling list — a credit line,
+   *  a version stamp. Scrolls with the nav; `footer` stays pinned below it. */
+  navEnd?: SidebarSlot;
   footer?: SidebarSlot;
   /** Collapse to the icon rail. Controlled — the app owns the state, the same
    *  way it owns each item's `active`. */
