@@ -6,6 +6,8 @@ export declare function cssVar(name: string, fallback?: string): string;
 
 export declare const font: string;
 export declare const fontMono: string;
+/** Figures and readouts — `--terras-font-data`, the UI face unless an app sets it. */
+export declare const fontData: string;
 
 /**
  * The classic type scale as `var(--terras-fs-*)` strings — `base` 11px

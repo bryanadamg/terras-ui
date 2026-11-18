@@ -149,7 +149,7 @@ function Count(props) {
                 flexShrink: 0,
                 whiteSpace: 'nowrap',
                 marginLeft: props.right ? 'auto' : undefined,
-                fontFamily: S.font,
+                fontFamily: S.fontData,
                 fontSize: S.fs.base,
                 color: S.cssVar('win-text-2', '#333333'),
             }, props.style),

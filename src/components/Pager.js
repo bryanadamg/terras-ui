@@ -64,7 +64,7 @@ function Pager(props) {
 
     const summary = React.createElement(
         'span',
-        { style: { color: S.cssVar('win-text-2', '#333333') } },
+        { style: { color: S.cssVar('win-text-2', '#333333'), fontFamily: S.fontData } },
         props.leftContent != null ? props.leftContent : from + '-' + to + ' of ' + total,
     );
 
