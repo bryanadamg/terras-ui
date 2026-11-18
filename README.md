@@ -444,8 +444,11 @@ survive 44px. `navEnd` renders after the last nav row *inside* the scrolling lis
 
 `expandOnHover` makes the rail open on demand. `collapsed` then means "not
 pinned": the sidebar rests at icon width, opens while the pointer (after 120ms)
-or keyboard focus is inside it, and closes 300ms after both leave — open fast,
-close slow, so cutting a corner on the way to the table doesn't snap it shut.
+or keyboard focus is inside it, and closes 200ms after both leave — open fast,
+close slow, so cutting a corner on the way to the table doesn't snap it shut. The
+exception is a decisive exit: leaving rightward at speed (≥ 600 layout px/s) closes
+it at once. That is judged at the edge, not projected ahead of it, so a quick dart
+at the band's pin, which sits at the edge, never folds the rail away mid-reach.
 That open state is the component's own, the same kind of transient UI state as
 its row hover; pinning stays controlled. With `onToggleCollapsed`, the band gets a
 pin control — "Pin sidebar open" on a hover-opened band, "Unpin sidebar"
@@ -480,6 +483,14 @@ Inside that zone the rail also reports how close the cursor is, 0 → 1, as the
 rail with it — best over a gutter, where growing moves nothing — and once the
 grown rail meets the cursor it opens outright, with no contact delay. Distance
 is measured from the rail's resting edge, so the growth never chases the cursor.
+
+Every glide transition (row padding, label fades, the band's controls) takes its
+duration and easing from `--terras-sidebar-motion` (default `0.12s`). Set it on an
+ancestor — and use the same value for whatever in your layout follows the rail's
+width — so the whole shell moves on one curve; switch it with the open/closed
+state to give opening and closing different feels — key it off the `<aside>`'s
+`data-collapsed` (set in hover mode, in the same render as the layout change),
+not off state fed by `onExpandedChange`, which lands a render later.
 
 Touch screens have no hover: start such a device pinned (`matchMedia('(hover: none)')`).
 
