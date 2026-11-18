@@ -68,6 +68,10 @@ const GLIDE = 'var(--terras-sidebar-motion, 0.12s)';
 // with a layout that makes room for the rail, would reflow the page twice),
 // short enough not to read as lag. The two flank the 0.12s width animation.
 const CLOSE_DELAY = 200;
+// Rightward speed (layout px per ms) at which leaving the rail counts as a
+// decisive exit and skips CLOSE_DELAY: 0.6 = 600px/s — a flick toward the page,
+// several times a drift or a reach for something near the edge.
+const EXIT_SPEED = 0.6;
 // Opacity is applied last: an element with its own resting opacity (the pin
 // control's 0.85) keeps it while shown, but is fully gone on the rail — set
 // first, the element's own value won and the pin hung half-visible in 44px.
@@ -269,7 +273,7 @@ function SidebarItem(props) {
  *
  * `expandOnHover` turns `collapsed` into "not pinned": the rail rests at icon
  * width and opens while the pointer (after 120ms) or keyboard focus is inside
- * it, closing 200ms after both leave. The open/closed state is the component's
+ * it, closing 200ms after both leave (at once on a fast rightward exit). The open/closed state is the component's
  * own — transient, like its row hover — and `onExpandedChange` reports the width
  * it is drawn at, for an app whose layout has to follow it. With
  * `onToggleCollapsed`, the band's control pins it: on a hover-opened band it
@@ -329,13 +333,19 @@ function Sidebar(props) {
     // One countdown per change of mind. Asking again for the change already
     // pending keeps the running timer instead of restarting it — restarting is
     // what let a cursor that kept moving away hold the rail open until it stopped
-    // (1.8s after leaving, measured, instead of the close delay).
+    // (1.8s after leaving, measured, instead of the close delay). It can only be
+    // brought forward: a fast exit cuts a pending grace delay short.
     const schedulePeek = function (open, delay) {
-        if (peekPending.current === open) return;
+        const due = Date.now() + delay;
+        const pending = peekPending.current;
+        if (pending && pending.open === open && pending.due <= due) return;
         clearTimeout(peekTimer.current);
-        peekPending.current = open;
+        peekPending.current = { open: open, due: due };
         peekTimer.current = setTimeout(function () { peekPending.current = null; setPeek(open); }, delay);
     };
+    // Smoothed horizontal speed of the pointer while it is inside the rail,
+    // layout px per ms, rightward positive — read when it leaves.
+    const exitSpeed = React.useRef(0);
     React.useEffect(function () {
         return function () { clearTimeout(peekTimer.current); };
     }, []);
@@ -362,8 +372,9 @@ function Sidebar(props) {
         if (onApproachRef.current) onApproachRef.current(v);
     };
     React.useEffect(function () {
-        if (!approach) return undefined;
+        if (!hoverMode) return undefined;
         let lastX = null;
+        let lastT = 0;
         // The rail's resting edge. Distance is measured from it, not from the
         // live edge: a rail grown by the app's approach styling would otherwise
         // chase the cursor. Re-read whenever the rail is at rest.
@@ -371,10 +382,23 @@ function Sidebar(props) {
         const onMove = function (e) {
             const el = asideRef.current;
             if (!el) return;
-            if (pointerInside.current) { lastX = null; report(0); return; }
+            const x = scale.toLayoutPx(e.clientX);
+            const t = e.timeStamp || Date.now();
+            if (pointerInside.current) {
+                // Exit speed. Half-and-half smoothing, so one jittery sample from a
+                // high-rate mouse can't pass for a deliberate flick. pointermove
+                // runs before the mouseleave of the same move, so the sample taken
+                // as the pointer crosses the edge is still counted here.
+                const v = lastX === null || t <= lastT ? 0 : (x - lastX) / (t - lastT);
+                exitSpeed.current = exitSpeed.current / 2 + v / 2;
+                lastX = x; lastT = t;
+                report(0);
+                return;
+            }
+            exitSpeed.current = 0;
+            if (!approach) { lastX = x; lastT = t; return; }
             const r = scale.layoutRectOf(el);
             if (progress.current === 0 || restRight === null) restRight = r.right;
-            const x = scale.toLayoutPx(e.clientX);
             const y = scale.toLayoutPx(e.clientY);
             const d = x - restRight;
             const inBand = y >= r.top && y <= r.bottom;
@@ -384,7 +408,7 @@ function Sidebar(props) {
             // Open (hover- or approach-opened): no proximity to show, but a
             // pointer that wandered out of reach still has to close it.
             if (peekRef.current) {
-                lastX = x;
+                lastX = x; lastT = t;
                 report(0);
                 if (!near) schedulePeek(false, CLOSE_DELAY);
                 return;
@@ -397,13 +421,13 @@ function Sidebar(props) {
             // keeps its speed.
             const dx = lastX === null ? 0 : x - lastX;
             const toward = dx <= -2 && x + dx * 4 <= restRight;
-            lastX = x;
+            lastX = x; lastT = t;
             if (near && (d <= 0 || toward)) schedulePeek(true, 0);
         };
         window.addEventListener('pointermove', onMove, { passive: true });
         return function () { window.removeEventListener('pointermove', onMove); report(0); };
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [approach]);
+    }, [hoverMode, approach]);
 
     const onExpandedChange = props.onExpandedChange;
     React.useEffect(function () {
@@ -419,7 +443,15 @@ function Sidebar(props) {
         // until it met it, which is already the deliberate move the delay
         // waits for — and waiting would let the grown rail sit half-open.
         onMouseEnter: function () { pointerInside.current = true; schedulePeek(true, progress.current > 0 ? 0 : 120); },
-        onMouseLeave: function () { pointerInside.current = false; schedulePeek(false, CLOSE_DELAY); },
+        // Heading-based exit: leaving rightward at speed is a decision, so the rail
+        // closes at once; a slow exit (drifting, overshooting while reaching for
+        // a row near the edge) keeps the grace delay. Decided at the edge, not
+        // projected ahead of it — a quick dart at the pin in the band's corner
+        // would read as an exit and fold the rail out from under the click.
+        onMouseLeave: function () {
+            pointerInside.current = false;
+            schedulePeek(false, exitSpeed.current >= EXIT_SPEED ? 0 : CLOSE_DELAY);
+        },
         onFocus: function () { schedulePeek(true, 0); },
         onBlur: function (e) {
             if (!pointerInside.current && !e.currentTarget.contains(e.relatedTarget)) schedulePeek(false, CLOSE_DELAY);
