@@ -442,6 +442,47 @@ groups of glyphs never run together. `section.right` is dropped rather than shru
 survive 44px. `navEnd` renders after the last nav row *inside* the scrolling list
 (erp's "Powered by" credit), so it scrolls away with the nav while `footer` stays put.
 
+`expandOnHover` makes the rail open on demand. `collapsed` then means "not
+pinned": the sidebar rests at icon width, opens while the pointer (after 120ms)
+or keyboard focus is inside it, and closes 300ms after both leave — open fast,
+close slow, so cutting a corner on the way to the table doesn't snap it shut.
+That open state is the component's own, the same kind of transient UI state as
+its row hover; pinning stays controlled. With `onToggleCollapsed`, the band gets a
+pin control — "Pin sidebar open" on a hover-opened band, "Unpin sidebar"
+(`aria-pressed`) on a pinned one. `pinIcon={({ pinned }) => …}` draws it from the
+app's own icon set; without it, » and «. Start users pinned: the hover rail is
+something to opt into, not a layout that changes under someone on day one.
+`onExpandedChange(expanded)` reports the width it is drawn at, for a layout that
+has to make room for it (a flex row needs nothing — the `<aside>` itself widens).
+
+```jsx
+const [pinned, setPinned] = useState(false)
+
+<Sidebar
+  expandOnHover
+  collapsed={!pinned}
+  onToggleCollapsed={() => setPinned(p => !p)}
+  onExpandedChange={setRailOpen}   // only if the layout must follow it
+  sections={sections}
+/>
+```
+
+`approachDistance` (layout px) lets the rail start opening before the cursor
+touches it: within that distance of its edge, a pointer whose last move —
+carried four moves ahead — reaches the rail opens it at once, so it is already
+widening on arrival. The heading check is what makes the zone safe to put over
+whatever sits beside the rail: a cursor slowing into a table's first column,
+drifting or clicking there never opens it.
+
+Inside that zone the rail also reports how close the cursor is, 0 → 1, as the
+`--terras-sidebar-approach` property on its `<aside>` and through
+`onApproach(progress)`. The package draws nothing from it; the app grows the
+rail with it — best over a gutter, where growing moves nothing — and once the
+grown rail meets the cursor it opens outright, with no contact delay. Distance
+is measured from the rail's resting edge, so the growth never chases the cursor.
+
+Touch screens have no hover: start such a device pinned (`matchMedia('(hover: none)')`).
+
 Hover hooks exist on both rows and section bands (`onMouseEnter` / `onMouseLeave`
 on an item or a section spec) for app-level work such as a debounced route
 prefetch. They fire alongside the Sidebar's own hover paint, never instead of it.

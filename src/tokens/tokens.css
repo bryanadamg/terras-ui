@@ -285,6 +285,10 @@
   --terras-title-flat-inactive: var(--terras-accent-inactive);
 
   --terras-font-classic: "Tahoma", "Segoe UI", "Arial", sans-serif;
+  /* Figures and readouts — a window's count, a pager's row range. The classic
+     face unless an app points it at a data face (erp: JetBrains Mono), so a
+     change here never reaches an app that has not opted in. */
+  --terras-font-data: var(--terras-font-classic);
 
   --terras-radius: 8px;
   --terras-radius-inner: 6px;

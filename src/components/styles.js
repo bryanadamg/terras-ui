@@ -15,6 +15,9 @@ const v = (name, fallback) =>
 
 const font = v('font-classic', '"Tahoma", "Segoe UI", "Arial", sans-serif');
 const fontMono = v('font-mono', 'Consolas, monospace');
+// Figures and readouts (Window.Count, Pager's range). Falls back to the UI face,
+// so it only differs where an app defines --terras-font-data.
+const fontData = v('font-data', font);
 
 // The classic type scale (tokens.css `--terras-fs-*`). erp has no ramp — the
 // theme class sets 11px and every size is a px step written inline — so these
@@ -253,6 +256,7 @@ module.exports = {
     cssVar: v,
     font: font,
     fontMono: fontMono,
+    fontData: fontData,
     fs: fs,
     trackingCaps: trackingCaps,
     raised: raised,
