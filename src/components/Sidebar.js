@@ -57,7 +57,11 @@ const containerStyle = (collapsed, width, collapsedWidth, style) => Object.assig
 // labels wrap and icons jump. `railLeft(w)` is the padding that centres a w-px
 // box on the rail.
 const railLeft = (w) => 'calc(' + S.cssVar('sidebar-width-collapsed', '44px') + ' / 2 - ' + (w / 2) + 'px)';
-const GLIDE = '0.12s';
+// Duration + easing of every glide transition (row padding, label fades, slot
+// padding), from one custom property so the app can give the rail a feel —
+// and keep its own layout (a card that makes room for the rail) on the same
+// curve. Unset, it is the 0.12s default these always had.
+const GLIDE = 'var(--terras-sidebar-motion, 0.12s)';
 // Hover rail timing: open after 120ms of contact (a pass across the rail on the
 // way somewhere else is not a request), close 200ms after the pointer leaves —
 // long enough to forgive overshooting the edge while reaching for a row (which,
@@ -478,6 +482,11 @@ function Sidebar(props) {
             // `terras-sidebar-glide`: chrome.css drops the glide transitions under
             // prefers-reduced-motion (inline transitions can't be media-queried).
             className: glide ? 'terras-sidebar-glide' : undefined,
+            // The drawn state, in the same commit that changes the layout — for
+            // an app that switches --terras-sidebar-motion by direction, so the
+            // glide inside picks up the new curve as it starts rather than a
+            // render later (app state fed by onExpandedChange lags by one).
+            'data-collapsed': glide ? String(collapsed) : undefined,
             style: containerStyle(collapsed, props.width, props.collapsedWidth, props.style),
         }, hoverHandlers),
         showBrand

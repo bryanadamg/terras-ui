@@ -481,6 +481,14 @@ rail with it — best over a gutter, where growing moves nothing — and once th
 grown rail meets the cursor it opens outright, with no contact delay. Distance
 is measured from the rail's resting edge, so the growth never chases the cursor.
 
+Every glide transition (row padding, label fades, the band's controls) takes its
+duration and easing from `--terras-sidebar-motion` (default `0.12s`). Set it on an
+ancestor — and use the same value for whatever in your layout follows the rail's
+width — so the whole shell moves on one curve; switch it with the open/closed
+state to give opening and closing different feels — key it off the `<aside>`'s
+`data-collapsed` (set in hover mode, in the same render as the layout change),
+not off state fed by `onExpandedChange`, which lands a render later.
+
 Touch screens have no hover: start such a device pinned (`matchMedia('(hover: none)')`).
 
 Hover hooks exist on both rows and section bands (`onMouseEnter` / `onMouseLeave`
