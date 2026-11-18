@@ -26,8 +26,8 @@ export interface SidebarProps {
   onToggleCollapsed?: () => void;
   /** Hover-to-expand: `collapsed` becomes "not pinned". The rail rests at icon
    *  width and opens while the pointer (after 120ms) or keyboard focus is in
-   *  it, closing 300ms after both leave. With `onToggleCollapsed`, the open
-   *  band's chevron pins it (») and a pinned band's lets it collapse («). */
+   *  it, closing 300ms after both leave. With `onToggleCollapsed`, the band's
+   *  control pins and unpins it (`pinIcon`, or » / «). */
   expandOnHover?: boolean;
   /** With `expandOnHover`: start opening before contact, when the pointer is
    *  within this many layout px of the rail's edge and heading into it (its
@@ -35,6 +35,11 @@ export interface SidebarProps {
    *  pausing or working beside the rail never opens it.
    *  Default 0 = contact only. */
   approachDistance?: number;
+  /** With `expandOnHover` + `onToggleCollapsed`: draws the band's pin control —
+   *  a slot, since this package carries no icon set. `pinned` is `!collapsed`;
+   *  the control is `aria-pressed` while pinned. Without it, » (pin) and «
+   *  (unpin). */
+  pinIcon?: (state: { pinned: boolean }) => ReactNode;
   /** With `approachDistance`: proximity inside the zone, 0 (far edge or
    *  beyond) → 1 (touching the rail), in hundredths — also written as the
    *  `--terras-sidebar-approach` custom property on the <aside>. For growing

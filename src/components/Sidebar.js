@@ -58,11 +58,15 @@ const containerStyle = (collapsed, width, collapsedWidth, style) => Object.assig
 // box on the rail.
 const railLeft = (w) => 'calc(' + S.cssVar('sidebar-width-collapsed', '44px') + ' / 2 - ' + (w / 2) + 'px)';
 const GLIDE = '0.12s';
+// Opacity is applied last: an element with its own resting opacity (the pin
+// control's 0.85) keeps it while shown, but is fully gone on the rail — set
+// first, the element's own value won and the pin hung half-visible in 44px.
 const fade = (shown, extra) => Object.assign({
-    opacity: shown ? 1 : 0,
     transition: 'opacity ' + GLIDE,
     whiteSpace: 'nowrap',
-}, extra);
+}, extra, {
+    opacity: shown ? (extra && extra.opacity != null ? extra.opacity : 1) : 0,
+});
 
 const brandStyle = (collapsed, clickable, glide) => ({
     height: S.cssVar('app-header-h', '30px'),
@@ -258,8 +262,9 @@ function SidebarItem(props) {
  * it, closing 300ms after both leave. The open/closed state is the component's
  * own — transient, like its row hover — and `onExpandedChange` reports the width
  * it is drawn at, for an app whose layout has to follow it. With
- * `onToggleCollapsed`, the chevron in a hover-opened band pins it open (») and
- * the chevron of a pinned one lets it collapse back to the rail («).
+ * `onToggleCollapsed`, the band's control pins it: on a hover-opened band it
+ * pins it open, on a pinned one it unpins it back to the rail. `pinIcon({ pinned })`
+ * draws that control (pressed while pinned); without it, » and «.
  *
  * `approachDistance` (layout px) lets it start opening before contact: a
  * pointer within that distance of the rail's edge and moving toward it opens
@@ -284,6 +289,7 @@ function SidebarItem(props) {
  *   onToggleCollapsed?: () => void,
  *   expandOnHover?: boolean,
  *   approachDistance?: number,
+ *   pinIcon?: (state: { pinned: boolean }) => React.ReactNode,
  *   onApproach?: (progress: number) => void,
  *   onExpandedChange?: (expanded: boolean) => void,
  *   width?: string | number,
@@ -440,6 +446,16 @@ function Sidebar(props) {
     // Not under expandOnHover: the rail opens on hover before a click could land,
     // so the band would pin by surprise. Pinning there is the open band's ».
     const brandIsToggle = collapsed && !!onToggle && !props.expandOnHover;
+
+    // Under expandOnHover the band's control pins: `pinIcon({ pinned })` draws it
+    // (an app slot — this package carries no icon set), falling back to » / «.
+    const pinned = !props.collapsed;
+    const toggleLabel = props.expandOnHover
+        ? (pinned ? 'Unpin sidebar' : 'Pin sidebar open')
+        : 'Collapse sidebar';
+    const toggleGlyph = props.expandOnHover && props.pinIcon
+        ? props.pinIcon({ pinned: pinned })
+        : (peek ? '»' : '«');
     const showBrand = props.appName || props.brandIcon || onToggle;
 
     return React.createElement(
@@ -482,13 +498,15 @@ function Sidebar(props) {
                                     // no room and the rail opens on hover anyway.
                                     style: glide ? fade(!collapsed, Object.assign({}, toggleStyle, { pointerEvents: collapsed ? 'none' : undefined })) : toggleStyle,
                                     onClick: onToggle,
-                                    title: peek ? 'Keep sidebar open' : 'Collapse sidebar',
+                                    title: toggleLabel,
                                     role: 'button',
-                                    'aria-label': peek ? 'Keep sidebar open' : 'Collapse sidebar',
-                                    'aria-pressed': peek ? false : undefined,
-                                    'aria-expanded': peek ? undefined : true,
+                                    'aria-label': toggleLabel,
+                                    // Hover mode: a pin, pressed while pinned. Otherwise
+                                    // the plain collapse control it has always been.
+                                    'aria-pressed': props.expandOnHover ? pinned : undefined,
+                                    'aria-expanded': props.expandOnHover ? undefined : true,
                                 },
-                                peek ? '»' : '«',
+                                toggleGlyph,
                             )
                             : null,
                     ),

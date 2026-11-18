@@ -447,8 +447,11 @@ pinned": the sidebar rests at icon width, opens while the pointer (after 120ms)
 or keyboard focus is inside it, and closes 300ms after both leave — open fast,
 close slow, so cutting a corner on the way to the table doesn't snap it shut.
 That open state is the component's own, the same kind of transient UI state as
-its row hover; pinning stays controlled. With `onToggleCollapsed`, a hover-opened
-band shows » ("Keep sidebar open") and a pinned one « ("Collapse sidebar").
+its row hover; pinning stays controlled. With `onToggleCollapsed`, the band gets a
+pin control — "Pin sidebar open" on a hover-opened band, "Unpin sidebar"
+(`aria-pressed`) on a pinned one. `pinIcon={({ pinned }) => …}` draws it from the
+app's own icon set; without it, » and «. Start users pinned: the hover rail is
+something to opt into, not a layout that changes under someone on day one.
 `onExpandedChange(expanded)` reports the width it is drawn at, for a layout that
 has to make room for it (a flex row needs nothing — the `<aside>` itself widens).
 
