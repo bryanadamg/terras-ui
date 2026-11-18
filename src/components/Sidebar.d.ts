@@ -24,6 +24,15 @@ export interface SidebarProps {
   /** Renders the built-in chevron in the brand band. Omit it and no toggle
    *  chrome appears, for an app driving `collapsed` from its own control. */
   onToggleCollapsed?: () => void;
+  /** Hover-to-expand: `collapsed` becomes "not pinned". The rail rests at icon
+   *  width and opens while the pointer (after 120ms) or keyboard focus is in
+   *  it, closing 300ms after both leave. With `onToggleCollapsed`, the open
+   *  band's chevron pins it (») and a pinned band's lets it collapse («). */
+  expandOnHover?: boolean;
+  /** The width the rail is drawn at changed — `true` when it shows full width,
+   *  pinned or hover-opened. For a layout that has to follow it. Also fires on
+   *  mount with the initial state. */
+  onExpandedChange?: (expanded: boolean) => void;
   width?: string | number;
   /** Defaults to `--terras-sidebar-width-collapsed` (44px classic). */
   collapsedWidth?: string | number;

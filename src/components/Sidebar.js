@@ -86,7 +86,9 @@ const toggleStyle = {
     cursor: 'pointer',
 };
 
-const navStyle = { flex: 1, overflowY: 'auto', minHeight: 0 };
+// overflowX hidden: while the width animates between rail and full, rows that
+// are momentarily wider than the box must clip, not grow a horizontal scrollbar.
+const navStyle = { flex: 1, overflowY: 'auto', overflowX: 'hidden', minHeight: 0 };
 
 const footerStyle = (collapsed) => ({
     flexShrink: 0,
@@ -205,7 +207,11 @@ function SidebarItem(props) {
             : null,
         collapsed
             ? null
-            : React.createElement('span', { style: { overflow: 'hidden', textOverflow: 'ellipsis' } }, item.label),
+            : React.createElement('span', {
+                // nowrap under expandOnHover: the rail widens over 0.12s, and a
+                // label that wraps mid-animation makes every row jump in height.
+                style: { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: props.nowrap ? 'nowrap' : undefined },
+            }, item.label),
     );
 }
 
@@ -222,6 +228,14 @@ function SidebarItem(props) {
  * it off and no toggle chrome renders at all, for an app that would rather
  * drive the state from its own AppHeader action.
  *
+ * `expandOnHover` turns `collapsed` into "not pinned": the rail rests at icon
+ * width and opens while the pointer (after 120ms) or keyboard focus is inside
+ * it, closing 300ms after both leave. The open/closed state is the component's
+ * own — transient, like its row hover — and `onExpandedChange` reports the width
+ * it is drawn at, for an app whose layout has to follow it. With
+ * `onToggleCollapsed`, the chevron in a hover-opened band pins it open (») and
+ * the chevron of a pinned one lets it collapse back to the rail («).
+ *
  * @param {{
  *   appName?: React.ReactNode,
  *   brandIcon?: React.ReactNode,
@@ -232,6 +246,8 @@ function SidebarItem(props) {
  *   footer?: React.ReactNode | ((state: { collapsed: boolean }) => React.ReactNode),
  *   collapsed?: boolean,
  *   onToggleCollapsed?: () => void,
+ *   expandOnHover?: boolean,
+ *   onExpandedChange?: (expanded: boolean) => void,
  *   width?: string | number,
  *   collapsedWidth?: string | number,
  *   navRef?: React.Ref<HTMLElement>,
@@ -242,8 +258,39 @@ function SidebarItem(props) {
 function Sidebar(props) {
     const items = props.items || [];
     const sections = props.sections || [];
-    const collapsed = !!props.collapsed;
     const onToggle = props.onToggleCollapsed;
+
+    // Hover-to-expand. `peek` is the hover-opened state, meaningful only while
+    // the rail is unpinned; `collapsed` below is what is actually drawn.
+    const hoverMode = !!props.expandOnHover && !!props.collapsed;
+    const peekState = React.useState(false);
+    const peek = hoverMode && peekState[0];
+    const setPeek = peekState[1];
+    const peekTimer = React.useRef(0);
+    const pointerInside = React.useRef(false);
+    const schedulePeek = function (open, delay) {
+        clearTimeout(peekTimer.current);
+        peekTimer.current = setTimeout(function () { setPeek(open); }, delay);
+    };
+    React.useEffect(function () {
+        return function () { clearTimeout(peekTimer.current); };
+    }, []);
+    const collapsed = !!props.collapsed && !peek;
+
+    const onExpandedChange = props.onExpandedChange;
+    React.useEffect(function () {
+        if (onExpandedChange) onExpandedChange(!collapsed);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [collapsed]);
+
+    const hoverHandlers = props.expandOnHover ? {
+        onMouseEnter: function () { pointerInside.current = true; schedulePeek(true, 120); },
+        onMouseLeave: function () { pointerInside.current = false; schedulePeek(false, 300); },
+        onFocus: function () { schedulePeek(true, 0); },
+        onBlur: function (e) {
+            if (!pointerInside.current && !e.currentTarget.contains(e.relatedTarget)) schedulePeek(false, 300);
+        },
+    } : null;
     const hoverState = React.useState(null);
     const hoveredKey = hoverState[0];
     const setHoveredKey = hoverState[1];
@@ -253,6 +300,7 @@ function Sidebar(props) {
             key: item.key,
             item: item,
             collapsed: collapsed,
+            nowrap: !!props.expandOnHover,
             hovered: hoveredKey === item.key,
             // Two listeners fire on the same enter/leave: this component's own
             // (style only) and the item's optional `onMouseEnter`/`onMouseLeave`
@@ -278,12 +326,14 @@ function Sidebar(props) {
     // target and it keeps showing `brandIcon`, so the rail does not trade its
     // identity for an affordance. Only a sidebar with no brand mark at all
     // falls back to drawing the chevron itself.
-    const brandIsToggle = collapsed && !!onToggle;
+    // Not under expandOnHover: the rail opens on hover before a click could land,
+    // so the band would pin by surprise. Pinning there is the open band's ».
+    const brandIsToggle = collapsed && !!onToggle && !props.expandOnHover;
     const showBrand = props.appName || props.brandIcon || onToggle;
 
     return React.createElement(
         'aside',
-        { style: containerStyle(collapsed, props.width, props.collapsedWidth, props.style) },
+        Object.assign({ style: containerStyle(collapsed, props.width, props.collapsedWidth, props.style) }, hoverHandlers),
         showBrand
             ? React.createElement(
                 'div',
@@ -313,12 +363,13 @@ function Sidebar(props) {
                                 {
                                     style: toggleStyle,
                                     onClick: onToggle,
-                                    title: 'Collapse sidebar',
+                                    title: peek ? 'Keep sidebar open' : 'Collapse sidebar',
                                     role: 'button',
-                                    'aria-label': 'Collapse sidebar',
-                                    'aria-expanded': true,
+                                    'aria-label': peek ? 'Keep sidebar open' : 'Collapse sidebar',
+                                    'aria-pressed': peek ? false : undefined,
+                                    'aria-expanded': peek ? undefined : true,
                                 },
-                                '«',
+                                peek ? '»' : '«',
                             )
                             : null,
                     ),
@@ -377,7 +428,7 @@ function Sidebar(props) {
                                 null,
                                 React.createElement(
                                     'span',
-                                    { style: { display: 'flex', alignItems: 'center', gap: 5, minWidth: 0 } },
+                                    { style: { display: 'flex', alignItems: 'center', gap: 5, minWidth: 0, whiteSpace: props.expandOnHover ? 'nowrap' : undefined } },
                                     section.icon || null,
                                     section.label,
                                 ),

@@ -442,6 +442,30 @@ groups of glyphs never run together. `section.right` is dropped rather than shru
 survive 44px. `navEnd` renders after the last nav row *inside* the scrolling list
 (erp's "Powered by" credit), so it scrolls away with the nav while `footer` stays put.
 
+`expandOnHover` makes the rail open on demand. `collapsed` then means "not
+pinned": the sidebar rests at icon width, opens while the pointer (after 120ms)
+or keyboard focus is inside it, and closes 300ms after both leave — open fast,
+close slow, so cutting a corner on the way to the table doesn't snap it shut.
+That open state is the component's own, the same kind of transient UI state as
+its row hover; pinning stays controlled. With `onToggleCollapsed`, a hover-opened
+band shows » ("Keep sidebar open") and a pinned one « ("Collapse sidebar").
+`onExpandedChange(expanded)` reports the width it is drawn at, for a layout that
+has to make room for it (a flex row needs nothing — the `<aside>` itself widens).
+
+```jsx
+const [pinned, setPinned] = useState(false)
+
+<Sidebar
+  expandOnHover
+  collapsed={!pinned}
+  onToggleCollapsed={() => setPinned(p => !p)}
+  onExpandedChange={setRailOpen}   // only if the layout must follow it
+  sections={sections}
+/>
+```
+
+Touch screens have no hover: start such a device pinned (`matchMedia('(hover: none)')`).
+
 Hover hooks exist on both rows and section bands (`onMouseEnter` / `onMouseLeave`
 on an item or a section spec) for app-level work such as a debounced route
 prefetch. They fire alongside the Sidebar's own hover paint, never instead of it.
