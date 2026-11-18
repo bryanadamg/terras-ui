@@ -243,6 +243,10 @@ function SidebarItem(props) {
  * toward it" means its speed would carry it onto the rail within a few events —
  * the zone overlaps whatever sits beside the rail (a table's first column), and
  * slowing into that, pausing or working there must not throw it open.
+ * Within the zone it also reports proximity, 0 → 1, as the
+ * `--terras-sidebar-approach` property on the <aside> and through `onApproach`,
+ * so the app can grow the rail with the cursor's distance (best over a gutter,
+ * where growing moves nothing); meeting the cursor then opens it outright.
  *
  * @param {{
  *   appName?: React.ReactNode,
@@ -256,6 +260,7 @@ function SidebarItem(props) {
  *   onToggleCollapsed?: () => void,
  *   expandOnHover?: boolean,
  *   approachDistance?: number,
+ *   onApproach?: (progress: number) => void,
  *   onExpandedChange?: (expanded: boolean) => void,
  *   width?: string | number,
  *   collapsedWidth?: string | number,
@@ -292,42 +297,78 @@ function Sidebar(props) {
     // Approach: watch the pointer outside the rail. Only while unpinned and only
     // with a distance set — otherwise no listener at all.
     const approach = hoverMode && props.approachDistance > 0 ? props.approachDistance : 0;
+    // Proximity, 0 (at the zone's far edge or beyond) → 1 (touching the rail).
+    // Written as `--terras-sidebar-approach` on the <aside> and handed to
+    // `onApproach`, so the app can grow the rail with it. Only reported when it
+    // moves by a hundredth, not on every pointer event.
+    const progress = React.useRef(0);
+    const onApproachRef = React.useRef(props.onApproach);
+    onApproachRef.current = props.onApproach;
+    const report = function (p) {
+        const v = Math.round(p * 100) / 100;
+        if (v === progress.current) return;
+        progress.current = v;
+        if (asideRef.current) asideRef.current.style.setProperty('--terras-sidebar-approach', String(v));
+        if (onApproachRef.current) onApproachRef.current(v);
+    };
     React.useEffect(function () {
         if (!approach) return undefined;
         let lastX = null;
+        // The rail's resting edge. Distance is measured from it, not from the
+        // live edge: a rail grown by the app's approach styling would otherwise
+        // chase the cursor. Re-read whenever the rail is at rest.
+        let restRight = null;
         const onMove = function (e) {
             const el = asideRef.current;
-            if (!el || pointerInside.current) { lastX = null; return; }
+            if (!el) return;
+            if (pointerInside.current) { lastX = null; report(0); return; }
             const r = scale.layoutRectOf(el);
+            if (progress.current === 0 || restRight === null) restRight = r.right;
             const x = scale.toLayoutPx(e.clientX);
             const y = scale.toLayoutPx(e.clientY);
-            const d = x - r.right;
+            const d = x - restRight;
+            const inBand = y >= r.top && y <= r.bottom;
             // d <= 0 counts as near: a rail that widened under a still cursor
             // has it inside before any mouseenter fires.
-            const near = y >= r.top && y <= r.bottom && d <= approach;
+            const near = inBand && d <= approach;
+            // Open (hover- or approach-opened): no proximity to show, but a
+            // pointer that wandered out of reach still has to close it.
+            if (peekRef.current) {
+                lastX = x;
+                report(0);
+                if (!near) schedulePeek(false, 300);
+                return;
+            }
+            report(near ? Math.min(1, 1 - d / approach) : 0);
             // Heading INTO the rail, not just leftward: the last move carried
             // four events ahead has to reach its edge. A pointer aiming for
             // something beside the rail (a table's first column) slows as it
             // arrives, so its projection falls short; one aiming for the rail
             // keeps its speed.
             const dx = lastX === null ? 0 : x - lastX;
-            const toward = dx <= -2 && x + dx * 4 <= r.right;
+            const toward = dx <= -2 && x + dx * 4 <= restRight;
             lastX = x;
             if (near && (d <= 0 || toward)) schedulePeek(true, 0);
-            else if (!near && peekRef.current) schedulePeek(false, 300);
         };
         window.addEventListener('pointermove', onMove, { passive: true });
-        return function () { window.removeEventListener('pointermove', onMove); };
+        return function () { window.removeEventListener('pointermove', onMove); report(0); };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [approach]);
 
     const onExpandedChange = props.onExpandedChange;
     React.useEffect(function () {
+        // Opened: proximity is spent. In the same commit as the width change, so
+        // the app's approach growth hands over to the full width in one move.
+        if (!collapsed) report(0);
         if (onExpandedChange) onExpandedChange(!collapsed);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [collapsed]);
 
     const hoverHandlers = props.expandOnHover ? {
-        onMouseEnter: function () { pointerInside.current = true; schedulePeek(true, 120); },
+        // No contact delay after an approach: the rail grew toward the cursor
+        // until it met it, which is already the deliberate move the delay
+        // waits for — and waiting would let the grown rail sit half-open.
+        onMouseEnter: function () { pointerInside.current = true; schedulePeek(true, progress.current > 0 ? 0 : 120); },
         onMouseLeave: function () { pointerInside.current = false; schedulePeek(false, 300); },
         onFocus: function () { schedulePeek(true, 0); },
         onBlur: function (e) {

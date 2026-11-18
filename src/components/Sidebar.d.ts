@@ -35,6 +35,12 @@ export interface SidebarProps {
    *  pausing or working beside the rail never opens it.
    *  Default 0 = contact only. */
   approachDistance?: number;
+  /** With `approachDistance`: proximity inside the zone, 0 (far edge or
+   *  beyond) → 1 (touching the rail), in hundredths — also written as the
+   *  `--terras-sidebar-approach` custom property on the <aside>. For growing
+   *  the rail with the cursor's distance; the package itself draws nothing
+   *  from it. Back to 0 once the rail opens or the pointer leaves the zone. */
+  onApproach?: (progress: number) => void;
   /** The width the rail is drawn at changed — `true` when it shows full width,
    *  pinned or hover-opened. For a layout that has to follow it. Also fires on
    *  mount with the initial state. */

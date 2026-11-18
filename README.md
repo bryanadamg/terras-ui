@@ -471,6 +471,13 @@ widening on arrival. The heading check is what makes the zone safe to put over
 whatever sits beside the rail: a cursor slowing into a table's first column,
 drifting or clicking there never opens it.
 
+Inside that zone the rail also reports how close the cursor is, 0 → 1, as the
+`--terras-sidebar-approach` property on its `<aside>` and through
+`onApproach(progress)`. The package draws nothing from it; the app grows the
+rail with it — best over a gutter, where growing moves nothing — and once the
+grown rail meets the cursor it opens outright, with no contact delay. Distance
+is measured from the rail's resting edge, so the growth never chases the cursor.
+
 Touch screens have no hover: start such a device pinned (`matchMedia('(hover: none)')`).
 
 Hover hooks exist on both rows and section bands (`onMouseEnter` / `onMouseLeave`
