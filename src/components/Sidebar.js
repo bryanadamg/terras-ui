@@ -58,6 +58,12 @@ const containerStyle = (collapsed, width, collapsedWidth, style) => Object.assig
 // box on the rail.
 const railLeft = (w) => 'calc(' + S.cssVar('sidebar-width-collapsed', '44px') + ' / 2 - ' + (w / 2) + 'px)';
 const GLIDE = '0.12s';
+// Hover rail timing: open after 120ms of contact (a pass across the rail on the
+// way somewhere else is not a request), close 200ms after the pointer leaves —
+// long enough to forgive overshooting the edge while reaching for a row (which,
+// with a layout that makes room for the rail, would reflow the page twice),
+// short enough not to read as lag. The two flank the 0.12s width animation.
+const CLOSE_DELAY = 200;
 // Opacity is applied last: an element with its own resting opacity (the pin
 // control's 0.85) keeps it while shown, but is fully gone on the rail — set
 // first, the element's own value won and the pin hung half-visible in 44px.
@@ -259,7 +265,7 @@ function SidebarItem(props) {
  *
  * `expandOnHover` turns `collapsed` into "not pinned": the rail rests at icon
  * width and opens while the pointer (after 120ms) or keyboard focus is inside
- * it, closing 300ms after both leave. The open/closed state is the component's
+ * it, closing 200ms after both leave. The open/closed state is the component's
  * own — transient, like its row hover — and `onExpandedChange` reports the width
  * it is drawn at, for an app whose layout has to follow it. With
  * `onToggleCollapsed`, the band's control pins it: on a hover-opened band it
@@ -314,10 +320,17 @@ function Sidebar(props) {
     const peek = hoverMode && peekState[0];
     const setPeek = peekState[1];
     const peekTimer = React.useRef(0);
+    const peekPending = React.useRef(null);
     const pointerInside = React.useRef(false);
+    // One countdown per change of mind. Asking again for the change already
+    // pending keeps the running timer instead of restarting it — restarting is
+    // what let a cursor that kept moving away hold the rail open until it stopped
+    // (1.8s after leaving, measured, instead of the close delay).
     const schedulePeek = function (open, delay) {
+        if (peekPending.current === open) return;
         clearTimeout(peekTimer.current);
-        peekTimer.current = setTimeout(function () { setPeek(open); }, delay);
+        peekPending.current = open;
+        peekTimer.current = setTimeout(function () { peekPending.current = null; setPeek(open); }, delay);
     };
     React.useEffect(function () {
         return function () { clearTimeout(peekTimer.current); };
@@ -369,7 +382,7 @@ function Sidebar(props) {
             if (peekRef.current) {
                 lastX = x;
                 report(0);
-                if (!near) schedulePeek(false, 300);
+                if (!near) schedulePeek(false, CLOSE_DELAY);
                 return;
             }
             report(near ? Math.min(1, 1 - d / approach) : 0);
@@ -402,10 +415,10 @@ function Sidebar(props) {
         // until it met it, which is already the deliberate move the delay
         // waits for — and waiting would let the grown rail sit half-open.
         onMouseEnter: function () { pointerInside.current = true; schedulePeek(true, progress.current > 0 ? 0 : 120); },
-        onMouseLeave: function () { pointerInside.current = false; schedulePeek(false, 300); },
+        onMouseLeave: function () { pointerInside.current = false; schedulePeek(false, CLOSE_DELAY); },
         onFocus: function () { schedulePeek(true, 0); },
         onBlur: function (e) {
-            if (!pointerInside.current && !e.currentTarget.contains(e.relatedTarget)) schedulePeek(false, 300);
+            if (!pointerInside.current && !e.currentTarget.contains(e.relatedTarget)) schedulePeek(false, CLOSE_DELAY);
         },
     } : null;
     const hoverState = React.useState(null);

@@ -444,7 +444,7 @@ survive 44px. `navEnd` renders after the last nav row *inside* the scrolling lis
 
 `expandOnHover` makes the rail open on demand. `collapsed` then means "not
 pinned": the sidebar rests at icon width, opens while the pointer (after 120ms)
-or keyboard focus is inside it, and closes 300ms after both leave — open fast,
+or keyboard focus is inside it, and closes 200ms after both leave — open fast,
 close slow, so cutting a corner on the way to the table doesn't snap it shut.
 That open state is the component's own, the same kind of transient UI state as
 its row hover; pinning stays controlled. With `onToggleCollapsed`, the band gets a

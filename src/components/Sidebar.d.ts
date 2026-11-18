@@ -26,7 +26,7 @@ export interface SidebarProps {
   onToggleCollapsed?: () => void;
   /** Hover-to-expand: `collapsed` becomes "not pinned". The rail rests at icon
    *  width and opens while the pointer (after 120ms) or keyboard focus is in
-   *  it, closing 300ms after both leave. With `onToggleCollapsed`, the band's
+   *  it, closing 200ms after both leave. With `onToggleCollapsed`, the band's
    *  control pins and unpins it (`pinIcon`, or » / «). */
   expandOnHover?: boolean;
   /** With `expandOnHover`: start opening before contact, when the pointer is
