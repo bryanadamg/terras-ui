@@ -469,7 +469,7 @@ const chevron = React.createElement('svg', {
 function ExpandToggle(props) {
     const label = props.label || 'details';
     const verb = props.expanded ? 'Hide ' : 'Show ';
-    const color = props.tone === 'alert' && props.expanded ? '#c00000' : S.cssVar('win-blue', '#0054e3');
+    const color = props.tone === 'alert' && props.expanded ? S.cssVar('status-red', '#c00000') : S.cssVar('win-blue', '#0054e3');
     return React.createElement('button', {
         type: 'button',
         // The row is usually clickable too; without this the click toggles

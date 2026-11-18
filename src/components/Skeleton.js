@@ -241,16 +241,16 @@ function CardGridSkeleton(props) {
     }, times(count, function (i) {
         return h('div', {
             key: i,
-            style: { background: S.cssVar('win-bg', '#ece9d8'), border: '2px solid', borderColor: '#ffffff #808080 #808080 #ffffff' },
+            style: { background: S.cssVar('win-bg', '#ece9d8'), border: '2px solid', borderColor: [S.cssVar('win-border-light', '#ffffff'), S.cssVar('win-border-dark', '#808080'), S.cssVar('win-border-dark', '#808080'), S.cssVar('win-border-light', '#ffffff')].join(' ') },
         },
         headerStrip ? h('div', {
             style: {
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6,
-                padding: '4px 7px', background: '#a6a6a6', borderBottom: '1px solid rgba(0,0,0,0.2)',
+                padding: '4px 7px', background: S.cssVar('skeleton-strip', '#a6a6a6'), borderBottom: '1px solid rgba(0,0,0,0.2)',
             },
         }, h(SkeletonBar, { width: skelWidth(i, 0), height: 9 }), h(SkeletonBar, { width: 44, height: 9 })) : null,
         h('div', {
-            style: { padding: '7px 8px', background: '#ffffff', display: 'flex', flexDirection: 'column', gap: 6, minHeight: props.bodyHeight },
+            style: { padding: '7px 8px', background: S.cssVar('win-well', '#ffffff'), display: 'flex', flexDirection: 'column', gap: 6, minHeight: props.bodyHeight },
         },
         times(bodyLines, function (l) { return h(SkeletonBar, { key: l, width: skelWidth(i, l + 1), height: 8 }); }),
         bar ? h(SkeletonBar, { width: '100%', height: 10 }) : null));
@@ -294,7 +294,7 @@ function TableBlockSkeleton(props) {
 function Loading(props) {
     const label = props.label === undefined ? 'Loading...' : props.label;
     const inner = h('div', { role: 'status', style: { textAlign: 'center', fontFamily: S.font, userSelect: 'none' } },
-        label ? h('div', { style: { fontSize: S.fs.title, fontWeight: 'bold', color: '#1a3d90', marginBottom: 8 } }, label) : null,
+        label ? h('div', { style: { fontSize: S.fs.title, fontWeight: 'bold', color: S.cssVar('loading-label', '#1a3d90'), marginBottom: 8 } }, label) : null,
         h('div', { className: 'terras-loading-track' },
             h('div', { className: 'terras-loading-blocks' }, h('span'), h('span'), h('span'))));
     if (!props.fullScreen) {

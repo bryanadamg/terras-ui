@@ -104,7 +104,7 @@ function FloatingMenu(props) {
         [MENU_ATTR]: '',
         style: {
             minWidth: props.minWidth === undefined ? 175 : props.minWidth,
-            background: '#ffffff',
+            background: S.cssVar('menu-bg', '#ffffff'),
             border: '1px solid ' + S.cssVar('win-border-dark', '#808080'),
             boxShadow: '2px 2px 4px rgba(0,0,0,.25)',
         },
@@ -124,7 +124,7 @@ function FloatingMenu(props) {
                 display: 'flex', alignItems: 'center', gap: 7, width: '100%', textAlign: 'left',
                 border: 'none', padding: '6px 10px', fontSize: S.fs.base, fontFamily: S.font,
                 cursor: item.disabled ? 'default' : 'pointer',
-                color: item.danger ? '#aa0000' : '#222222',
+                color: item.danger ? S.cssVar('menu-danger-text', '#aa0000') : S.cssVar('menu-text', '#222222'),
             },
         }, item.icon || null, item.label);
     })));
@@ -146,7 +146,7 @@ function MenuTriggerButton(props) {
         style: {
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
             width: 20, height: 20, padding: 0, cursor: 'pointer',
-            color: '#555555', fontSize: S.fs.title, fontFamily: S.font, lineHeight: 1,
+            color: S.cssVar('menu-trigger-text', '#555555'), fontSize: S.fs.title, fontFamily: S.font, lineHeight: 1,
         },
     }, props.icon === undefined ? '⋯' : props.icon));
 }

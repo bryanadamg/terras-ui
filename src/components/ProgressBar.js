@@ -138,7 +138,7 @@ function ProgressBar(props) {
                     // Tracks this thin leave no room for the shared scale, and the
                     // label must not outgrow the bar it sits in.
                     fontSize: Math.max(8, height - 7),
-                    fontWeight: 'bold', color: '#fff',
+                    fontWeight: 'bold', color: S.cssVar('on-solid', '#ffffff'),
                     background: 'rgba(0,0,0,0.45)',
                     borderRadius: S.cssVar('radius-btn', '3px'),
                     padding: '0 5px', lineHeight: (height - 4) + 'px',

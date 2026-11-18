@@ -437,8 +437,14 @@ At rail width labels drop to a native `title` tooltip, a `sub` row keeps its
 `--terras-sidebar-sub-bg` tint in place of its indent, and a section band shrinks to
 its `icon` — or to a bare 6px gradient stripe when it has none, so two unrelated
 groups of glyphs never run together. `section.right` is dropped rather than shrunk.
-**Give every section an `icon`** unless you want that stripe. `top` and `footer` each
-accept a `({ collapsed }) => node` function for content that can't survive 44px.
+**Give every section an `icon`** unless you want that stripe. `top`, `navEnd` and
+`footer` each accept a `({ collapsed }) => node` function for content that can't
+survive 44px. `navEnd` renders after the last nav row *inside* the scrolling list
+(erp's "Powered by" credit), so it scrolls away with the nav while `footer` stays put.
+
+Hover hooks exist on both rows and section bands (`onMouseEnter` / `onMouseLeave`
+on an item or a section spec) for app-level work such as a debounced route
+prefetch. They fire alongside the Sidebar's own hover paint, never instead of it.
 
 **Both stylesheets are required.** `terras-ui/css` is the custom properties; `terras-ui/chrome` carries the rules an inline style object cannot express (`:hover` / `:focus` / `::placeholder`, scrollbars, and the table `th`/`td` descendant selectors). Without the second one, buttons lose their press motion and tables render unruled. A third, `terras-ui/scale.css`, is optional — see **Interface scale** below.
 

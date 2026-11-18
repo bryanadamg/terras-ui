@@ -84,7 +84,7 @@ const titleBar = (extra, tone) => {
     const t = TITLE_TONES[tone || 'blue'] || TITLE_TONES.blue;
     return Object.assign({
         background: t.background,
-        color: '#ffffff',
+        color: v('on-solid', '#ffffff'),
         fontFamily: font,
         fontSize: fs.title,
         fontWeight: 'bold',
@@ -146,15 +146,15 @@ const field = (extra) => Object.assign({
 const BTN_TONES = {
     default: {},
     primary: Object.assign(
-        { background: v('btn-primary-face'), color: '#fff', fontWeight: 'bold' },
+        { background: v('btn-primary-face'), color: v('on-solid', '#ffffff'), fontWeight: 'bold' },
         raised(v('btn-primary-border-light', '#1a3a7a'), v('btn-primary-border-dark', '#0a1a4a')),
     ),
     success: Object.assign(
-        { background: v('btn-success-face'), color: '#fff', fontWeight: 'bold' },
+        { background: v('btn-success-face'), color: v('on-solid', '#ffffff'), fontWeight: 'bold' },
         raised(v('btn-success-border-light', '#1a5e1a'), v('btn-success-border-dark', '#0a3e0a')),
     ),
     danger: Object.assign(
-        { background: v('btn-danger-face'), color: '#fff', fontWeight: 'bold' },
+        { background: v('btn-danger-face'), color: v('on-solid', '#ffffff'), fontWeight: 'bold' },
         raised(v('btn-danger-border-light', '#8e0000'), v('btn-danger-border-dark', '#5e0000')),
     ),
 };
@@ -232,7 +232,7 @@ const toggleChip = (extra, opts) => {
             : o.flat ? v('toggle-flat-bg', '#eceae0')
             : toned ? v('toggle-' + tone + '-idle-bg')
             : v('btn-face', 'linear-gradient(to bottom, #ffffff 0%, #d4d0c8 100%)'),
-        color: o.on ? '#ffffff'
+        color: o.on ? v('on-solid', '#ffffff')
             : toned ? v('toggle-' + tone + '-idle-text')
             : v('win-text', '#000000'),
         '--terras-toggle-glow': v('toggle-glow-' + tone, TOGGLE_TONES[tone]),

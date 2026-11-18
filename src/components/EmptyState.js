@@ -30,7 +30,7 @@ function EmptyState(props) {
         hasIcon
             ? React.createElement('span', {
                 'aria-hidden': true,
-                style: { fontSize: 22, lineHeight: 1, color: '#a0a0a0', display: 'block', marginBottom: 6 },
+                style: { fontSize: 22, lineHeight: 1, color: S.cssVar('empty-icon', '#a0a0a0'), display: 'block', marginBottom: 6 },
             }, props.icon)
             : null,
         React.createElement('div', { style: { fontSize: S.fs.base, fontStyle: 'italic' } }, props.message),

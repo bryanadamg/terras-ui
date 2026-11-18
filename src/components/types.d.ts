@@ -33,6 +33,10 @@ export interface SidebarSectionSpec {
    *  are" with no child row selected. */
   active?: boolean;
   onClick?: () => void;
+  /** App-level hover hook on the band, e.g. prefetching the section's home
+   *  page — same contract as an item's `onMouseEnter`. */
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
   items: SidebarItemSpec[];
 }
 

@@ -55,7 +55,7 @@ const brandStyle = (collapsed, clickable) => ({
     background: S.cssVar('title-flat', '#0058e6'),
     borderBottom: '1px solid ' + S.cssVar('title-blue-border', '#003080'),
     boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.3)',
-    color: '#ffffff',
+    color: S.cssVar('on-solid', '#ffffff'),
     display: 'flex',
     alignItems: 'center',
     justifyContent: collapsed ? 'center' : undefined,
@@ -81,7 +81,7 @@ const toggleStyle = {
     lineHeight: 1,
     fontSize: S.fs.title,
     fontWeight: 'bold',
-    color: '#ffffff',
+    color: S.cssVar('on-solid', '#ffffff'),
     opacity: 0.85,
     cursor: 'pointer',
 };
@@ -141,7 +141,7 @@ function sectionStyle(highlighted, collapsed, bare) {
         background: highlighted
             ? S.cssVar('sidebar-section-bg-hover', 'linear-gradient(to right, #2a7cff, #0058e6)')
             : S.cssVar('sidebar-section-bg', 'linear-gradient(to right, #0058e6, #003080)'),
-        color: '#ffffff',
+        color: S.cssVar('on-solid', '#ffffff'),
         fontWeight: 'bold',
         fontSize: S.fs.sm,
         height: bare ? 6 : undefined,
@@ -227,7 +227,8 @@ function SidebarItem(props) {
  *   brandIcon?: React.ReactNode,
  *   top?: React.ReactNode | ((state: { collapsed: boolean }) => React.ReactNode),
  *   items?: Array<{ key: string, label: React.ReactNode, icon?: React.ReactNode, active?: boolean, sub?: boolean, onClick: () => void, onMouseEnter?: () => void, onMouseLeave?: () => void, title?: string }>,
- *   sections?: Array<{ key: string, label: React.ReactNode, icon?: React.ReactNode, right?: React.ReactNode, active?: boolean, onClick?: () => void, items: Array<object> }>,
+ *   sections?: Array<{ key: string, label: React.ReactNode, icon?: React.ReactNode, right?: React.ReactNode, active?: boolean, onClick?: () => void, onMouseEnter?: () => void, onMouseLeave?: () => void, items: Array<object> }>,
+ *   navEnd?: React.ReactNode | ((state: { collapsed: boolean }) => React.ReactNode),
  *   footer?: React.ReactNode | ((state: { collapsed: boolean }) => React.ReactNode),
  *   collapsed?: boolean,
  *   onToggleCollapsed?: () => void,
@@ -270,6 +271,7 @@ function Sidebar(props) {
     };
 
     const top = slot(props.top, collapsed);
+    const navEnd = slot(props.navEnd, collapsed);
     const footer = slot(props.footer, collapsed);
 
     // Collapsed, the band IS the control: the whole 44×30 strip is the hit
@@ -347,8 +349,16 @@ function Sidebar(props) {
                             // can be "where you are" with no child row selected at all.
                             style: sectionStyle(hoveredKey === section.key || childActive || !!section.active, collapsed, bare),
                             onClick: section.onClick,
-                            onMouseEnter: function () { setHoveredKey(section.key); },
-                            onMouseLeave: function () { setHoveredKey(null); },
+                            // Same split as an item's: paint here, the app's own
+                            // hook (e.g. prefetching the section's home page) after.
+                            onMouseEnter: function () {
+                                setHoveredKey(section.key);
+                                if (section.onMouseEnter) section.onMouseEnter();
+                            },
+                            onMouseLeave: function () {
+                                setHoveredKey(null);
+                                if (section.onMouseLeave) section.onMouseLeave();
+                            },
                             role: section.onClick ? 'button' : undefined,
                             title: collapsed && typeof section.label === 'string' ? section.label : undefined,
                         },
@@ -379,6 +389,10 @@ function Sidebar(props) {
                     }),
                 );
             }),
+            // Inside the <nav>, so it scrolls with the list and sits after the
+            // last row — erp's "Powered by" credit — rather than taking room in
+            // the footer, which holds only the account card.
+            navEnd,
         ),
         footer ? React.createElement('div', { style: footerStyle(collapsed) }, footer) : null,
     );

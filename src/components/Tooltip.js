@@ -203,9 +203,9 @@ function TooltipSurface(props) {
             lineHeight: 1.4,
             padding: '3px 7px',
             borderRadius: 3,
-            background: '#2f3136',
-            color: '#f2f2f2',
-            border: '1px solid #16171a',
+            background: S.cssVar('tooltip-bg', '#2f3136'),
+            color: S.cssVar('tooltip-text', '#f2f2f2'),
+            border: '1px solid ' + S.cssVar('tooltip-border', '#16171a'),
             boxShadow: '0 2px 8px rgba(0,0,0,0.30)',
         },
     }, props.children);

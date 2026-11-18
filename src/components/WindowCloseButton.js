@@ -47,7 +47,7 @@ function WindowCloseButton(props) {
                 lineHeight: 1,
                 flexShrink: 0,
                 background: S.cssVar('winclose-face', 'linear-gradient(to bottom, #d4c8c8, #a89898)'),
-                color: '#ffffff',
+                color: S.cssVar('on-solid', '#ffffff'),
                 textShadow: '0 1px 1px rgba(0, 0, 0, 0.5)',
             }, props.style)),
         }, rest),

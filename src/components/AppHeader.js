@@ -20,7 +20,7 @@ const headerStyle = (style) => Object.assign({
     height: S.cssVar('app-header-h', '30px'),
     flexShrink: 0,
     background: S.cssVar('title-blue'),
-    color: '#ffffff',
+    color: S.cssVar('on-solid', '#ffffff'),
     borderBottom: '1px solid ' + S.cssVar('title-blue-border', '#003080'),
     boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.3)',
     display: 'flex',

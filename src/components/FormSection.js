@@ -30,7 +30,7 @@ function FormSection(props) {
         {
             style: Object.assign({
                 border: '1px solid ' + S.cssVar('win-border-soft', '#c0bdb5'),
-                boxShadow: 'inset 1px 1px 0 #fff, 1px 1px 0 ' + S.cssVar('win-border-soft', '#c0bdb5'),
+                boxShadow: 'inset 1px 1px 0 ' + S.cssVar('win-border-light', '#ffffff') + ', 1px 1px 0 ' + S.cssVar('win-border-soft', '#c0bdb5'),
                 borderRadius: S.cssVar('radius-section', '6px'),
                 // Must clip, or the square header bar pokes out of the corners.
                 overflow: 'hidden',
@@ -44,7 +44,7 @@ function FormSection(props) {
                 // icon-plus-text fragments) lays out inline exactly as it does there.
                 style: {
                     background: S.cssVar('form-section-blue', '#3a6fc4'),
-                    color: '#ffffff',
+                    color: S.cssVar('on-solid', '#ffffff'),
                     fontFamily: S.font,
                     fontSize: S.fs.sm,
                     fontWeight: 'bold',
@@ -75,7 +75,7 @@ function FormSection(props) {
         ),
         React.createElement(
             'div',
-            { style: Object.assign({ background: '#ffffff', padding: 10 }, props.bodyStyle) },
+            { style: Object.assign({ background: S.cssVar('win-well', '#ffffff'), padding: 10 }, props.bodyStyle) },
             props.children,
         ),
     );
