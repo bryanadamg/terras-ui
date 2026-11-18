@@ -21,6 +21,7 @@
 
 const React = require('react');
 const S = require('./styles');
+const scale = require('../scale');
 
 const containerStyle = (collapsed, width, collapsedWidth, style) => Object.assign({
     width: collapsed
@@ -236,6 +237,13 @@ function SidebarItem(props) {
  * `onToggleCollapsed`, the chevron in a hover-opened band pins it open (») and
  * the chevron of a pinned one lets it collapse back to the rail («).
  *
+ * `approachDistance` (layout px) lets it start opening before contact: a
+ * pointer within that distance of the rail's edge and moving toward it opens
+ * it at once, so the rail is already widening as the cursor arrives. "Moving
+ * toward it" means its speed would carry it onto the rail within a few events —
+ * the zone overlaps whatever sits beside the rail (a table's first column), and
+ * slowing into that, pausing or working there must not throw it open.
+ *
  * @param {{
  *   appName?: React.ReactNode,
  *   brandIcon?: React.ReactNode,
@@ -247,6 +255,7 @@ function SidebarItem(props) {
  *   collapsed?: boolean,
  *   onToggleCollapsed?: () => void,
  *   expandOnHover?: boolean,
+ *   approachDistance?: number,
  *   onExpandedChange?: (expanded: boolean) => void,
  *   width?: string | number,
  *   collapsedWidth?: string | number,
@@ -276,6 +285,40 @@ function Sidebar(props) {
         return function () { clearTimeout(peekTimer.current); };
     }, []);
     const collapsed = !!props.collapsed && !peek;
+    const asideRef = React.useRef(null);
+    const peekRef = React.useRef(false);
+    peekRef.current = peek;
+
+    // Approach: watch the pointer outside the rail. Only while unpinned and only
+    // with a distance set — otherwise no listener at all.
+    const approach = hoverMode && props.approachDistance > 0 ? props.approachDistance : 0;
+    React.useEffect(function () {
+        if (!approach) return undefined;
+        let lastX = null;
+        const onMove = function (e) {
+            const el = asideRef.current;
+            if (!el || pointerInside.current) { lastX = null; return; }
+            const r = scale.layoutRectOf(el);
+            const x = scale.toLayoutPx(e.clientX);
+            const y = scale.toLayoutPx(e.clientY);
+            const d = x - r.right;
+            // d <= 0 counts as near: a rail that widened under a still cursor
+            // has it inside before any mouseenter fires.
+            const near = y >= r.top && y <= r.bottom && d <= approach;
+            // Heading INTO the rail, not just leftward: the last move carried
+            // four events ahead has to reach its edge. A pointer aiming for
+            // something beside the rail (a table's first column) slows as it
+            // arrives, so its projection falls short; one aiming for the rail
+            // keeps its speed.
+            const dx = lastX === null ? 0 : x - lastX;
+            const toward = dx <= -2 && x + dx * 4 <= r.right;
+            lastX = x;
+            if (near && (d <= 0 || toward)) schedulePeek(true, 0);
+            else if (!near && peekRef.current) schedulePeek(false, 300);
+        };
+        window.addEventListener('pointermove', onMove, { passive: true });
+        return function () { window.removeEventListener('pointermove', onMove); };
+    }, [approach]);
 
     const onExpandedChange = props.onExpandedChange;
     React.useEffect(function () {
@@ -333,7 +376,7 @@ function Sidebar(props) {
 
     return React.createElement(
         'aside',
-        Object.assign({ style: containerStyle(collapsed, props.width, props.collapsedWidth, props.style) }, hoverHandlers),
+        Object.assign({ ref: asideRef, style: containerStyle(collapsed, props.width, props.collapsedWidth, props.style) }, hoverHandlers),
         showBrand
             ? React.createElement(
                 'div',

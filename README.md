@@ -464,6 +464,13 @@ const [pinned, setPinned] = useState(false)
 />
 ```
 
+`approachDistance` (layout px) lets the rail start opening before the cursor
+touches it: within that distance of its edge, a pointer whose last move —
+carried four moves ahead — reaches the rail opens it at once, so it is already
+widening on arrival. The heading check is what makes the zone safe to put over
+whatever sits beside the rail: a cursor slowing into a table's first column,
+drifting or clicking there never opens it.
+
 Touch screens have no hover: start such a device pinned (`matchMedia('(hover: none)')`).
 
 Hover hooks exist on both rows and section bands (`onMouseEnter` / `onMouseLeave`

@@ -29,6 +29,12 @@ export interface SidebarProps {
    *  it, closing 300ms after both leave. With `onToggleCollapsed`, the open
    *  band's chevron pins it (») and a pinned band's lets it collapse («). */
   expandOnHover?: boolean;
+  /** With `expandOnHover`: start opening before contact, when the pointer is
+   *  within this many layout px of the rail's edge and heading into it (its
+   *  last move, carried four moves ahead, reaches the edge). Slowing into,
+   *  pausing or working beside the rail never opens it.
+   *  Default 0 = contact only. */
+  approachDistance?: number;
   /** The width the rail is drawn at changed — `true` when it shows full width,
    *  pinned or hover-opened. For a layout that has to follow it. Also fires on
    *  mount with the initial state. */
