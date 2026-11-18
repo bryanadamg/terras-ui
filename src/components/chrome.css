@@ -614,3 +614,10 @@
   .terras-toggle-flat:not(:disabled):hover,
   .terras-toggle-flat:not(:disabled):active { transform: none; }
 }
+
+/* Sidebar glide (expandOnHover): its row padding and label fades are inline
+   transitions, which a media query can't reach — hence !important. */
+@media (prefers-reduced-motion: reduce) {
+  .terras-sidebar-glide,
+  .terras-sidebar-glide * { transition: none !important; }
+}
