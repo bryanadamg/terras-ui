@@ -259,16 +259,16 @@
      chrome by redefining this short list.
 
      Only tokens that share a value AND a meaning point here. `--terras-status-blue`
-     and the blue chips are also #0058e6 but report state, so they keep their own
-     value and will not follow the accent when a palette changes it.
+     and the blue chips (#0058e6, the old XP accent) report state, so they keep
+     their own value and do not follow the accent.
 
      Scope rule, enforced by `node tools/check-tokens.js`: a token may reference
      only tokens declared in its own block or in :root. A custom property
      resolves its var()s on the element that declares it, and erp applies
      .ui-style-classic to nested elements as well as <html>. */
-  --terras-accent: #0058e6;
-  --terras-accent-deep: #003080;      /* borders, active nav text, dark end of gradients */
-  --terras-accent-bright: #08a5ff;    /* light end of the title band */
+  --terras-accent: #1f4fd1;
+  --terras-accent-deep: #10276b;      /* borders, active nav text, dark end of gradients */
+  --terras-accent-bright: #4a86f0;    /* light end of the title band */
   --terras-accent-inactive: #7a96b8;  /* the accent dimmed for an unfocused window */
   --terras-accent-edge: #7f9db9;      /* blue-grey edge of a recessed field / idle toggle */
   --terras-win-well: #ffffff;         /* recessed ground: input and table body */
@@ -310,26 +310,29 @@
   --terras-content-pad: 10px;
   --terras-content-pad-mobile: 16px;
 
-  /* Sidebar nav palette (erp's Sidebar.tsx SIDEBAR_BG/HOVER_BG/ACTIVE_*) — a
-     separate light-indigo family, not derived from win-bg/win-highlight. Kept
-     as its own token group rather than folded into the bevel tokens above. */
-  --terras-sidebar-bg: #d6dff7;
-  --terras-sidebar-border: #718bb7;
-  --terras-sidebar-item-border: #c0ccee;
+  /* Sidebar nav palette ("Sapphire Frost") — a near-white cool family, not
+     derived from win-bg/win-highlight. Each nesting level steps a little
+     bluer (bg → sub-bg → sub-bg-deep) so the hierarchy shows without tinting
+     the whole rail. Kept as its own group rather than folded into the bevel
+     tokens above. */
+  --terras-sidebar-bg: #f6f8fc;
+  --terras-sidebar-border: #c2ccdf;
+  --terras-sidebar-item-border: #e3e8f1;
   --terras-sidebar-hover-bg: var(--terras-accent);
   --terras-sidebar-hover-color: #ffffff;
   --terras-sidebar-active-bg: #ffffff;
   --terras-sidebar-active-color: var(--terras-accent-deep);
-  /* Nested nav levels + the section header band (erp Sidebar.tsx SUB_BG /
-     SUB_BG_DEEP / sectionHdrStyle) and the footer strip the ID card sits on. */
-  --terras-sidebar-sub-bg: #bcc9e8;
-  --terras-sidebar-sub-bg-deep: #a8b4cc;
-  --terras-sidebar-section-bg: linear-gradient(to right, var(--terras-accent), var(--terras-accent-deep));
-  --terras-sidebar-section-bg-hover: linear-gradient(to right, #2a7cff, var(--terras-accent));
-  --terras-sidebar-section-border-top: #7090cc;
+  /* Nested nav levels, the section header band (flat accent, deepening on
+     hover / when its page or a child is current) and the footer strip the ID
+     card sits on. */
+  --terras-sidebar-sub-bg: #eef2f9;
+  --terras-sidebar-sub-bg-deep: #e4e9f3;
+  --terras-sidebar-section-bg: var(--terras-accent);
+  --terras-sidebar-section-bg-hover: var(--terras-accent-deep);
+  --terras-sidebar-section-border-top: #5f80d6;
   --terras-sidebar-section-border-bottom: var(--terras-accent-deep);
-  --terras-sidebar-footer-bg: #c0cade;
-  --terras-sidebar-footer-border: #9098b8;
+  --terras-sidebar-footer-bg: #eceff6;
+  --terras-sidebar-footer-border: #d3dae8;
 
   /* ── Interactive chrome (erp xpTheme.tsx xpBtn / xpInput / BTN_TONES) ────────
      The XP button face is a top-light gradient with a two-tone 1px border
@@ -349,9 +352,9 @@
   --terras-winclose-border-hover-light: var(--terras-tone-red-dark);
   --terras-winclose-border-hover-dark: var(--terras-tone-red-deep);
 
-  --terras-btn-primary-face: linear-gradient(to bottom, var(--terras-win-highlight), #1a4a8a);
+  --terras-btn-primary-face: linear-gradient(to bottom, #2f5fdb, #173a99);
   --terras-btn-primary-border-light: #1a3a7a;
-  --terras-btn-primary-border-dark: #0a1a4a;
+  --terras-btn-primary-border-dark: #0d225e;
   --terras-btn-success-face: linear-gradient(to bottom, #5ec85e, #2d7a2d);
   --terras-btn-success-border-light: #1a5e1a;
   --terras-btn-success-border-dark: #0a3e0a;
@@ -371,8 +374,7 @@
      optional toned-idle face are its own.
 
      These fills are NOT the status-chip families: a status chip is a tinted pill
-     that reports state, this is a solid fill that says "pressed". Only blue
-     coincides (#0058e6). Four tones, matching the title-bar set minus grey —
+     that reports state, this is a solid fill that says "pressed". Four tones, matching the title-bar set minus grey —
      a fifth means the states aren't distinct. */
   --terras-toggle-flat-bg: #eceae0;
   --terras-toggle-blue-bg: var(--terras-accent);    --terras-toggle-blue-border: var(--terras-accent-deep);
