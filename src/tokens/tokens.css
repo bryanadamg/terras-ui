@@ -485,6 +485,14 @@
   --terras-row-state-expanded: #d6e4f7;
   --terras-row-state-selected: #b8d0ef;
   --terras-row-state-highlighted: #fff8c4;
+  /* List-view zebra (erp listViewTheme.tsx lvZebra / lvSubRow). `.terras-table`
+     itself stays ruled, not striped: these are for an app's striped list views,
+     and for the `stripe` a zebra list's skeleton hands TableSkeleton so the rows
+     don't change ground when data lands. The even row is `--terras-table-bg`.
+     The sub stripe is lighter, so a striped table nested in a list never
+     out-contrasts the list around it. */
+  --terras-row-stripe: #f9f8f4;
+  --terras-row-stripe-sub: #fbfaf7;
 
   /* One-off component colours that used to be literals in the JS / chrome.css.
      Each use keeps the literal as its var() fallback, so a component outside
