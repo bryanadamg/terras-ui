@@ -135,7 +135,7 @@ const footerStyle = (collapsed) => ({
 
 function itemStyle(active, hovered, sub, collapsed, glide) {
     const background = hovered
-        ? S.cssVar('sidebar-hover-bg', '#1f4fd1')
+        ? S.cssVar('sidebar-hover-bg', '#e1e8f6')
         : active
             ? S.cssVar('sidebar-active-bg', '#ffffff')
             : sub
@@ -157,15 +157,15 @@ function itemStyle(active, hovered, sub, collapsed, glide) {
             : collapsed ? '5px 0' : (sub ? '4px 8px 4px 22px' : '5px 8px 5px 14px'),
         cursor: 'pointer',
         userSelect: 'none',
-        borderLeft: active && !hovered
-            ? '3px solid ' + S.cssVar('sidebar-hover-bg', '#1f4fd1')
+        borderLeft: active
+            ? '3px solid ' + S.cssVar('sidebar-active-marker', '#1f4fd1')
             : '3px solid transparent',
         // Mirrors the 3px marker on the far side so the lone icon sits on the
         // rail's true centre instead of 1.5px right of it.
         borderRight: collapsed && !glide ? '3px solid transparent' : undefined,
         borderBottom: '1px solid ' + S.cssVar('sidebar-item-border', '#e3e8f1'),
         background: background,
-        color: hovered ? S.cssVar('sidebar-hover-color', '#ffffff') : S.cssVar('sidebar-active-color', '#10276b'),
+        color: hovered ? S.cssVar('sidebar-hover-color', '#10276b') : S.cssVar('sidebar-active-color', '#10276b'),
         fontWeight: active ? 'bold' : 'normal',
         fontSize: sub ? S.fs.sub : S.fs.base,
         transition: glide ? 'background 0.08s, padding-left ' + GLIDE : 'background 0.08s',

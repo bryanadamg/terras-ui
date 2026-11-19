@@ -318,8 +318,12 @@
   --terras-sidebar-bg: #f6f8fc;
   --terras-sidebar-border: #c2ccdf;
   --terras-sidebar-item-border: #e3e8f1;
-  --terras-sidebar-hover-bg: var(--terras-accent);
-  --terras-sidebar-hover-color: #ffffff;
+  /* Hover is a quiet step darker than sub-bg, not the accent: a solid blue row
+     competed with the section bands. The active row's marker keeps the accent
+     through its own token so it doesn't fade with the hover tint. */
+  --terras-sidebar-hover-bg: #e1e8f6;
+  --terras-sidebar-hover-color: var(--terras-accent-deep);
+  --terras-sidebar-active-marker: var(--terras-accent);
   --terras-sidebar-active-bg: #ffffff;
   --terras-sidebar-active-color: var(--terras-accent-deep);
   /* Nested nav levels, the section header band (flat accent, deepening on
