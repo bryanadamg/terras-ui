@@ -12,7 +12,7 @@ export interface SidebarProps {
   top?: SidebarSlot;
   /** Flat rows, rendered above any sections. */
   items?: SidebarItemSpec[];
-  /** Grouped nav: a gradient section band followed by its indented children. */
+  /** Grouped nav: a section band followed by its indented children. */
   sections?: SidebarSectionSpec[];
   /** Slot after the last nav row, inside the scrolling list — a credit line,
    *  a version stamp. Scrolls with the nav; `footer` stays pinned below it. */

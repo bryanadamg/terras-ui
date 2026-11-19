@@ -21,7 +21,7 @@ const headerStyle = (style) => Object.assign({
     flexShrink: 0,
     background: S.cssVar('title-blue'),
     color: S.cssVar('on-solid', '#ffffff'),
-    borderBottom: '1px solid ' + S.cssVar('title-blue-border', '#003080'),
+    borderBottom: '1px solid ' + S.cssVar('title-blue-border', '#10276b'),
     boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.3)',
     display: 'flex',
     alignItems: 'center',

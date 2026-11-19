@@ -76,7 +76,7 @@ const recessed = (extra) => Object.assign({
 // whose bar carries the severity of what it heads. Same five semantic families
 // as the status chips — don't add a sixth hue.
 const TITLE_TONES = {
-    blue: { background: v('title-blue'), border: v('title-blue-border', '#003080') },
+    blue: { background: v('title-blue'), border: v('title-blue-border', '#10276b') },
     red: { background: v('title-red'), border: v('title-red-border', '#550000') },
     amber: { background: v('title-amber'), border: v('title-amber-border', '#804000') },
     green: { background: v('title-green'), border: v('title-green-border', '#0a4a0a') },

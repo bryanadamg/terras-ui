@@ -39,10 +39,10 @@ const containerStyle = (collapsed, width, collapsedWidth, style) => Object.assig
     alignSelf: 'stretch',
     minHeight: 0,
     background: S.cssVar('sidebar-bg', S.cssVar('win-bg', '#f3f4f6')),
-    borderRight: '1px solid ' + S.cssVar('sidebar-border', '#718bb7'),
+    borderRight: '1px solid ' + S.cssVar('sidebar-border', '#c2ccdf'),
     fontFamily: S.font,
     fontSize: S.fs.base,
-    color: S.cssVar('sidebar-active-color', '#003080'),
+    color: S.cssVar('sidebar-active-color', '#10276b'),
 }, style);
 
 // Brand block. Same background, height and bottom border as AppHeader, because
@@ -85,8 +85,8 @@ const fade = (shown, extra) => Object.assign({
 const brandStyle = (collapsed, clickable, glide) => ({
     height: S.cssVar('app-header-h', '30px'),
     flexShrink: 0,
-    background: S.cssVar('title-flat', '#0058e6'),
-    borderBottom: '1px solid ' + S.cssVar('title-blue-border', '#003080'),
+    background: S.cssVar('title-flat', '#1f4fd1'),
+    borderBottom: '1px solid ' + S.cssVar('title-blue-border', '#10276b'),
     boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.3)',
     color: S.cssVar('on-solid', '#ffffff'),
     display: 'flex',
@@ -127,19 +127,19 @@ const navStyle = { flex: 1, overflowY: 'auto', overflowX: 'hidden', minHeight: 0
 
 const footerStyle = (collapsed) => ({
     flexShrink: 0,
-    background: S.cssVar('sidebar-footer-bg', '#c0cade'),
-    borderTop: '1px solid ' + S.cssVar('sidebar-footer-border', '#9098b8'),
+    background: S.cssVar('sidebar-footer-bg', '#eceff6'),
+    borderTop: '1px solid ' + S.cssVar('sidebar-footer-border', '#d3dae8'),
     padding: collapsed ? '6px 4px' : '6px 8px',
     overflow: 'hidden',
 });
 
 function itemStyle(active, hovered, sub, collapsed, glide) {
     const background = hovered
-        ? S.cssVar('sidebar-hover-bg', '#0058e6')
+        ? S.cssVar('sidebar-hover-bg', '#e1e8f6')
         : active
             ? S.cssVar('sidebar-active-bg', '#ffffff')
             : sub
-                ? S.cssVar('sidebar-sub-bg', '#bcc9e8')
+                ? S.cssVar('sidebar-sub-bg', '#eef2f9')
                 : 'transparent';
     return {
         display: 'flex',
@@ -157,15 +157,15 @@ function itemStyle(active, hovered, sub, collapsed, glide) {
             : collapsed ? '5px 0' : (sub ? '4px 8px 4px 22px' : '5px 8px 5px 14px'),
         cursor: 'pointer',
         userSelect: 'none',
-        borderLeft: active && !hovered
-            ? '3px solid ' + S.cssVar('sidebar-hover-bg', '#0058e6')
+        borderLeft: active
+            ? '3px solid ' + S.cssVar('sidebar-active-marker', '#1f4fd1')
             : '3px solid transparent',
         // Mirrors the 3px marker on the far side so the lone icon sits on the
         // rail's true centre instead of 1.5px right of it.
         borderRight: collapsed && !glide ? '3px solid transparent' : undefined,
-        borderBottom: '1px solid ' + S.cssVar('sidebar-item-border', '#c0ccee'),
+        borderBottom: '1px solid ' + S.cssVar('sidebar-item-border', '#e3e8f1'),
         background: background,
-        color: hovered ? S.cssVar('sidebar-hover-color', '#ffffff') : S.cssVar('sidebar-active-color', '#003080'),
+        color: hovered ? S.cssVar('sidebar-hover-color', '#10276b') : S.cssVar('sidebar-active-color', '#10276b'),
         fontWeight: active ? 'bold' : 'normal',
         fontSize: sub ? S.fs.sub : S.fs.base,
         transition: glide ? 'background 0.08s, padding-left ' + GLIDE : 'background 0.08s',
@@ -181,8 +181,8 @@ function itemStyle(active, hovered, sub, collapsed, glide) {
 function sectionStyle(highlighted, collapsed, bare, glide) {
     return {
         background: highlighted
-            ? S.cssVar('sidebar-section-bg-hover', 'linear-gradient(to right, #2a7cff, #0058e6)')
-            : S.cssVar('sidebar-section-bg', 'linear-gradient(to right, #0058e6, #003080)'),
+            ? S.cssVar('sidebar-section-bg-hover', '#1f4fd1')
+            : S.cssVar('sidebar-section-bg', '#1f4fd1'),
         color: S.cssVar('on-solid', '#ffffff'),
         fontWeight: 'bold',
         fontSize: S.fs.sm,
@@ -193,8 +193,8 @@ function sectionStyle(highlighted, collapsed, bare, glide) {
             : bare ? 0 : (collapsed ? '4px 0' : '4px 8px'),
         letterSpacing: S.trackingCaps,
         textTransform: 'uppercase',
-        borderTop: '1px solid ' + S.cssVar('sidebar-section-border-top', '#7090cc'),
-        borderBottom: '1px solid ' + S.cssVar('sidebar-section-border-bottom', '#003080'),
+        borderTop: '1px solid ' + S.cssVar('sidebar-section-border-top', '#5f80d6'),
+        borderBottom: '1px solid ' + S.cssVar('sidebar-section-border-bottom', '#10276b'),
         display: 'flex',
         justifyContent: collapsed && !glide ? 'center' : 'space-between',
         alignItems: 'center',
