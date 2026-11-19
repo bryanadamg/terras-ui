@@ -326,13 +326,14 @@
   --terras-sidebar-active-marker: var(--terras-accent);
   --terras-sidebar-active-bg: #ffffff;
   --terras-sidebar-active-color: var(--terras-accent-deep);
-  /* Nested nav levels, the section header band (flat accent, deepening on
-     hover / when its page or a child is current) and the footer strip the ID
+  /* Nested nav levels, the section header band (flat accent, the same
+     on hover / when its page or a child is current — the active row's marker
+     already says where you are) and the footer strip the ID
      card sits on. */
   --terras-sidebar-sub-bg: #eef2f9;
   --terras-sidebar-sub-bg-deep: #e4e9f3;
   --terras-sidebar-section-bg: var(--terras-accent);
-  --terras-sidebar-section-bg-hover: var(--terras-accent-deep);
+  --terras-sidebar-section-bg-hover: var(--terras-accent);
   --terras-sidebar-section-border-top: #5f80d6;
   --terras-sidebar-section-border-bottom: var(--terras-accent-deep);
   --terras-sidebar-footer-bg: #eceff6;

@@ -181,7 +181,7 @@ function itemStyle(active, hovered, sub, collapsed, glide) {
 function sectionStyle(highlighted, collapsed, bare, glide) {
     return {
         background: highlighted
-            ? S.cssVar('sidebar-section-bg-hover', '#10276b')
+            ? S.cssVar('sidebar-section-bg-hover', '#1f4fd1')
             : S.cssVar('sidebar-section-bg', '#1f4fd1'),
         color: S.cssVar('on-solid', '#ffffff'),
         fontWeight: 'bold',
