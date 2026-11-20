@@ -16,7 +16,7 @@ Plain `React.createElement` (no JSX) so no build step is required to consume the
 | --- | --- |
 | `components/AppHeader` | Full-bleed blue top band — page name + global actions |
 | `components/Sidebar` | Nav rail: brand block, flat items and/or gradient sections, footer — collapses to an icon rail |
-| `components/Window` | The bevelled view frame + `.TitleBar` / `.Toolbar` / `.Separator` / `.Count` / `.Body` / `.StatusBar` |
+| `components/Window` | The view frame — under classic a card like `Modal` (one 1px edge, soft lift) around Porcelain list chrome (flat warm toolbar, body and status bar); the 2px bevel elsewhere — + `.TitleBar` / `.Toolbar` / `.Separator` / `.Count` / `.Body` / `.StatusBar` |
 | `components/Modal` | The page's chrome one layer up — under classic, `Window`'s flat accent title bar framed like the page card (one 1px edge, soft shadow) on the Sapphire Frost near-white: backdrop, title bar with close box, footer actions. `modeless` drops the backdrop and makes the panel draggable |
 | `components/ConfirmModal` | Confirm/cancel dialog — a `Modal` + `Button` composition, `tone` picks the confirm button (`warning` maps to the plain face) |
 | `components/FormSection` | Field group under a solid header bar — the accent under classic, matching the sidebar's section bands |
@@ -25,7 +25,7 @@ Plain `React.createElement` (no JSX) so no build step is required to consume the
 | `components/DetailGrid` | Read-only record fields as a `<dl>` — `.Detail` cells, stacked across `columns` or `inline` (label left, value right); empty values hold their place with a muted — |
 | `components/EmptyState` | "Nothing here" for a pane that isn't a table body — recessed well, optional glyph slot, italic message, room for an action under it |
 | `components/Pager` | Prev/next paginator footer — the row window on the left, `Prev` / `Page x / y` / `Next` on the right. Is a `Window.StatusBar`; `inline` fits it into one you already render |
-| `components/Tabs` | Tab strip seated in the pane below it — renders the row only |
+| `components/Tabs` | Tab strip seated in the pane below it — renders the row only. Under classic, inactive tabs are bare labels and the active tab carries a 2px accent cap |
 | `components/ProgressBar` | Recessed progress track — up to three stacked segments, a threshold marker, `outside`/`inside` percent label |
 | `components/Sparkline` | Inline-SVG trend line coloured by status family, dot on the latest point. No stat tile beside it — see below |
 | `components/Toast` | `ToastProvider` + `useToast` — transient feedback stack, bottom-right, with a progress-toast handle for long jobs |

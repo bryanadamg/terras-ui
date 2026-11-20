@@ -14,9 +14,12 @@
 //     -1`) so it covers the strip's rule. That seam is what makes a tab read as
 //     the front of the pane rather than a selected button. Only the TOP corners
 //     are rounded, for the same reason.
-//  2. The three faces are all the pane's tan, not three hues: strip (darkest) <
-//     inactive tab < active tab (`--terras-win-bg`, the pane itself). See the
-//     tab tokens in tokens.css for why this isn't the sidebar's blue.
+//  2. The faces all come from the pane, not from separate hues: strip (darker)
+//     < active tab (`--terras-tab-active-bg`, the pane itself — the toolbar's
+//     ground under classic, `--terras-win-bg` elsewhere). Under classic an
+//     inactive tab is just a label on the strip, and the active one carries a
+//     2px accent cap (`--terras-tab-active-cap`). See the tab tokens in
+//     tokens.css for why this isn't the sidebar's blue.
 //  3. The strip is NOT a scroll container, and `overflow-x: auto` is the one
 //     thing that must never come back. CSS has no auto/visible pair, so it forces
 //     `overflow-y` to compute to `auto` too — and detail 1 hangs the active tab
@@ -48,7 +51,9 @@ const stripStyle = (style) => Object.assign({
 
 function tabStyle(active) {
     const edge = S.cssVar('tab-edge', '#a8a290');
-    const pane = S.cssVar('win-bg', '#ece9d8');
+    const pane = S.cssVar('tab-active-bg', S.cssVar('win-bg', '#ece9d8'));
+    const light = S.cssVar('tab-border-light', '#c0bdb5');
+    const dark = S.cssVar('tab-border-dark', edge);
     const radius = S.cssVar('radius-btn', '3px');
     return {
         fontFamily: S.font,
@@ -61,8 +66,12 @@ function tabStyle(active) {
         background: active ? pane : S.cssVar('tab-face', 'linear-gradient(to bottom, #e8e6db, #d0cec4)'),
         borderColor: active
             ? edge + ' ' + edge + ' ' + pane + ' ' + edge
-            : S.cssVar('tab-border-light', '#c0bdb5') + ' ' + edge + ' ' + edge + ' ' + S.cssVar('tab-border-light', '#c0bdb5'),
-        color: active ? S.cssVar('win-text', '#000000') : S.cssVar('tab-text', '#444444'),
+            : light + ' ' + dark + ' ' + dark + ' ' + light,
+        color: active ? S.cssVar('tab-active-text', S.cssVar('win-text', '#000000')) : S.cssVar('tab-text', '#444444'),
+        // The cap: an inset band along the top edge, inside the border so the
+        // tab keeps its size. No fallback on purpose: without the token
+        // (blueprint, modern) the declaration is invalid and computes to none.
+        boxShadow: active ? 'inset 0 2px 0 ' + S.cssVar('tab-active-cap') : undefined,
         fontWeight: active ? 'bold' : 'normal',
         // Pull the active tab down over the strip's bottom rule.
         marginBottom: active ? -1 : 0,

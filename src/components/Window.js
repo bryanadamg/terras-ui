@@ -95,7 +95,7 @@ function Body(props) {
                 flex: 1,
                 minHeight: 0,
                 overflow: 'auto',
-                background: S.cssVar('win-face', '#f0f0e8'),
+                background: S.cssVar('window-body-bg', S.cssVar('win-face', '#f0f0e8')),
             }, props.style),
         },
         props.children,
@@ -113,8 +113,8 @@ function StatusBar(props) {
         {
             className: props.className,
             style: Object.assign({
-                borderTop: '1px solid ' + S.cssVar('win-border-dark', '#808080'),
-                background: S.cssVar('win-face-alt', '#ece9df'),
+                borderTop: '1px solid ' + S.cssVar('statusbar-border', S.cssVar('win-border-dark', '#808080')),
+                background: S.cssVar('statusbar-bg', S.cssVar('win-face-alt', '#ece9df')),
                 padding: '3px 6px',
                 display: 'flex',
                 alignItems: 'center',
