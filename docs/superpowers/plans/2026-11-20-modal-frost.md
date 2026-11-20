@@ -77,3 +77,26 @@
 - [ ] **Step 2:** Install `@bryanadamg/terras-ui@^1.5.0` (token in terras-sku's `.env` as `NODE_AUTH_TOKEN`); confirm `node_modules/@bryanadamg/terras-ui/package.json` reads 1.5.0.
 - [ ] **Step 3:** Run erp's typecheck/lint as in its own package.json scripts; expected: no new errors.
 - [ ] **Step 4:** Commit (real time, on erp's `dev`): `style: modals take terras-ui 1.5.0's Sapphire Frost frame and drop ModalWrapper's beige body`
+
+---
+
+## Addendum tasks (spec Addendum) — run before Task 3 (release)
+
+### Task 5: Modal title dots
+- Token (classic): `--terras-modal-title-dots: radial-gradient(circle, rgba(255, 255, 255, 0.22) 0.9px, transparent 1.3px) 0 0 / 5px 5px`; JSON `modalTitleDots`.
+- Modal.js: title bar gets `position: relative; isolation: isolate`; first child an `aria-hidden` span `{position:absolute, inset:0, zIndex:-1, pointerEvents:none, background: S.cssVar('modal-title-dots','none'), maskImage + WebkitMaskImage: 'linear-gradient(to right, transparent 40%, #000)'}`.
+- Verify: check-tokens shows it added; render-check asserts the span + mask; modeless drag still starts on the bar (span has no pointer events).
+
+### Task 6: Ghost close box
+- Tokens (classic): `--terras-winclose-face: transparent` (changed), `--terras-winclose-border: rgba(255, 255, 255, 0.45)` (added); JSON in sync.
+- WindowCloseButton.js: `borderColor: S.cssVar('winclose-border', <S.button's four-edge btn-border string>)`.
+- Verify: check-tokens shows exactly winclose-face changed (classic) + winclose-border added; hover rule in chrome.css untouched.
+
+### Task 7: HeaderButton + HeaderSelect
+- `src/components/HeaderButton.js` exports `HeaderButton` (default) and `HeaderSelect`; `HeaderButton.d.ts`; `package.json` exports `./components/HeaderButton`.
+- HeaderButton = `Button` (size sm) with className `terras-header-btn`, face: background `header-btn-bg`/transparent, 1px border `header-btn-border`/`rgba(255,255,255,0.35)`, color `on-solid`, height 22, padding `0 6px`, bold, fs.sm, no box-shadow. Props as Button minus tone/size.
+- HeaderSelect = inline-flex relative span wrapping a `select.terras-header-select` (appearance none, same face, padding `0 18px 0 6px`) + an `aria-hidden` ▾ span (absolute, right 6px, pointer-events none, currentColor). Props pass to the select; `style` → select, `className` → select.
+- chrome.css: hover wash `header-btn-hover-bg`/`rgba(255,255,255,0.15)` and pressed `header-btn-active-bg`/`rgba(0,0,0,0.15)` with `!important` (inline face); select focus-visible outline; `option` dark-on-white.
+- Tokens in `:root`: `--terras-header-btn-bg`, `-border`, `-hover-bg`, `-active-bg`; JSON in sync.
+- README: component table rows.
+- Verify: render-check asserts class names + face; check-tokens shows 4 added; `node -e "require.resolve('@bryanadamg/terras-ui/components/HeaderButton')"`-equivalent: read exports map.

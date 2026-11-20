@@ -58,3 +58,24 @@ it echoes the sidebar's flat sapphire section bands, so modal and page share one
 - `node tools/check-tokens.js` — the only changed tokens are the ones listed above.
 - Read erp ModalWrapper + one FormSection page view (e.g. SettingsPanel) and one
   sku dialog against the new code.
+
+## Addendum (2026-11-20): also in 1.5.0
+Approved after the first preview: header controls looked out of place on the
+flat band, and the modal title bar should carry erp's header dot matrix.
+
+1. **Modal title dots.** erp `.classic-header` recipe — white dots at 22% on a
+   5px grid, visible from ~40% of the width to the right edge. A decorative
+   layer inside Modal's title bar (behind title + close box, no pointer events),
+   masked rather than colour-faded so it works on every tone. Token
+   `--terras-modal-title-dots`, classic only; absent = no dots.
+2. **Close box goes ghost** (`WindowCloseButton`, everywhere it renders):
+   transparent face, faint white border at rest, red on hover unchanged.
+   Classic only; other themes keep the grey face.
+3. **`HeaderButton` + `HeaderSelect`** (new entry `components/HeaderButton`):
+   ghost controls for the app header band — transparent, white text/icon, faint
+   1px white border, 22px; hover = light white wash, pressed = slight darkening
+   (chrome.css). Select gets a currentColor chevron and dark-on-white options.
+   Tokens `--terras-header-btn-*` in `:root` (the band exists in every theme).
+   Controlled only (`onClick`, `value`/`onChange`). LogoutButton stays flat red.
+   App swaps follow the release: erp QR/Feedback/EN + delete
+   `.classic-header .btn-*`/`form-select` rules; sku Feedback; crm Search.
