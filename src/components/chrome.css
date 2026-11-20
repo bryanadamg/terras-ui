@@ -89,6 +89,30 @@
   box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.2) !important;
 }
 
+/* ── Header controls (HeaderButton / HeaderSelect) ───────────────────────────
+   Ghost face on the header band: the hover is a white wash and the press a
+   slight darkening — colour changes over an inline face, so `!important`, as
+   with logout. The `.terras-btn` lift stays, so the row moves as one. */
+.terras-header-btn:not(:disabled):hover,
+.terras-header-select:not(:disabled):hover {
+  background: var(--terras-header-btn-hover-bg, rgba(255, 255, 255, 0.15)) !important;
+  filter: none;
+}
+.terras-header-btn:not(:disabled):active {
+  background: var(--terras-header-btn-active-bg, rgba(0, 0, 0, 0.15)) !important;
+  filter: none;
+}
+.terras-header-select:focus-visible {
+  outline: 1px dotted currentColor;
+  outline-offset: -3px;
+}
+/* The open list is drawn by the OS on its own white ground: inheriting the
+   select's white text would make every choice invisible. */
+.terras-header-select option {
+  color: var(--terras-win-text, #000000);
+  background: var(--terras-win-well, #ffffff);
+}
+
 /* -- Toast ------------------------------------------------------------------
    The panel face is the shared `panel()` inline; only what an inline style
    object cannot express lives here — a `var()` in z-index, and a keyframe.

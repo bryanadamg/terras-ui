@@ -35,6 +35,7 @@ Plain `React.createElement` (no JSX) so no build step is required to consume the
 | `components/Menu` | Row "⋯" menu — `useFloatingMenu` (one open per table), `FloatingMenu`, `MenuTriggerButton` |
 | `components/WindowCloseButton` | The title bar's close box — grey at rest, red on hover. `Modal` renders it; use it directly in any window title bar you paint yourself |
 | `components/FeedbackDialog` | The in-app feedback form (one message box, pasted or attached screenshots with a black-out editor, opt-in name) — anonymous by default; the app owns the trigger button and `onSubmit` |
+| `components/HeaderButton` | Ghost controls for the app header band — `HeaderButton` (default) and `HeaderSelect`: transparent, white, a faint white edge; hover washes white. For scan/feedback/search buttons and the language picker in `AppHeader`'s `right` slot. `LogoutButton` stays the one flat red action |
 | `components/LogoutButton` | The header's logout control — erp's flat red, deliberately not the `danger` tone (see below) |
 | `components/Field` | `Input`, `Select`, `Label`, `SearchField` — recessed field chrome; `FieldLabel` (bold form label + optional hint) and `FormError` (the submit-rejected banner) |
 | `components/Combobox` | Type-to-search single select — trigger with a ▼ well, portaled popup with its own search box |
