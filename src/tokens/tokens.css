@@ -355,9 +355,13 @@
      The XP button face is a top-light gradient with a two-tone 1px border
      (light top/left, dark bottom/right) — that bevel is the whole classic
      button, so it can't be reduced to a single border color. */
-  --terras-btn-face: linear-gradient(to bottom, #ffffff 0%, #d4d0c8 100%);
-  --terras-btn-border-light: var(--terras-win-border-raised-light);
-  --terras-btn-border-dark: var(--terras-win-border-dark);
+  /* Porcelain: a short white→warm-paper fade under one warm-grey edge, so a
+     plain button sits on the Porcelain toolbar instead of reading as a grey XP
+     slab on it. The two border tokens stay (the bevel shape is light/dark), they
+     just hold the same colour; the `.terras-btn` lift still says "pressable". */
+  --terras-btn-face: linear-gradient(to bottom, #ffffff, #eeebe3);
+  --terras-btn-border-light: #b3ad9f;
+  --terras-btn-border-dark: #b3ad9f;
   /* The title bar's close box (erp ModalWrapper.tsx WindowCloseButton). A warm
      grey gradient at rest over the plain button bevel, going red only on hover
      — the colour swap is what says "this one closes", so the resting face must
