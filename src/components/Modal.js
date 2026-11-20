@@ -39,7 +39,11 @@ const BEVEL_EDGES = S.cssVar('bevel-border-light', '#dfdfdf') + ' ' + S.cssVar('
     + S.cssVar('bevel-border-dark', '#808080') + ' ' + S.cssVar('bevel-border-light', '#dfdfdf');
 
 // Classic only: no --terras-modal-title-dots elsewhere, so the layer is empty.
-const DOTS_MASK = 'linear-gradient(to right, transparent 40%, #000)';
+// The field also ends just short of the close box, so the ghost box sits on a
+// clean square of band — of whatever tone — instead of framing a patch of dots.
+// ponytail: 30-36px = the bar's 8px right padding + the 21px close box + a gap;
+// re-measure if either changes.
+const DOTS_MASK = 'linear-gradient(to right, transparent 40%, #000 70%, #000 calc(100% - 36px), transparent calc(100% - 30px))';
 const TITLE_DOTS = {
     position: 'absolute',
     inset: 0,
