@@ -1,6 +1,6 @@
 {
   "name": "@bryanadamg/terras-ui",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "Shared design tokens + UI components for Terras apps — ERP, CRM, SKU",
   "license": "UNLICENSED",
   "private": false,
@@ -39,6 +39,7 @@
     "./components/FeedbackDialog": { "types": "./src/components/FeedbackDialog.d.ts", "default": "./src/components/FeedbackDialog.js" },
     "./components/FilterChipBar": { "types": "./src/components/FilterChipBar.d.ts", "default": "./src/components/FilterChipBar.js" },
     "./components/FormSection": { "types": "./src/components/FormSection.d.ts", "default": "./src/components/FormSection.js" },
+    "./components/HeaderButton": { "types": "./src/components/HeaderButton.d.ts", "default": "./src/components/HeaderButton.js" },
     "./components/LoginScreen": { "types": "./src/components/LoginScreen.d.ts", "default": "./src/components/LoginScreen.js" },
     "./components/LogoutButton": { "types": "./src/components/LogoutButton.d.ts", "default": "./src/components/LogoutButton.js" },
     "./components/Menu": { "types": "./src/components/Menu.d.ts", "default": "./src/components/Menu.js" },

@@ -1,14 +1,16 @@
 'use client';
 'use strict';
 
-// Classic dialog: dimmed backdrop + a floating bevelled window with a blue
-// title bar, a scrolling body, and a footer action strip. Mirrors terras-erp's
-// ModalWrapper / ModalFooterActions.
+// Classic dialog: dimmed backdrop + a floating window with a blue title bar, a
+// scrolling body, and a footer action strip. Mirrors terras-erp's ModalWrapper /
+// ModalFooterActions.
 //
-// It is the SAME chrome as `Window`, one z-layer up — that is the point. A
-// dialog that borrows a different frame from the page behind it reads as a
-// second design language on one screen, which is what a rounded white card over
-// XP chrome looks like.
+// It wears the page's chrome one z-layer up — that is the point. Under classic
+// that is Sapphire Frost: `Window`'s flat accent title bar, framed like erp's
+// inset page card (one 1px edge, not the 2px bevel) on the sidebar's cool
+// near-white. A dialog that borrows a different look from the page behind it
+// reads as a second design language on one screen — a rounded white card over
+// XP chrome did, and so did a beige XP bevel over the Frost page.
 //
 // Not a portal: it renders where it is mounted and relies on the modal z-index
 // tokens instead. Consuming apps mount dialogs at page level, so it buys
@@ -29,6 +31,27 @@ const LAYER_Z = {
     1: S.cssVar('z-modal-1', '20000'),
     2: S.cssVar('z-modal-2', '20100'),
     3: S.cssVar('z-modal-3', '20200'),
+};
+
+// The four edge colours `S.bevel` paints — the frame outside classic, where no
+// --terras-modal-border-color is declared. Must stay identical to styles.js.
+const BEVEL_EDGES = S.cssVar('bevel-border-light', '#dfdfdf') + ' ' + S.cssVar('bevel-border-dark', '#808080') + ' '
+    + S.cssVar('bevel-border-dark', '#808080') + ' ' + S.cssVar('bevel-border-light', '#dfdfdf');
+
+// Classic only: no --terras-modal-title-dots elsewhere, so the layer is empty.
+// The field also ends just short of the close box, so the ghost box sits on a
+// clean square of band — of whatever tone — instead of framing a patch of dots.
+// ponytail: 30-36px = the bar's 8px right padding + the 21px close box + a gap;
+// re-measure if either changes.
+const DOTS_MASK = 'linear-gradient(to right, transparent 40%, #000 70%, #000 calc(100% - 36px), transparent calc(100% - 30px))';
+const TITLE_DOTS = {
+    position: 'absolute',
+    inset: 0,
+    zIndex: -1,
+    pointerEvents: 'none',
+    background: S.cssVar('modal-title-dots', 'none'),
+    WebkitMaskImage: DOTS_MASK,
+    maskImage: DOTS_MASK,
 };
 
 // Modeless panels are moved by mutating the DOM transform directly — no React
@@ -216,10 +239,10 @@ function Modal(props) {
             top: FLOAT_TOP,
             transform: transform(),
             zIndex: zIndex,
-            // Deeper than the panel shadow `bevel` paints: this one floats over
-            // a live page rather than a dimmed one, so it needs the lift to read
+            // Deeper than a blocking dialog's shadow: this one floats over a
+            // live page rather than a dimmed one, so it needs the lift to read
             // as being in front rather than part of the layout.
-            boxShadow: '4px 4px 14px rgba(0,0,0,0.4)',
+            boxShadow: S.cssVar('modal-shadow-float', '4px 4px 14px rgba(0,0,0,0.4)'),
             // --terras-app-vh, not a raw 100vh: a root zoom does NOT rescale
             // viewport units, so a bare 100vh is the window height in layout px
             // and the dialog would cap at (zoom x window). Same hook LoginScreen
@@ -241,6 +264,12 @@ function Modal(props) {
             tabIndex: -1,
             onKeyDown: floating ? undefined : trapTab,
             style: S.bevel(Object.assign({
+                // Framed like the page card (one 1px edge) under classic; each
+                // fallback is exactly what `bevel` paints, so other themes keep
+                // the bevel. floatingStyle/props.style merge after and still win.
+                borderWidth: S.cssVar('modal-border-width', '2px'),
+                borderColor: S.cssVar('modal-border-color', BEVEL_EDGES),
+                boxShadow: S.cssVar('modal-shadow', S.cssVar('shadow-panel', '2px 2px 4px rgba(0,0,0,0.3)')),
                 outline: 'none',
                 width: props.width || 460,
                 maxWidth: '100%',
@@ -256,10 +285,15 @@ function Modal(props) {
             'div',
             {
                 style: S.titleBar(floating
-                    ? { cursor: 'move', touchAction: 'none' }
-                    : {}, props.tone),
+                    ? { cursor: 'move', touchAction: 'none', position: 'relative', isolation: 'isolate' }
+                    : { position: 'relative', isolation: 'isolate' }, props.tone),
                 onPointerDown: floating ? startDrag : undefined,
             },
+            // erp's header dot matrix, masked in from 40% of the width rather than
+            // faded with the band colour, so it works on every tone. zIndex -1
+            // inside the isolated bar = above the band, below the title and close
+            // box. No pointer events, so a modeless drag still starts on the bar.
+            React.createElement('span', { 'aria-hidden': true, style: TITLE_DOTS }),
             React.createElement(
                 'span',
                 { style: { display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 } },
@@ -298,7 +332,7 @@ function Modal(props) {
                     flex: 1,
                     minHeight: 0,
                     overflow: 'auto',
-                    background: S.cssVar('win-face', '#f0f0e8'),
+                    background: S.cssVar('modal-bg', S.cssVar('win-face', '#f0f0e8')),
                     padding: 10,
                 }, props.bodyStyle),
             },
@@ -315,8 +349,8 @@ function Modal(props) {
                         alignItems: 'center',
                         gap: 6,
                         padding: '6px 8px',
-                        background: S.cssVar('win-bg', '#ece9d8'),
-                        borderTop: '1px solid ' + S.cssVar('win-border-dark', '#808080'),
+                        background: S.cssVar('modal-footer-bg', S.cssVar('win-bg', '#ece9d8')),
+                        borderTop: '1px solid ' + S.cssVar('modal-footer-border', S.cssVar('win-border-dark', '#808080')),
                     },
                 },
                 props.footer,
