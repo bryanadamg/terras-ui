@@ -277,10 +277,12 @@
   --terras-tone-amber: #c07000;     --terras-tone-amber-deep: #804000;
   --terras-tone-red-dark: #8e0000;  --terras-tone-red-deep: #5e0000;
 
-  --terras-title-blue: linear-gradient(to right, var(--terras-accent) 0%, var(--terras-accent-bright) 100%);
+  /* Flat, not the XP accent→bright fade (Sapphire Frost; erp's globals.css
+     already flattened its own). Names kept: renaming a token is a major. */
+  --terras-title-blue: var(--terras-accent);
   --terras-title-blue-border: var(--terras-accent-deep);
   --terras-title-flat: var(--terras-accent);
-  --terras-title-blue-inactive: linear-gradient(to right, var(--terras-accent-inactive) 0%, #a8bcd4 100%);
+  --terras-title-blue-inactive: var(--terras-accent-inactive);
   --terras-title-blue-border-inactive: #6a819b;
   --terras-title-flat-inactive: var(--terras-accent-inactive);
 
@@ -445,9 +447,23 @@
   --terras-title-green-border: var(--terras-tone-green-deep);
   --terras-title-grey: linear-gradient(to bottom, #6a6a6a, #4a4a4a);
   --terras-title-grey-border: #222222;
-  /* Solid blue bar heading a form section — flat, not a gradient: erp switched
-     away from the fade because a long title lost contrast by its right edge. */
-  --terras-form-section-blue: #3a6fc4;
+  /* Solid bar heading a form section — flat, not a gradient: erp switched away
+     from the fade because a long title lost contrast by its right edge. It is
+     the accent, the same flat sapphire as the sidebar's section bands. */
+  --terras-form-section-blue: var(--terras-accent);
+  --terras-form-section-border: #d3dae8;
+
+  /* Modal (Sapphire Frost): framed like the page card (1px border, not the
+     2px bevel) on the sidebar's cool near-white, so a dialog reads as part of
+     the page behind it. Classic only — Modal falls back to the bevel/win-face
+     values it read before, so blueprint and modern are unchanged. */
+  --terras-modal-bg: #f6f8fc;
+  --terras-modal-footer-bg: #eef2f9;
+  --terras-modal-footer-border: #d3dae8;
+  --terras-modal-border-width: 1px;
+  --terras-modal-border-color: var(--terras-win-border-dark);
+  --terras-modal-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+  --terras-modal-shadow-float: 0 10px 28px rgba(0, 0, 0, 0.3);
 
   /* ── Tab strip (erp components/shared/Tabs.tsx) ─────────────────────────────
      Tabs belong to the PANE below them, so all three faces come from the pane's
