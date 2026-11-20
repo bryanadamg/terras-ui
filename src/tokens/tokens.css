@@ -220,6 +220,16 @@
   --terras-boot-text: #33393f;
   --terras-boot-track: #e9e9e9;
   --terras-boot-track-border: #7f9db9;
+
+  /* ── Header controls (HeaderButton / HeaderSelect) ────────────────────────────
+     Ghost controls that belong to the app header band rather than the page: no
+     face of their own, a faint white edge, a white wash on hover and a slight
+     darkening when pressed. White/black alphas so they sit on any band colour,
+     which is why they live here and not in a theme block. */
+  --terras-header-btn-bg: transparent;
+  --terras-header-btn-border: rgba(255, 255, 255, 0.35);
+  --terras-header-btn-hover-bg: rgba(255, 255, 255, 0.15);
+  --terras-header-btn-active-bg: rgba(0, 0, 0, 0.15);
 }
 
 /* Classic (XP) — the primary Terras brand identity. */
@@ -353,8 +363,11 @@
      — the colour swap is what says "this one closes", so the resting face must
      NOT be the danger tone. The hover borders happen to equal
      `--terras-btn-danger-border-*`; they stay separate names because this is one
-     control with a fixed face, not the danger intent (same split as logout). */
-  --terras-winclose-face: linear-gradient(to bottom, #d4c8c8, #a89898);
+     control with a fixed face, not the danger intent (same split as logout).
+     Sapphire Frost: at rest it is a ghost on the flat band (transparent face,
+     faint white edge, like HeaderButton) instead of a grey XP box. */
+  --terras-winclose-face: transparent;
+  --terras-winclose-border: rgba(255, 255, 255, 0.45);
   --terras-winclose-face-hover: linear-gradient(to bottom, #e8a0a0, #c84040);
   --terras-winclose-border-hover-light: var(--terras-tone-red-dark);
   --terras-winclose-border-hover-dark: var(--terras-tone-red-deep);
@@ -464,6 +477,9 @@
   --terras-modal-border-color: var(--terras-win-border-dark);
   --terras-modal-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
   --terras-modal-shadow-float: 0 10px 28px rgba(0, 0, 0, 0.3);
+  /* erp's .classic-header dot matrix on the modal title bar. Modal masks it in
+     from ~40% of the width, so it needs no band colour and works on any tone. */
+  --terras-modal-title-dots: radial-gradient(circle, rgba(255, 255, 255, 0.22) 0.9px, transparent 1.3px) 0 0 / 5px 5px;
 
   /* ── Tab strip (erp components/shared/Tabs.tsx) ─────────────────────────────
      Tabs belong to the PANE below them, so all three faces come from the pane's

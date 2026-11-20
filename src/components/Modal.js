@@ -38,6 +38,18 @@ const LAYER_Z = {
 const BEVEL_EDGES = S.cssVar('bevel-border-light', '#dfdfdf') + ' ' + S.cssVar('bevel-border-dark', '#808080') + ' '
     + S.cssVar('bevel-border-dark', '#808080') + ' ' + S.cssVar('bevel-border-light', '#dfdfdf');
 
+// Classic only: no --terras-modal-title-dots elsewhere, so the layer is empty.
+const DOTS_MASK = 'linear-gradient(to right, transparent 40%, #000)';
+const TITLE_DOTS = {
+    position: 'absolute',
+    inset: 0,
+    zIndex: -1,
+    pointerEvents: 'none',
+    background: S.cssVar('modal-title-dots', 'none'),
+    WebkitMaskImage: DOTS_MASK,
+    maskImage: DOTS_MASK,
+};
+
 // Modeless panels are moved by mutating the DOM transform directly — no React
 // re-render, so no native resize/scroll event fires. Anything anchoring a
 // portaled overlay to the panel (a dropdown, a date picker) must listen for
@@ -269,10 +281,15 @@ function Modal(props) {
             'div',
             {
                 style: S.titleBar(floating
-                    ? { cursor: 'move', touchAction: 'none' }
-                    : {}, props.tone),
+                    ? { cursor: 'move', touchAction: 'none', position: 'relative', isolation: 'isolate' }
+                    : { position: 'relative', isolation: 'isolate' }, props.tone),
                 onPointerDown: floating ? startDrag : undefined,
             },
+            // erp's header dot matrix, masked in from 40% of the width rather than
+            // faded with the band colour, so it works on every tone. zIndex -1
+            // inside the isolated bar = above the band, below the title and close
+            // box. No pointer events, so a modeless drag still starts on the bar.
+            React.createElement('span', { 'aria-hidden': true, style: TITLE_DOTS }),
             React.createElement(
                 'span',
                 { style: { display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 } },
