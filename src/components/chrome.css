@@ -302,7 +302,7 @@
   background: var(--terras-table-head, linear-gradient(to bottom, #ffffff 0%, #d6d3ce 100%));
   border-right: 1px solid var(--terras-table-head-line, #808080);
   border-bottom: 1px solid var(--terras-table-head-line, #808080);
-  color: var(--terras-win-text, #000000);
+  color: var(--terras-table-head-text, var(--terras-win-text, #000000));
   font-size: var(--terras-fs-base, 11px);
   font-weight: bold;
   text-align: left;
@@ -315,6 +315,13 @@
   position: sticky;
   top: 0;
   z-index: 2;
+}
+/* The sorted column (Table.SortableTh sets aria-sort): a 2px accent underline,
+   the active tab's cap in the head. No fallback on purpose: without the token
+   (blueprint, modern) the declaration is invalid and computes to none. */
+.terras-table th[aria-sort='ascending'],
+.terras-table th[aria-sort='descending'] {
+  box-shadow: inset 0 -2px 0 var(--terras-table-sort-mark);
 }
 .terras-table td {
   border-right: 1px solid var(--terras-table-line, #d6d3ce);

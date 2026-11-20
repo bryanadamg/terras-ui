@@ -48,11 +48,16 @@ const raised = (light, dark) => ({
 // all square-cornered, so without the clip they poke out of the 8px corner. CSS
 // clips at the padding box (radius minus the 2px border), so the bar's corner
 // reads as one curve with the frame's.
+//
+// Under classic the frame is a card, like Modal: one 1px edge and a soft lift
+// (`--terras-window-*`). Each fallback is the 2px bevel and hard shadow, so
+// blueprint and modern still get the bevel the name describes.
 const bevel = (extra) => Object.assign({
     border: '2px solid',
-    borderColor: v('bevel-border-light', '#dfdfdf') + ' ' + v('bevel-border-dark', '#808080') + ' ' +
-                 v('bevel-border-dark', '#808080') + ' ' + v('bevel-border-light', '#dfdfdf'),
-    boxShadow: v('shadow-panel', '2px 2px 4px rgba(0,0,0,0.3)'),
+    borderWidth: v('window-border-width', '2px'),
+    borderColor: v('window-border-color', v('bevel-border-light', '#dfdfdf') + ' ' + v('bevel-border-dark', '#808080') + ' ' +
+                 v('bevel-border-dark', '#808080') + ' ' + v('bevel-border-light', '#dfdfdf')),
+    boxShadow: v('window-shadow', v('shadow-panel', '2px 2px 4px rgba(0,0,0,0.3)')),
     background: v('win-bg', '#ece9d8'),
     borderRadius: v('radius', '8px'),
     overflow: 'hidden',

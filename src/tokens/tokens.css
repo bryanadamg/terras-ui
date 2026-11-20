@@ -450,8 +450,22 @@
   /* ── Window chrome (erp shellTheme.tsx xpBevel / xpTitleBar / xpToolbar) ──── */
   --terras-bevel-border-light: var(--terras-win-border-raised-light);
   --terras-bevel-border-dark: var(--terras-win-border-dark);
-  --terras-toolbar-bg: linear-gradient(to bottom, #f5f4ef, #e0dfd8);
-  --terras-toolbar-border: #b0a898;
+  /* Porcelain: the inside of a list window (toolbar, tab strip, table head,
+     status bar) is a warm off-white with hairlines, not the XP beige gradients
+     and not the frost rail's blue tint. The Sapphire Frost shell frames it and
+     the accent appears inside only as markers (tab cap, sort, focus), so the
+     page stops reading all-blue. Flat: a gradient here re-drew the XP toolbar. */
+  --terras-toolbar-bg: #fbfaf7;
+  --terras-toolbar-border: #e2ddd2;
+  /* Page window frame (Window): framed like Modal, one 1px edge and a soft
+     lift instead of the 2px bevel and hard drop shadow. Classic only — Window
+     falls back to what `bevel` paints, so blueprint and modern keep the bevel. */
+  --terras-window-border-width: 1px;
+  --terras-window-border-color: var(--terras-win-border-dark);
+  --terras-window-shadow: 0 1px 3px rgba(0, 0, 0, 0.14);
+  --terras-window-body-bg: #fbfaf7;
+  --terras-statusbar-bg: #f4f2ec;
+  --terras-statusbar-border: #e2ddd2;
   --terras-title-red: linear-gradient(to right, #990000 0%, #cc2222 100%);
   --terras-title-red-border: #550000;
   --terras-title-amber: linear-gradient(to right, var(--terras-tone-amber) 0%, #e09830 100%);
@@ -482,28 +496,36 @@
   --terras-modal-title-dots: radial-gradient(circle, rgba(255, 255, 255, 0.22) 0.9px, transparent 1.3px) 0 0 / 5px 5px;
 
   /* ── Tab strip (erp components/shared/Tabs.tsx) ─────────────────────────────
-     Tabs belong to the PANE below them, so all three faces come from the pane's
-     tan and read as depth: strip (darkest) < inactive tab < active tab, where
-     the active tab is literally `--terras-win-bg` — it is the pane surfacing
-     through the strip. The strip was once the sidebar's blue (#d6dff7), which
-     looked deliberate only under blue window chrome and read as a stray stripe
-     over a tan panel (and as a third unrelated colour over a status-toned
-     window). `--terras-tab-edge` is the one edge colour: the rule under the
-     inactive tabs that the active tab breaks through into the pane. Tan-grey to
-     match the panel borders around it — a blue edge here makes the strip look
-     like chrome that wandered down from the title bar. */
-  --terras-tab-edge: #a8a290;
-  --terras-tab-strip-bg: linear-gradient(to bottom, #dcd9cd, #cdcabe);
-  --terras-tab-face: linear-gradient(to bottom, #e8e6db, #d0cec4);
-  --terras-tab-border-light: var(--terras-win-border-soft);
-  --terras-tab-text: #444444;
+     Tabs belong to the PANE below them, so the faces come from the pane's
+     Porcelain and read as depth: strip (darker) < active tab, where the active
+     tab is the toolbar's own ground — it is the pane surfacing through the
+     strip. Inactive tabs have no face or edge of their own (transparent), just
+     a label on the strip. The active tab carries a 2px accent cap, the
+     sidebar's active marker turned on its side, so the rail and the page say
+     "you are here" the same way. The strip was once the sidebar's blue
+     (#d6dff7), which read as a stray stripe; it stays warm, matching the panel.
+     `--terras-tab-edge` is the one edge colour: the rule under the strip that
+     the active tab breaks through into the pane. */
+  --terras-tab-edge: #d2ccbe;
+  --terras-tab-strip-bg: #ece9e1;
+  --terras-tab-face: transparent;
+  --terras-tab-border-light: transparent;
+  --terras-tab-border-dark: transparent;
+  --terras-tab-text: #625c50;
+  --terras-tab-active-bg: var(--terras-toolbar-bg);
+  --terras-tab-active-text: var(--terras-accent-deep);
+  --terras-tab-active-cap: var(--terras-accent);
 
   /* ── Table chrome (erp globals.css `.ui-style-classic .table`) ──────────────
-     Header cells are their own raised bevel; body cells get a light 1px grid on
-     all four sides (classic tables are ruled, not row-striped). */
-  --terras-table-head: linear-gradient(to bottom, #ffffff 0%, #d6d3ce 100%);
-  --terras-table-head-line: var(--terras-win-border-dark);
-  --terras-table-line: #d6d3ce;
+     A flat Porcelain head band over a hairline rule; body cells get a light 1px
+     grid on all four sides (classic tables are ruled, not row-striped). The
+     sorted column's head takes the accent as a 2px underline — the same marker
+     as the active tab's cap. */
+  --terras-table-head: #f4f2ec;
+  --terras-table-head-line: #d2ccbe;
+  --terras-table-head-text: #2a2620;
+  --terras-table-sort-mark: var(--terras-accent);
+  --terras-table-line: #ece8df;
   --terras-table-bg: var(--terras-win-well);
   --terras-row-hover: #e8f0fc;
   --terras-row-selected: var(--terras-win-highlight);
