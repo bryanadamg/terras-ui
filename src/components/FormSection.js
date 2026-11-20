@@ -4,7 +4,9 @@
 // FormSection: a soft-bordered box with an inset highlight and a SOLID blue
 // header (not a gradient — erp moved off the left-to-right fade because a long
 // title washed out to near-white by its right edge, so each box read as a
-// different colour depending on how wide it was).
+// different colour depending on how wide it was). Under classic the header is
+// the accent and the edge a cool grey-blue (Sapphire Frost), the same flat
+// sapphire as the sidebar's section bands.
 //
 // The middle tier of the radius scale: window 8 > section 6 > control 3. Never
 // let an inner radius exceed the frame that clips it — a box nested in a rounder
@@ -12,6 +14,9 @@
 
 const React = require('react');
 const S = require('./styles');
+
+// Classic declares its own cool edge; other themes keep the warm win-border-soft.
+const EDGE = S.cssVar('form-section-border', S.cssVar('win-border-soft', '#c0bdb5'));
 
 /**
  * @param {{ title: React.ReactNode, icon?: React.ReactNode, right?: React.ReactNode,
@@ -29,8 +34,8 @@ function FormSection(props) {
         'div',
         {
             style: Object.assign({
-                border: '1px solid ' + S.cssVar('win-border-soft', '#c0bdb5'),
-                boxShadow: 'inset 1px 1px 0 ' + S.cssVar('win-border-light', '#ffffff') + ', 1px 1px 0 ' + S.cssVar('win-border-soft', '#c0bdb5'),
+                border: '1px solid ' + EDGE,
+                boxShadow: 'inset 1px 1px 0 ' + S.cssVar('win-border-light', '#ffffff') + ', 1px 1px 0 ' + EDGE,
                 borderRadius: S.cssVar('radius-section', '6px'),
                 // Must clip, or the square header bar pokes out of the corners.
                 overflow: 'hidden',

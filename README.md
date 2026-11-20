@@ -17,9 +17,9 @@ Plain `React.createElement` (no JSX) so no build step is required to consume the
 | `components/AppHeader` | Full-bleed blue top band — page name + global actions |
 | `components/Sidebar` | Nav rail: brand block, flat items and/or gradient sections, footer — collapses to an icon rail |
 | `components/Window` | The bevelled view frame + `.TitleBar` / `.Toolbar` / `.Separator` / `.Count` / `.Body` / `.StatusBar` |
-| `components/Modal` | Same chrome one layer up: backdrop, title bar with close box, footer actions. `modeless` drops the backdrop and makes the panel draggable |
+| `components/Modal` | The page's chrome one layer up — under classic, `Window`'s flat accent title bar framed like the page card (one 1px edge, soft shadow) on the Sapphire Frost near-white: backdrop, title bar with close box, footer actions. `modeless` drops the backdrop and makes the panel draggable |
 | `components/ConfirmModal` | Confirm/cancel dialog — a `Modal` + `Button` composition, `tone` picks the confirm button (`warning` maps to the plain face) |
-| `components/FormSection` | Field group under a solid blue header bar |
+| `components/FormSection` | Field group under a solid header bar — the accent under classic, matching the sidebar's section bands |
 | `components/Table` | Ruled classic table (`.EmptyRow` for the empty state — with an optional `icon` slot, `stickyCols` to freeze leading columns, `.SortableTh` + `useSortable` / `useServerSort` for sortable headers, `useRowSelection` + `.SelectAllCell` / `.RowCheckboxCell` for bulk-select, `.ExpanderCell` + `.ExpandedRowPanel` + `rowStateBg` for rows that open a detail panel) |
 | `components/Skeleton` | Loading stand-ins that carry the shape of what's coming — `TableSkeleton` rows (+ `useTableSkeletonMetrics`), `ListSkeleton`, `PanelSkeleton`, `CardGridSkeleton`, `TableBlockSkeleton`, and the `Loading` marquee for a wait with no shape |
 | `components/DetailGrid` | Read-only record fields as a `<dl>` — `.Detail` cells, stacked across `columns` or `inline` (label left, value right); empty values hold their place with a muted — |
