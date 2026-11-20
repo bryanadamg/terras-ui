@@ -102,8 +102,16 @@
   background: var(--terras-header-btn-active-bg, rgba(0, 0, 0, 0.15)) !important;
   filter: none;
 }
+/* A ghost control has no face, so its focus ring sits straight on the band: it
+   must be white. Two classes on purpose — erp paints `.ui-style-classic
+   button:focus-visible` black with !important at (0,2,1), which would leave a
+   1px black dotted ring on sapphire. (0,3,0) out-ranks it. */
+.terras-btn.terras-win-close:focus-visible,
+.terras-btn.terras-header-btn:focus-visible {
+  outline-color: var(--terras-on-solid, #ffffff) !important;
+}
 .terras-header-select:focus-visible {
-  outline: 1px dotted currentColor;
+  outline: 1px dotted var(--terras-on-solid, #ffffff);
   outline-offset: -3px;
 }
 /* The open list is drawn by the OS on its own white ground: inheriting the
