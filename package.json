@@ -1,6 +1,6 @@
 {
   "name": "@bryanadamg/terras-ui",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "description": "Shared design tokens + UI components for Terras apps — ERP, CRM, SKU",
   "license": "UNLICENSED",
   "private": false,
