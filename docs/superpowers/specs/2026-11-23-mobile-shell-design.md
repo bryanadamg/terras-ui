@@ -49,8 +49,8 @@ useIsMobile(): boolean         // (max-width: 767px), false on the server
 - Tab bar: exactly the shared styling — sidebar tokens, 2px top rule in
   `sidebar-active-color`, 54px min, active = `sidebar-section-bg` fill + white
   text + inset highlight, `aria-current="page"` on the active tab.
-- Column height `var(--terras-app-vh, 100dvh)` — erp uses `--app-dvh`,
-  sku `h-screen`; the token (default 100dvh; erp overrides it) keeps it scale-safe. `LoginScreen` keeps its own hook (it deliberately reports false on first paint).
+- Column height `var(--app-dvh, 100dvh)` — erp uses `--app-dvh`, sku `h-screen`.
+  Not `--terras-app-vh`: scale.css points that at the large-viewport `--app-vh`. `LoginScreen` keeps its own hook (it deliberately reports false on first paint).
 
 ## Left to the builder
 

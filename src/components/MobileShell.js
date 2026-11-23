@@ -120,17 +120,25 @@ function MobileShell(props) {
         style: Object.assign({
             display: 'flex',
             flexDirection: 'column',
-            height: S.cssVar('app-vh', '100dvh'),
+            // The DYNAMIC viewport, so the tab bar clears a phone's browser
+            // toolbar. `--terras-app-vh` would be wrong here: scale.css points
+            // it at the large-viewport `--app-vh`. `--app-dvh` is scale.css's
+            // own zoom-corrected var; an app without scale.css gets 100dvh.
+            height: 'var(--app-dvh, 100dvh)',
             overflow: 'hidden',
             fontFamily: S.font,
         }, props.style),
     }),
     props.header || null,
-    // `relative` so the sheet covers the page without unmounting it — a
-    // half-typed pick survives a look at the menu.
-    h('div', {
-        style: Object.assign({ position: 'relative', flex: 1, minHeight: 0, overflowY: 'auto', overflowX: 'hidden' }, props.bodyStyle),
-    }, props.children, sheet || null),
+    // The sheet covers the page without unmounting it — a half-typed pick
+    // survives a look at the menu. It is the scroller's SIBLING in a
+    // non-scrolling frame: inside the scroller it would scroll away with the
+    // page and open above the visible area on a scrolled-down page.
+    h('div', { style: { position: 'relative', flex: 1, minHeight: 0 } },
+        h('div', {
+            style: Object.assign({ height: '100%', overflowY: 'auto', overflowX: 'hidden', boxSizing: 'border-box' }, props.bodyStyle),
+        }, props.children),
+        sheet || null),
     h('nav', {
         'aria-label': 'Primary',
         style: { display: 'flex', flexShrink: 0, background: BG, borderTop: '2px solid ' + NAV },
