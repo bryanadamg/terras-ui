@@ -42,6 +42,7 @@
     "./components/HeaderButton": { "types": "./src/components/HeaderButton.d.ts", "default": "./src/components/HeaderButton.js" },
     "./components/LoginScreen": { "types": "./src/components/LoginScreen.d.ts", "default": "./src/components/LoginScreen.js" },
     "./components/LogoutButton": { "types": "./src/components/LogoutButton.d.ts", "default": "./src/components/LogoutButton.js" },
+    "./components/MobileShell": { "types": "./src/components/MobileShell.d.ts", "default": "./src/components/MobileShell.js" },
     "./components/Menu": { "types": "./src/components/Menu.d.ts", "default": "./src/components/Menu.js" },
     "./components/Modal": { "types": "./src/components/Modal.d.ts", "default": "./src/components/Modal.js" },
     "./components/Pager": { "types": "./src/components/Pager.d.ts", "default": "./src/components/Pager.js" },
