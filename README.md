@@ -61,6 +61,10 @@ options: a native select cannot be typed into, and a native `<datalist>` paints
 the browser's own suggestion list rather than classic chrome. Its popup is
 portaled to `document.body`, which is what lets it escape a `Modal` body's
 `overflow: auto` and stay glued to a modeless panel while it is dragged.
+Each option's `subLabel` (its code) sits beside the name, capped at 45% of the
+row so a long code trims itself rather than the name. Where the code is what
+tells options apart — BOMs whose codes share a long item prefix — pass
+`stackSubLabel` to put it on its own full-width line under the name instead.
 
 `Table`'s `stickyCols` is Excel's freeze panes: the first N columns hold still
 while the rest scroll sideways, for a table wide enough that an operator would
