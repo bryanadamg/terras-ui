@@ -51,6 +51,7 @@ const defaultViewportHeight = () => scale.layoutViewport().height;
  *   categories?: string[],
  *   onSearch?: (term: string) => void,
  *   size?: 'sm' | 'md',
+ *   stackSubLabel?: boolean,
  *   emptyLabel?: string,
  *   testId?: string,
  *   className?: string,
@@ -62,6 +63,7 @@ const defaultViewportHeight = () => scale.layoutViewport().height;
 function Combobox(props) {
     const options = props.options || [];
     const size = props.size || 'md';
+    const stacked = !!props.stackSubLabel;
     const rectOf = props.rectOf || defaultRectOf;
     const viewportHeight = props.viewportHeight || defaultViewportHeight;
 
@@ -302,7 +304,8 @@ function Combobox(props) {
                             onMouseEnter: function () { setActiveIndex(index); },
                             'data-testid': props.testId ? props.testId + '-option-' + option.value : undefined,
                             style: {
-                                display: 'flex', alignItems: 'baseline', gap: 6,
+                                display: 'flex', alignItems: 'baseline', gap: stacked ? '0 6px' : 6,
+                                flexWrap: stacked ? 'wrap' : undefined,
                                 padding: '2px 6px', minHeight: 20, cursor: 'pointer',
                                 fontFamily: S.font, fontSize: S.fs.base,
                                 background: background,
@@ -325,7 +328,10 @@ function Combobox(props) {
                                     style: {
                                         fontFamily: S.fontMono, fontSize: S.fs.sm,
                                         color: isSelected ? 'rgba(255,255,255,0.75)' : S.cssVar('win-text-3', '#666666'),
-                                        flex: '0 1 auto', minWidth: 0, maxWidth: '45%',
+                                        // Stacked: its own full-width line under the name,
+                                        // so a long code is read whole instead of trimmed.
+                                        flex: stacked ? '1 0 100%' : '0 1 auto', order: stacked ? 1 : undefined,
+                                        minWidth: 0, maxWidth: stacked ? undefined : '45%',
                                         overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                                     },
                                 },

@@ -24,6 +24,8 @@ export interface ComboboxProps {
   onSearch?: (term: string) => void;
   /** 18px or the default 20px, matching `Input`. */
   size?: 'sm' | 'md';
+  /** Put each option's `subLabel` on its own line under the name instead of beside it — for long codes that would otherwise be trimmed. */
+  stackSubLabel?: boolean;
   emptyLabel?: string;
   testId?: string;
   className?: string;
