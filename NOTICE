@@ -2,7 +2,7 @@ The MIT license in LICENSE covers the code in this package, with these exclusion
 
 
 1. Brand assets. The Terras name and the Terras mark (src/assets/terras-mark.svg,
-   src/assets/icon-*.png) are not covered by the MIT license above. All rights
+   src/assets/icon-*.png) are not covered by the MIT license in LICENSE. All rights
    reserved. You may not use them to identify a product or service other than
    Terras.
 
