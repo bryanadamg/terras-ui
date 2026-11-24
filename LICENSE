@@ -19,16 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
----------------------------------------------------------------------------
-
-Exclusions
-
-1. Brand assets. The Terras name and the Terras mark (src/assets/terras-mark.svg,
-   src/assets/icon-*.png) are not covered by the MIT license above. All rights
-   reserved. You may not use them to identify a product or service other than
-   Terras.
-
-2. Map data. src/assets/cityMatrix.*.js is derived from OpenStreetMap data,
-   (c) OpenStreetMap contributors, available under the Open Database License
-   (ODbL) 1.0: https://www.openstreetmap.org/copyright
