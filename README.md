@@ -4,7 +4,7 @@ Shared design tokens (colors, radii, fonts, status chip colors) and UI component
 
 Values mirror `terras-erp/frontend/app/globals.css` and `xpTheme.tsx` — that repo is the source of truth for design decisions; this package is a mirror kept in sync by hand. **Classic (XP) is the primary Terras brand** — the one to build new shared components against. `modern` (plain indigo default) and `blueprint` (drafting-blue alt theme, `.ui-style-modern` in terras-erp) exist for parity with that source repo but are secondary.
 
-Published as a private package on **GitHub Packages** (`npm.pkg.github.com`), scoped `@bryanadamg`.
+The repo is public: apps install it straight from its git tags with no token (terras-erp does). It is also published to **GitHub Packages** (`npm.pkg.github.com`, scoped `@bryanadamg`), which needs a token to install — terras-crm and terras-sku still use that route.
 
 Tokens live in `src/tokens/`; shared components (table shell, modal wrapper, buttons, badges/chips, etc.) go in `src/components/` as they're extracted from the consuming apps.
 
@@ -504,26 +504,26 @@ prefetch. They fire alongside the Sidebar's own hover paint, never instead of it
 
 ## Usage (consuming app)
 
-1. Add a scoped registry mapping + auth token in the consuming app's `.npmrc` (repo root, next to its `package.json` — commit this file, it has no secret in it):
+1. Add the dependency. Either:
 
-```
-@bryanadamg:registry=https://npm.pkg.github.com
-//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}
-```
+   **From the git repo (no token)** — what terras-erp uses:
 
-2. Set `NODE_AUTH_TOKEN` in the environment that runs `npm install` — local shell, CI secret, or Docker build arg. Token needs a GitHub PAT (classic) with `read:packages` + `repo` (private repo) scopes.
+   ```json
+   { "dependencies": { "@bryanadamg/terras-ui": "github:bryanadamg/terras-ui#semver:^1.7.0" } }
+   ```
 
-3. Add the dependency:
+   `#semver:` matches the repo's `v*` tags, so `npm update` picks up new 1.x releases once their tag is pushed. `npm install`/`npm update` need `git` (they list the tags); `npm ci` from the lockfile fetches the locked commit as an https tarball and does not, so a git-less image like `node:24-alpine` builds fine. No `.npmrc` needed.
 
-```json
-{
-  "dependencies": {
-    "@bryanadamg/terras-ui": "^1.0.0"
-  }
-}
-```
+   **From GitHub Packages (token)** — what terras-crm and terras-sku use. Add a scoped registry mapping in the app's `.npmrc` (next to its `package.json` — commit it, it holds no secret):
 
-4. Import both stylesheets, tokens first:
+   ```
+   @bryanadamg:registry=https://npm.pkg.github.com
+   //npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}
+   ```
+
+   set `NODE_AUTH_TOKEN` (a classic PAT with `read:packages`) wherever `npm install` runs — local shell, CI secret, Docker build secret — and depend on `"@bryanadamg/terras-ui": "^1.0.0"`. GitHub Packages requires the token even for a public package.
+
+2. Import both stylesheets, tokens first:
 
 ```ts
 import '@bryanadamg/terras-ui/css'     // custom properties
@@ -598,6 +598,8 @@ NODE_AUTH_TOKEN=<PAT with write:packages,repo> npm publish
 ```
 
 PAT needs `write:packages` + `repo` (private repo) scopes to publish.
+
+Pushing the tag is the release for apps on the git install; `npm publish` is the release for apps on GitHub Packages. Do both.
 
 From 1.0 the apps take `^1`, so every minor and patch reaches all three on their
 next install. Major: removing or renaming an export, entry point, prop or token,
