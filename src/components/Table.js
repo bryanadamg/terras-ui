@@ -8,9 +8,12 @@
 // exactly the drift this package exists to stop.
 //
 // The markup stays the caller's: <Table><thead>…</thead><tbody>…</tbody></Table>.
-// Classic tables are RULED (1px grid on every cell), not zebra-striped, and the
-// header is its own raised bevel that sticks to the top of the scrolling
-// `<Window.Body>` it lives in.
+// Classic tables are RULED (1px grid on every cell), and the header is its own
+// raised bevel that sticks to the top of the scrolling `<Window.Body>` it lives
+// in. `striped` and `dense` opt a table into erp's list-view look
+// (listViewTheme.tsx lvZebra / lvTh / lvTd); both are off by default, so an
+// existing table renders exactly as before. `resizable` adds draggable column
+// borders (useColumnWidths below).
 //
 // Per-cell opt-outs live in chrome.css: `terras-cell-wrap` (let text wrap) and
 // `terras-cell-flush` (drop the 4px/8px padding, e.g. for an embedded chip row).
@@ -128,10 +131,14 @@ function unpinCells(table) {
 }
 
 /**
- * @param {{ minWidth?: number|string, stickyCols?: number, style?: object, className?: string, children: React.ReactNode }} props
+ * @param {{ minWidth?: number|string, stickyCols?: number, dense?: boolean, striped?: boolean, resizable?: boolean, style?: object, className?: string, children: React.ReactNode }} props
  */
 function Table(props) {
-    const ref = React.useRef(null);
+    // Always called (hooks can't be conditional); only wired up when resizable.
+    const colw = useColumnWidths();
+    const base = Object.assign(props.minWidth ? { minWidth: props.minWidth } : {}, props.style);
+    const attrs = props.resizable ? colw.table(base) : { ref: colw.ref, style: base };
+    const ref = colw.ref;
     const stickyCols = props.stickyCols || 0;
 
     // Layout effect, not effect: the offsets are read from laid-out cells and
@@ -160,13 +167,190 @@ function Table(props) {
         };
     }, [stickyCols, props.children]);
 
+    attrs.className = 'terras-table'
+        + (props.dense ? ' terras-table-dense' : '')
+        + (props.striped ? ' terras-table-striped' : '')
+        + (props.className ? ' ' + props.className : '');
     return React.createElement(
         'table',
-        {
-            ref: ref,
-            className: 'terras-table' + (props.className ? ' ' + props.className : ''),
-            style: Object.assign(props.minWidth ? { minWidth: props.minWidth } : {}, props.style),
+        attrs,
+        props.resizable ? React.createElement('colgroup', null, colw.cols()) : null,
+        props.children,
+    );
+}
+
+// ── Column resizing ─────────────────────────────────────────────────────────
+// Mirrors erp listViewTheme.tsx (useColumnWidths / ResizableTable). Drag a
+// header cell's right border to size that column; double-click it to reset.
+//
+// Once frozen the table is exactly as wide as its columns add up to, and every
+// column is independent the way a spreadsheet behaves — dragging one moves
+// nothing else. Stretching to 100% instead spreads the surplus over every
+// column (a narrow Actions column grows and its buttons drift), and parking it
+// in a filler <col> leaves a strip of blank cells beside a per-td zebra.
+//
+// Widths are NOT persisted: a grid restored at px widths sized for another
+// window, sidebar state or UI scale comes back the wrong width for its pane.
+const COLW_MIN = 28;
+/** How close to a column border the pointer has to be, in px, to grab it. */
+const COLW_GRAB = 5;
+/** How far it then has to travel before the drag counts as a drag. */
+const COLW_DRAG_START = 3;
+
+/**
+ * @param {(number|string)[]} [defaults] only for a grid that hand-writes its
+ *   column widths — what the columns render as before the first drag.
+ */
+function useColumnWidths(defaults) {
+    const ref = React.useRef(null);
+    const widthsState = React.useState(null);
+    const widths = widthsState[0];
+    const setWidths = widthsState[1];
+    const nearState = React.useState(false);
+    const nearBorder = nearState[0];
+    const setNearBorder = nearState[1];
+    const drag = React.useRef(null);
+    /** Set by a drag, read by the click that follows it — see onClickCapture. */
+    const swallowClick = React.useRef(false);
+
+    const reset = function () { setWidths(null); };
+
+    // The header row the borders are measured from: the LAST one, so a band row
+    // over grouped columns doesn't block resizing the leaf columns under it.
+    // Null for a shape with no one-to-one border per column — a spanned leaf
+    // cell, or a cell above it reaching down with rowSpan.
+    const headerCells = function () {
+        const head = ref.current && ref.current.tHead;
+        const rows = head ? head.rows : null;
+        if (!rows || !rows.length) return null;
+        const cells = Array.prototype.slice.call(rows[rows.length - 1].cells);
+        if (!cells.length) return null;
+        for (let r = 0; r < rows.length; r++) {
+            const rc = rows[r].cells;
+            for (let c = 0; c < rc.length; c++) {
+                if (rc[c].rowSpan > 1) return null;
+            }
+        }
+        if (cells.some(function (c) { return c.colSpan > 1; })) return null;
+        if (defaults && cells.length !== defaults.length) return null;
+        return cells;
+    };
+
+    // Each column's width from where its RIGHT border sits rather than from the
+    // cell's own box, so neighbouring rects can't overlap and overshoot the
+    // table. Returned in LAYOUT px: a rect comes back in screen px, a <col>
+    // width is a CSS length the root zoom multiplies again. See ../scale.js.
+    const measure = function (cells) {
+        let prev = cells[0].getBoundingClientRect().left;
+        return cells.map(function (c) {
+            const right = c.getBoundingClientRect().right;
+            const w = scale.toLayoutPx(right - prev);
+            prev = right;
+            return w;
+        });
+    };
+
+    /** Index of the column whose right border is under the pointer, or -1. */
+    const borderAt = function (clientX, clientY) {
+        const cells = headerCells();
+        if (!cells) return -1;
+        const head = ref.current.tHead.getBoundingClientRect();
+        if (clientY < head.top || clientY > head.bottom) return -1;
+        return cells.findIndex(function (c) {
+            return Math.abs(clientX - c.getBoundingClientRect().right) <= COLW_GRAB;
+        });
+    };
+
+    const onPointerDown = function (e) {
+        const i = borderAt(e.clientX, e.clientY);
+        if (i < 0) return;
+        e.preventDefault();  // or the drag starts a text selection instead
+        drag.current = { i: i, x: e.clientX, base: widths || measure(headerCells()), moved: false };
+        ref.current.setPointerCapture(e.pointerId);
+    };
+
+    const onPointerMove = function (e) {
+        const d = drag.current;
+        if (!d) { setNearBorder(borderAt(e.clientX, e.clientY) >= 0); return; }
+        const dx = e.clientX - d.x;
+        // Below the threshold nothing is applied: a click's pixel of jitter
+        // would otherwise freeze the grid to px and visibly resettle it.
+        if (!d.moved && Math.abs(dx) < COLW_DRAG_START) return;
+        d.moved = true;
+        const next = d.base.slice();
+        next[d.i] = Math.max(COLW_MIN, Math.round(d.base[d.i] + scale.toLayoutPx(dx)));
+        setWidths(next);
+    };
+
+    const onPointerUp = function (e) {
+        if (!drag.current) return;
+        swallowClick.current = drag.current.moved;
+        drag.current = null;
+        try { ref.current.releasePointerCapture(e.pointerId); } catch (_) { /* already gone */ }
+    };
+
+    return {
+        ref: ref,
+        table: function (style) {
+            return {
+                ref: ref,
+                onPointerDown: onPointerDown,
+                onPointerMove: onPointerMove,
+                onPointerUp: onPointerUp,
+                onPointerCancel: onPointerUp,
+                // A click still follows the drag and would reach a SortableTh;
+                // capturing it at the table is the only place that sees it first.
+                onClickCapture: function (e) {
+                    if (!swallowClick.current) return;
+                    swallowClick.current = false;
+                    e.preventDefault();
+                    e.stopPropagation();
+                },
+                onDoubleClick: function (e) {
+                    if (borderAt(e.clientX, e.clientY) < 0) return;
+                    e.stopPropagation();
+                    reset();
+                },
+                style: Object.assign({}, style,
+                    // Only once frozen: `fixed` on a table that never declared
+                    // widths splits it into equal columns. minWidth 0 so the
+                    // caller's floor (sized for the default layout) can't stretch
+                    // a dragged-narrower grid back out.
+                    widths ? {
+                        tableLayout: 'fixed',
+                        width: widths.reduce(function (a, b) { return a + b; }, 0),
+                        minWidth: 0,
+                    } : null,
+                    nearBorder || drag.current ? { cursor: 'col-resize' } : null),
+            };
         },
+        cols: function () {
+            return (defaults || widths || []).map(function (d, i) {
+                return React.createElement('col', {
+                    key: i,
+                    style: { width: widths ? widths[i] : (defaults ? d : undefined) },
+                });
+            });
+        },
+        reset: reset,
+    };
+}
+
+/**
+ * A plain `<table>` whose columns the user can drag — for a grid that paints
+ * its own cells rather than taking `.terras-table` (that one takes
+ * `<Table resizable>`). Swap the tag, keep the style and children; it owns the
+ * `<colgroup>`, so a grid that hand-writes one passes those widths as
+ * `defaults` and deletes it.
+ */
+function ResizableTable(props) {
+    const colw = useColumnWidths(props.defaults);
+    const attrs = colw.table(props.style);
+    attrs.className = props.className;
+    return React.createElement(
+        'table',
+        attrs,
+        React.createElement('colgroup', null, colw.cols()),
         props.children,
     );
 }
@@ -561,6 +745,8 @@ Table.SortMark = SortMark;
 module.exports = Table;
 module.exports.Table = Table;
 module.exports.EmptyRow = EmptyRow;
+module.exports.useColumnWidths = useColumnWidths;
+module.exports.ResizableTable = ResizableTable;
 module.exports.SortableTh = SortableTh;
 module.exports.SortMark = SortMark;
 module.exports.nextSortState = nextSortState;
