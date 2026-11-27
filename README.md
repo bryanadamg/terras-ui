@@ -20,7 +20,7 @@ Plain `React.createElement` (no JSX) so no build step is required to consume the
 | `components/Modal` | The page's chrome one layer up — under classic, `Window`'s flat accent title bar framed like the page card (one 1px edge, soft shadow) on the Sapphire Frost near-white: backdrop, title bar with close box, footer actions. `modeless` drops the backdrop and makes the panel draggable |
 | `components/ConfirmModal` | Confirm/cancel dialog — a `Modal` + `Button` composition, `tone` picks the confirm button (`warning` maps to the plain face) |
 | `components/FormSection` | Field group under a solid header bar — the accent under classic, matching the sidebar's section bands |
-| `components/Table` | Ruled classic table (`.EmptyRow` for the empty state — with an optional `icon` slot, `stickyCols` to freeze leading columns, `.SortableTh` + `useSortable` / `useServerSort` for sortable headers, `useRowSelection` + `.SelectAllCell` / `.RowCheckboxCell` for bulk-select, `.ExpanderCell` + `.ExpandedRowPanel` + `rowStateBg` for rows that open a detail panel) |
+| `components/Table` | Ruled classic table (`.EmptyRow` for the empty state — with an optional `icon` slot, `stickyCols` to freeze leading columns, `dense` / `striped` for erp's list-view density and zebra rows, `resizable` + `useColumnWidths` / `ResizableTable` for draggable column borders, `.SortableTh` + `useSortable` / `useServerSort` for sortable headers, `useRowSelection` + `.SelectAllCell` / `.RowCheckboxCell` for bulk-select, `.ExpanderCell` + `.ExpandedRowPanel` + `rowStateBg` for rows that open a detail panel) |
 | `components/Skeleton` | Loading stand-ins that carry the shape of what's coming — `TableSkeleton` rows (+ `useTableSkeletonMetrics`), `ListSkeleton`, `PanelSkeleton`, `CardGridSkeleton`, `TableBlockSkeleton`, and the `Loading` marquee for a wait with no shape |
 | `components/DetailGrid` | Read-only record fields as a `<dl>` — `.Detail` cells, stacked across `columns` or `inline` (label left, value right); empty values hold their place with a muted — |
 | `components/EmptyState` | "Nothing here" for a pane that isn't a table body — recessed well, optional glyph slot, italic message, room for an action under it |
@@ -74,6 +74,26 @@ scrolling half no longer has. Offsets are measured from the laid-out cells, so
 the frozen columns may be content-sized; a row whose cell spans across the
 boundary, such as a `colSpan` group header, stays unfrozen rather than being
 pinned wider than the frozen region.
+
+`dense` and `striped` give a `Table` erp's list-view look (`listViewTheme.tsx`
+`lvTd` / `lvZebra`): 11px cells padded `4px 6px` under a `2px 6px` header, and
+every other body row on `--terras-row-stripe`. Both are off by default — a
+plain classic table stays ruled, not striped. The stripe sits on the row, so a
+row that paints its own state ground (`rowStateBg`) keeps it, and hover and
+selection still paint over it. It counts data rows only: give a section
+heading or an expanded row's detail `<tr>` `className="terras-row-nostripe"`
+and the rows after it keep their parity.
+
+`resizable` lets the user drag a header cell's right border to size that column
+(double-click the border to reset). The table then becomes exactly as wide as
+its columns, so dragging one moves nothing else — past the pane, the pane
+scrolls. Widths aren't persisted: a grid restored at px widths from another
+window size or UI scale comes back the wrong width for its pane. Borders are
+taken from the last header row, so a band row over grouped columns is fine; a
+header with `rowSpan` cells isn't resizable. A grid that paints its own cells
+instead of `.terras-table` uses `ResizableTable` (a plain `<table>`, `defaults`
+for widths it used to hand-write in a `<colgroup>`) or `useColumnWidths`
+directly.
 
 Sorting is a header cell plus a hook, and the hook decides where the sort
 happens. `useSortable(rows, { code: r => r.code, qty: r => r.qty })` reorders in

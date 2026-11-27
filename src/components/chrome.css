@@ -331,6 +331,23 @@
   color: var(--terras-win-text, #000000);
   white-space: nowrap;
 }
+/* <Table dense> — erp's list-view density (listViewTheme.tsx lvTh / lvTd):
+   11px body, 6px sides, a 2px header. Same specificity as the rules above, so
+   order is what wins; the per-cell opt-outs below still beat it. */
+.terras-table-dense th { padding: 2px 6px; }
+.terras-table-dense td { padding: 4px 6px; font-size: var(--terras-fs-base, 11px); }
+/* <Table striped> — erp's lvZebra. On the ROW, not the cell, so a row that
+   paints its own inline background (rowStateBg) still shows it, and the
+   hover / selected cell rules below still paint over the stripe. Rows tagged
+   `terras-row-nostripe` (a section heading, an expanded row's detail panel)
+   are skipped by the count, so the stripe doesn't flip parity after each one.
+   The ground is also handed down as a custom property, for the frozen cells
+   further down: they need an opaque face, and a plain one would cut a white
+   notch out of every striped row. */
+.terras-table-striped > tbody > tr:nth-child(even of :not(.terras-row-nostripe)) {
+  --terras-row-ground: var(--terras-row-stripe, #f9f8f4);
+  background: var(--terras-row-ground);
+}
 .terras-table tbody tr:hover > td { background: var(--terras-row-hover, #e8f0fc); }
 .terras-table tbody tr[aria-selected='true'] > td {
   background: var(--terras-row-selected, #316ac5);
@@ -362,7 +379,7 @@
    BODY cells only. A `th` already has an opaque face — the header gradient
    from the rule above — and repainting the frozen ones in the body's flat
    white is what made the header read as two tables joined at the freeze. */
-.terras-table td.terras-sticky-col { background: var(--terras-table-bg, #ffffff); }
+.terras-table td.terras-sticky-col { background: var(--terras-row-ground, var(--terras-table-bg, #ffffff)); }
 /* The freeze boundary reads darker than the interior rules — the header's own
    line, carried down through the body — so the eye can see where the frozen
    block ends and the scrolling columns begin. */

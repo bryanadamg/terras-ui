@@ -1,4 +1,4 @@
-import type { ReactElement, CSSProperties, ReactNode, ThHTMLAttributes } from 'react';
+import type { ReactElement, CSSProperties, ReactNode, ThHTMLAttributes, TableHTMLAttributes, RefObject } from 'react';
 
 export interface TableProps {
   minWidth?: number | string;
@@ -12,6 +12,17 @@ export interface TableProps {
    * left unfrozen rather than pinned too wide.
    */
   stickyCols?: number;
+  /** erp's list-view density: 11px body text, `4px 6px` cells, a `2px 6px` header. */
+  dense?: boolean;
+  /**
+   * Shade every other body row (`--terras-row-stripe`). Counts only data rows:
+   * tag a section heading or an expanded row's detail `<tr>` with
+   * `className="terras-row-nostripe"` and it is skipped, so the stripe keeps
+   * its parity across it.
+   */
+  striped?: boolean;
+  /** Drag a header cell's right border to size that column; double-click it to reset. Widths aren't persisted. */
+  resizable?: boolean;
   style?: CSSProperties;
   className?: string;
   children: ReactNode;
@@ -25,6 +36,35 @@ export interface EmptyRowProps {
 }
 
 declare function EmptyRow(props: EmptyRowProps): ReactElement;
+
+export interface ColumnWidths {
+  /** Spread onto the `<table>`, passing the style it would have had. */
+  table: (style?: CSSProperties) => TableHTMLAttributes<HTMLTableElement> & { ref: RefObject<HTMLTableElement | null> };
+  /** The `<col>` elements. A table with no `<colgroup>` needs one wrapping this. */
+  cols: () => ReactNode;
+  /** Back to the table's own layout; also what double-clicking a border does. */
+  reset: () => void;
+}
+
+/**
+ * Draggable column borders for a `<table>` you render yourself. `defaults` is
+ * only needed by a grid that hand-writes its column widths — what the columns
+ * render as before the first drag.
+ */
+export declare function useColumnWidths(defaults?: (number | string)[]): ColumnWidths;
+
+export interface ResizableTableProps {
+  defaults?: (number | string)[];
+  style?: CSSProperties;
+  className?: string;
+  children?: ReactNode;
+}
+
+/**
+ * A plain `<table>` whose columns the user can drag, for a grid that paints its
+ * own cells. It owns the `<colgroup>`. A `.terras-table` takes `<Table resizable>`.
+ */
+export declare function ResizableTable(props: ResizableTableProps): ReactElement;
 
 /** Current sort: which column, ascending (1) or descending (-1); null = unsorted. */
 export type SortState = { key: string; dir: 1 | -1 } | null;
